@@ -463,6 +463,18 @@
         color: #ffb454;
       }
 
+      /* "Building content" placeholder: looks like a menu item but isn't clickable */
+      .chip-menu a.chip-menu-note,
+      .chip-menu a.chip-menu-note:hover,
+      :root[data-theme="light"] .chip-menu a.chip-menu-note,
+      :root[data-theme="light"] .chip-menu a.chip-menu-note:hover {
+        background: none;
+        color: inherit;
+        opacity: 0.7;
+        font-style: italic;
+        cursor: default;
+      }
+
       .intro-center {
         display: flex;
         flex-direction: column;
@@ -1539,9 +1551,9 @@
 
       <header class="tag-row" aria-label="Skills banner">
         <div class="tag-row-inner">
-          <a href="#" class="chip">Linux</a>
+          <a href="https://github.com/MadireddyManojKumar/Linux" class="chip" target="_blank" rel="noopener noreferrer">Linux</a>
           <a href="#" class="chip">Shell Scripting</a>
-          <a href="#" class="chip">Ansible</a>
+          <a href="https://github.com/MadireddyManojKumar/roboshop_ansible_v2" class="chip" target="_blank" rel="noopener noreferrer">Ansible</a>
           <div class="chip-wrap">
             <a href="#" class="chip chip-trigger" aria-expanded="false">Terraform</a>
             <div class="chip-menu" aria-label="Terraform related topics">
@@ -1549,12 +1561,37 @@
               <a href="#projects">Roboshop using terraform</a>
             </div>
           </div>
-          <a href="#" class="chip">AWS</a>
+          <div class="chip-wrap">
+            <a href="#" class="chip chip-trigger" aria-expanded="false">AWS</a>
+            <div class="chip-menu" aria-label="AWS related topics">
+              <a class="chip-menu-note" aria-disabled="true">Building content, please wait…</a>
+            </div>
+          </div>
           <a href="#" class="chip">RoboShop</a>
-          <a href="#" class="chip">Docker</a>
-          <a href="#" class="chip">Kubernetes</a>
-          <a href="#" class="chip">SRE</a>
-          <a href="#" class="chip">Monitoring &amp; Observability</a>
+          <div class="chip-wrap">
+            <a href="#" class="chip chip-trigger" aria-expanded="false">Docker</a>
+            <div class="chip-menu" aria-label="Docker related topics">
+              <a class="chip-menu-note" aria-disabled="true">Building content, please wait…</a>
+            </div>
+          </div>
+          <div class="chip-wrap">
+            <a href="#" class="chip chip-trigger" aria-expanded="false">Kubernetes</a>
+            <div class="chip-menu" aria-label="Kubernetes related topics">
+              <a class="chip-menu-note" aria-disabled="true">Building content, please wait…</a>
+            </div>
+          </div>
+          <div class="chip-wrap">
+            <a href="#" class="chip chip-trigger" aria-expanded="false">SRE</a>
+            <div class="chip-menu" aria-label="SRE related topics">
+              <a class="chip-menu-note" aria-disabled="true">Building content, please wait…</a>
+            </div>
+          </div>
+          <div class="chip-wrap">
+            <a href="#" class="chip chip-trigger" aria-expanded="false">Monitoring &amp; Observability</a>
+            <div class="chip-menu" aria-label="Monitoring and Observability related topics">
+              <a class="chip-menu-note" aria-disabled="true">Building content, please wait…</a>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -1650,24 +1687,32 @@
     </div>
 
     <script>
-      const terraformWrap = document.querySelector('.chip-wrap');
-      const terraformTrigger = document.querySelector('.chip-trigger');
+      const chipWraps = document.querySelectorAll('.chip-wrap');
 
-      if (terraformWrap && terraformTrigger) {
-        terraformTrigger.addEventListener('click', function (event) {
-          event.preventDefault();
-          const isOpen = terraformWrap.classList.contains('open');
-          terraformWrap.classList.toggle('open', !isOpen);
-          terraformTrigger.setAttribute('aria-expanded', String(!isOpen));
-        });
-
-        document.addEventListener('click', function (event) {
-          if (!terraformWrap.contains(event.target)) {
-            terraformWrap.classList.remove('open');
-            terraformTrigger.setAttribute('aria-expanded', 'false');
-          }
+      function closeAllChipMenus(except) {
+        chipWraps.forEach(function (wrap) {
+          if (wrap === except) return;
+          wrap.classList.remove('open');
+          const trig = wrap.querySelector('.chip-trigger');
+          if (trig) trig.setAttribute('aria-expanded', 'false');
         });
       }
+
+      chipWraps.forEach(function (wrap) {
+        const trigger = wrap.querySelector('.chip-trigger');
+        if (!trigger) return;
+        trigger.addEventListener('click', function (event) {
+          event.preventDefault();
+          const isOpen = wrap.classList.contains('open');
+          closeAllChipMenus(wrap);              // only one drop-down open at a time
+          wrap.classList.toggle('open', !isOpen);
+          trigger.setAttribute('aria-expanded', String(!isOpen));
+        });
+      });
+
+      document.addEventListener('click', function (event) {
+        if (!event.target.closest('.chip-wrap')) closeAllChipMenus(null);
+      });
 
       const introSection = document.querySelector('.intro-center');
       const experienceSection = document.getElementById('experience');
