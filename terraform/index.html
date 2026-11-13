@@ -508,6 +508,36 @@
         box-shadow: none;
       }
 
+      /* ================= Light theme: quiet background, content stands out ================= */
+      /* Mirrors the dark theme: muted page behind, solid raised cards for the content. */
+      :root[data-theme="light"] {
+        --paper-bg: #eceef1;          /* soft neutral grey, no blue gradient */
+        --paper-card: #ffffff;        /* solid white content cards */
+        --paper-line: rgba(28, 45, 56, 0.10);
+        --paper-shadow: 0 1px 2px rgba(20, 30, 40, 0.04), 0 8px 24px rgba(20, 30, 40, 0.06);
+      }
+      :root[data-theme="light"] body { background: var(--paper-bg); }
+      :root[data-theme="light"] .topbar {
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: none;
+      }
+      :root[data-theme="light"] .topbar::after { background: var(--paper-line); }
+      :root[data-theme="light"] .sidebar,
+      :root[data-theme="light"] .article {
+        background: var(--paper-card);
+        backdrop-filter: none;
+        border: 1px solid var(--paper-line);
+        box-shadow: var(--paper-shadow);
+      }
+      :root[data-theme="light"] .concept h1 { color: #14212b; }
+      :root[data-theme="light"] .article p,
+      :root[data-theme="light"] .article li { color: #24323c; }
+      :root[data-theme="light"] pre {
+        background: #f5f6f8;
+        border: 1px solid var(--paper-line);
+        color: #1c2d38;
+      }
+
       /* ================= Indent content under headings (one "tab") ================= */
       .concept { --tab: 2em; }
       .concept > .lead,                                   /* intro line under the page title */
@@ -516,6 +546,21 @@
       }
       @media (max-width: 680px) {
         .concept { --tab: 1em; }                          /* smaller indent on phones */
+      }
+
+      /* ================= Phone layout ================= */
+      @media (max-width: 680px) {
+        .topbar { padding: 12px 16px; }
+        .topbar-inner { width: 100%; align-items: center; }
+        .brand { font-size: 1.25rem; }
+        .topbar-actions { width: 100%; justify-content: center; gap: 14px; }
+        .top-nav { gap: 16px; flex-wrap: wrap; justify-content: center; }   /* desktop rule set 30px */
+        .concepts-layout { padding-top: 20px; gap: 16px; }
+        .sidebar { padding: 14px 12px; border-radius: 16px; }
+        .article { border-radius: 16px; }
+        .concept h1 { font-size: 1.6rem; }
+        .article h2 { font-size: 1.3rem; }
+        pre { font-size: 0.8rem; padding: 14px 12px; }   /* long code lines scroll inside the box */
       }
     </style>
   </head>
@@ -754,11 +799,23 @@ var.instance_type
     </div>
 
     <script>
-      // Shows the concept matching the URL hash (e.g. terraform.html#loops).
-      // Falls back to the first concept when there's no hash or it doesn't match.
-      function showConcept() {
+      // Shows one concept at a time and keeps the address bar clean:
+      //   /terraform/index.html#variables  ->  /terraform/variables
+      // Clean URLs only work when the site is served over http(s); when the file is
+      // opened straight from disk (file://) it falls back to #hash links.
+      const CLEAN_URLS = location.protocol === 'http:' || location.protocol === 'https:';
+      const BASE = location.pathname.replace(/\/terraform\/.*$/, '/terraform/');
+
+      // Which concept does the current address point at?
+      function idFromUrl() {
+        if (location.hash) return location.hash.slice(1);             // old #variables links still work
+        if (!CLEAN_URLS) return '';
+        const last = location.pathname.replace(/\/+$/, '').split('/').pop();
+        return last === 'terraform' || last === 'index.html' ? '' : last;  // /terraform/loops -> "loops"
+      }
+
+      function showConcept(id) {
         const sections = document.querySelectorAll('.concept');
-        const id = location.hash.slice(1);
         const target = document.getElementById(id) || sections[0];
 
         sections.forEach((s) => s.classList.toggle('active', s === target));
@@ -766,10 +823,27 @@ var.instance_type
           link.classList.toggle('active', link.getAttribute('href') === '#' + target.id);
         });
         window.scrollTo(0, 0);
+        return target.id;
       }
 
-      window.addEventListener('hashchange', showConcept);
-      showConcept();
+      // Sidebar clicks: change the address to /terraform/<id> without reloading.
+      document.querySelectorAll('.concept-link').forEach((link) => {
+        link.addEventListener('click', (e) => {
+          if (!CLEAN_URLS) return;                       // let the #hash link work normally
+          e.preventDefault();
+          const id = showConcept(link.getAttribute('href').slice(1));
+          history.pushState(null, '', BASE + id);
+        });
+      });
+
+      // Back / forward buttons, and #hash links when opened from disk.
+      window.addEventListener('popstate', () => showConcept(idFromUrl()));
+      window.addEventListener('hashchange', () => showConcept(idFromUrl()));
+
+      // First load: show the right concept, then tidy the address
+      // (e.g. /terraform/index.html or /terraform/index.html#loops -> /terraform/loops).
+      const firstId = showConcept(idFromUrl());
+      if (CLEAN_URLS) history.replaceState(null, '', BASE + firstId);
     </script>
     <script>
       // Light/dark theme toggle. The choice is saved, so every page uses it.

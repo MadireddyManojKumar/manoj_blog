@@ -1302,6 +1302,77 @@
       }
       :root[data-theme="light"] .experience-card .meta { color: var(--gold-2); }
       :root[data-theme="light"] .intro-center .eyebrow-line { color: var(--gold-2); }
+
+      /* =====================================================================
+         PHONE & TABLET LAYOUT
+         Kept last so it overrides the desktop rules above.
+         ===================================================================== */
+
+      /* Never let anything push the page sideways */
+      body { overflow-x: clip; }   /* "clip" (not "hidden") keeps the sticky top bar working */
+
+      /* ---------- Tablets (≤ 860px) ---------- */
+      @media (max-width: 860px) {
+        .page { width: 100%; }                         /* use the full screen width */
+
+        /* Skills banner: wrap onto several centred lines instead of running off-screen */
+        .tag-row-inner {
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 4px 18px;
+          width: 100%;
+        }
+
+        /* Experience: 2 cards per row */
+        .experience-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+
+      /* ---------- Phones (≤ 560px) ---------- */
+      @media (max-width: 560px) {
+        .page { padding-inline: 16px; padding-bottom: 48px; }
+
+        /* Top bar: name on the first line, menu + theme button on the second */
+        .topbar { padding: 12px 16px 12px; }
+        .topbar-inner {
+          width: 100%;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+        }
+        .brand { font-size: 1.25rem; }
+        .topbar-actions { width: 100%; justify-content: center; gap: 14px; }
+        .top-nav { gap: 18px; justify-content: center; }
+        .top-nav a { font-size: 0.68rem; letter-spacing: 0.12em; }
+
+        /* Skills banner: smaller text, tighter spacing */
+        .tag-row { padding: 8px 12px; }
+        .tag-row-inner { gap: 2px 14px; }
+        .chip { font-size: 0.78rem; padding: 6px 2px; }
+        .chip-menu { left: 50%; transform: translateX(-50%); }   /* keep drop-down on screen */
+
+        /* Hero */
+        .intro-center {
+          min-height: auto;
+          padding: 48px 0 24px;
+        }
+        .intro-center .eyebrow-line {
+          gap: 8px;
+          font-size: 0.62rem;
+          letter-spacing: 0.2em;
+          margin-bottom: 18px;
+        }
+        .intro-center .eyebrow-line::before,
+        .intro-center .eyebrow-line::after { width: 22px; }
+        .intro-center .hello { font-size: clamp(2.5rem, 12vw, 3.4rem); line-height: 1.05; }
+        .intro-center .tagline { font-size: 0.98rem; margin-top: 16px; padding-inline: 8px; }
+        .social-links { gap: 20px; margin-top: 22px; }
+
+        /* Experience: one card per row, and no sticky pinning on small screens */
+        .experience-section { padding: 20px 0 8px; margin-top: 16px; }
+        .experience-section.stick-top { position: relative; top: 0; }
+        .experience-grid { grid-template-columns: 1fr; gap: 14px; }
+        .experience-card h3 { font-size: 1.15rem; }
+      }
     </style>
   </head>
   <body>
