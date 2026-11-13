@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terraform Concepts | Manoj Kumar Madireddy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <script>
+      // Apply the saved theme before the page draws, so it doesn't flash dark first.
+      try {
+        if (localStorage.getItem('theme') === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch (e) {}
+    </script>
+    <style>
+      /* Same colour tokens as ../index.html */
+      :root {
+        --bg: #101417;
+        --bg-soft: #181f24;
+        --panel: rgba(18, 24, 28, 0.78);
+        --panel-strong: rgba(22, 28, 33, 0.84);
+        --text: #f4f5f7;
+        --muted: #bcc8cf;
+        --primary: #ffffff;
+        --secondary: #9aa8b1;
+        --accent: #ffd166;
+        --accent-soft: rgba(255, 209, 102, 0.12);
+        --brand: #ffb454;
+        --line: rgba(255, 255, 255, 0.08);
+        --shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      * { box-sizing: border-box; }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at center, rgba(255, 209, 102, 0.07), transparent 30%),
+          linear-gradient(180deg, #0a0f12 0%, #10161b 35%, #121b20 100%);
+        color: var(--text);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.7;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      /* Background image, same as the home page */
+      .computer-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(180deg, rgba(8, 12, 16, 0.72), rgba(8, 12, 16, 0.84)),
+          url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+        filter: saturate(1.1) contrast(1.02) brightness(0.42);
+      }
+
+      a { color: inherit; text-decoration: none; }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        width: 84%;
+        max-width: 1380px;
+        margin: 0 auto;
+        padding: 0 28px 80px;
+        background: rgba(15, 20, 24, 0.34);
+        min-height: 100vh;
+      }
+
+      /* ---------- Top bar (matches home page) ---------- */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        padding: 18px 20px 20px;
+        background: rgba(17, 22, 25, 0.82);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(10px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        width: min(1380px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.38rem;
+        font-size: clamp(1.12rem, 1vw + 0.78rem, 1.92rem);
+        font-style: italic;
+        font-family: Georgia, "Times New Roman", serif;
+        line-height: 1;
+      }
+
+      .brand-name { color: var(--brand); letter-spacing: -0.05em; }
+      .brand-last { color: #f4f7fb; letter-spacing: 0.01em; }
+
+      .top-nav {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .top-nav a {
+        color: rgba(244, 245, 247, 0.8);
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-style: italic;
+        font-family: Georgia, "Times New Roman", serif;
+        transition: color 0.2s ease;
+      }
+
+      .top-nav a:hover { color: var(--brand); }
+
+      /* ---------- Concepts layout: sidebar + content ---------- */
+      .concepts-layout {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        gap: 28px;
+        align-items: start;
+        padding-top: 40px;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 100px;
+        background: var(--panel-strong);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 22px 16px;
+        backdrop-filter: blur(8px);
+      }
+
+      .sidebar h2 {
+        margin: 0 0 12px 10px;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--secondary);
+      }
+
+      .concept-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .concept-link {
+        display: block;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-weight: 600;
+        color: var(--muted);
+        transition: background 0.2s ease, color 0.2s ease;
+      }
+
+      /* Same highlight as the Terraform drop-down on the home page */
+      .concept-link:hover,
+      .concept-link.active {
+        background: rgba(255, 180, 84, 0.14);
+        color: var(--brand);
+      }
+
+      .concept { display: none; }
+      .concept.active { display: block; }
+
+      .concept h1 {
+        margin: 0 0 18px;
+        font-size: clamp(1.6rem, 1.2vw + 1.1rem, 2.1rem);
+        line-height: 1.25;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+
+      .lead {
+        color: #d5e7f0;
+        font-size: 1rem;
+        margin: 0 0 22px;
+      }
+
+      .placeholder {
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      /* ---------- Article content ---------- */
+      .article {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 28px 28px 36px;
+        backdrop-filter: blur(8px);
+      }
+
+      .article h2 {
+        margin-top: 28px;
+        margin-bottom: 10px;
+        font-size: 1.3rem;
+        line-height: 1.35;
+        letter-spacing: -0.01em;
+        color: var(--accent);
+      }
+
+      .article h3 {
+        margin-top: 24px;
+        margin-bottom: 8px;
+        font-size: 1.05rem;
+      }
+
+      .article p,
+      .article li {
+        color: var(--text);
+        font-size: 1.01rem;
+      }
+
+      .article strong { color: inherit; }  /* bold only, no colour: only headings are highlighted */
+
+      .article ul,
+      .article ol { padding-left: 22px; }
+
+      code, pre {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      }
+
+      pre {
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 18px 16px;
+        overflow-x: auto;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #d5e7f0;
+      }
+
+      /* Inline code (e.g. TF_VAR_, terraform.tfvars): monospace only, no highlight */
+      code {
+        background: none;
+        color: inherit;
+        padding: 0;
+        font-size: 0.95em;
+      }
+
+      pre code {
+        background: none;
+        color: inherit;
+        padding: 0;
+      }
+
+      .article hr {
+        border: 0;
+        border-top: 1px solid var(--line);
+        margin: 26px 0;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-top: 18px;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .back-link:hover { color: var(--brand); }
+
+      @media (max-width: 900px) {
+        .concepts-layout { grid-template-columns: 1fr; }
+        .sidebar { position: static; }
+        .concept-list { flex-direction: row; flex-wrap: wrap; }
+      }
+
+      @media (max-width: 680px) {
+        .page { width: 100%; padding-inline: 16px; }
+        .topbar-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .top-nav { gap: 14px; }
+        .article { padding: 20px 18px 24px; }
+      }
+
+      /* ---------- Theme toggle button ---------- */
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--text);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: color 0.2s ease, border-color 0.2s ease;
+      }
+
+      .theme-toggle:hover { color: var(--brand); border-color: var(--brand); }
+      .theme-toggle:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+      /* ---------- Light (white) theme ---------- */
+      :root[data-theme="light"] {
+        --bg: #dfeaf3;
+        --bg-soft: #edf3f8;
+        --panel: rgba(255, 255, 255, 0.72);
+        --panel-strong: rgba(255, 255, 255, 0.85);
+        --text: #1c2d38;
+        --muted: #5d7382;
+        --primary: #1c2d38;
+        --secondary: #647f8f;
+        --accent: #a86500;
+        --accent-soft: rgba(168, 101, 0, 0.1);
+        --brand: #c46a00;
+        --line: rgba(28, 45, 56, 0.12);
+        --shadow: 0 18px 38px rgba(32, 52, 64, 0.08);
+      }
+
+      :root[data-theme="light"] body {
+        background:
+          radial-gradient(circle at top left, rgba(108, 166, 182, 0.18), transparent 24%),
+          radial-gradient(circle at bottom right, rgba(147, 183, 201, 0.16), transparent 28%),
+          linear-gradient(135deg, #dfeaf3 0%, #d7e3ee 34%, #c9dfe9 100%);
+      }
+
+      :root[data-theme="light"] .computer-bg { display: none; }
+      :root[data-theme="light"] .page { background: transparent; }
+      :root[data-theme="light"] .topbar {
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 0 0 1px var(--line);
+      }
+      :root[data-theme="light"] .brand-name { color: var(--brand); }
+      :root[data-theme="light"] .brand-last { color: var(--text); }
+      :root[data-theme="light"] .top-nav a { color: var(--muted); }
+      :root[data-theme="light"] .top-nav a:hover { color: var(--brand); }
+
+      /* Light theme: concept page content */
+      :root[data-theme="light"] .concept-link:hover,
+      :root[data-theme="light"] .concept-link.active {
+        background: var(--accent-soft);
+        color: var(--brand);
+      }
+      :root[data-theme="light"] .lead { color: var(--muted); }
+      :root[data-theme="light"] pre {
+        background: rgba(28, 45, 56, 0.05);
+        color: var(--text);
+      }
+      :root[data-theme="light"] pre code {
+        background: none;
+        color: inherit;
+      }
+
+      /* ================= Premium polish: shared header ================= */
+      :root {
+        --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+        --font-body: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        --gold-1: #f7dc9c;
+        --gold-2: #d29a3c;
+        --ivory: #f5f1ec;
+        --hairline: rgba(255, 209, 102, 0.28);
+        --glass: rgba(16, 21, 26, 0.55);
+      }
+
+      :root[data-theme="light"] {
+        --gold-1: #b8862f;
+        --gold-2: #7d500e;
+        --ivory: #1c2d38;
+        --hairline: rgba(168, 101, 0, 0.25);
+        --glass: rgba(255, 255, 255, 0.6);
+      }
+
+      body {
+        font-family: var(--font-body);
+        font-weight: 400;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      ::selection { background: rgba(255, 209, 102, 0.3); }
+
+      .topbar { position: sticky; }
+
+      /* fine gold hairline under the top bar */
+      .topbar::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--hairline) 20%, var(--hairline) 80%, transparent);
+      }
+
+      .brand {
+        font-family: var(--font-display);
+        font-size: clamp(1.35rem, 1vw + 1rem, 2.1rem);
+        font-weight: 600;
+        gap: 0.32rem;
+      }
+
+      .brand-name,
+      .brand-last {
+        font-family: var(--font-display);
+        font-weight: 600;
+        letter-spacing: 0.01em;
+      }
+
+      .brand-name {
+        background: linear-gradient(120deg, var(--gold-1), var(--gold-2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      :root[data-theme="light"] .brand-name { color: transparent; }
+
+      .top-nav { gap: 30px; }
+
+      .top-nav a {
+        position: relative;
+        font-family: var(--font-body);
+        font-style: normal;
+        font-weight: 500;
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+        padding: 4px 0;
+      }
+
+      /* gold underline that draws in on hover */
+      .top-nav a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+      }
+
+      .top-nav a:hover::after { transform: scaleX(1); }
+
+      .theme-toggle {
+        border-color: var(--hairline);
+        color: var(--gold-1);
+        backdrop-filter: blur(6px);
+      }
+
+      .theme-toggle:hover {
+        color: var(--gold-2);
+        border-color: var(--gold-2);
+      }
+
+      /* ================= Premium polish: concepts page ================= */
+      .page { background: transparent; }  /* one even background edge to edge */
+      .concept h1 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; font-size: clamp(1.9rem, 1.4vw + 1.3rem, 2.5rem); }
+      .article h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.55rem; letter-spacing: 0; }
+      .article p, .article li { font-weight: 400; }
+      .lead { font-weight: 300; }
+      .sidebar, .article { background: var(--glass); backdrop-filter: blur(12px); }
+      .sidebar h2 { font-family: var(--font-body); font-weight: 600; letter-spacing: 0.24em; font-size: 0.7rem; color: var(--gold-1); }
+      :root[data-theme="light"] .sidebar h2 { color: var(--gold-2); }
+      .concept-link { font-family: var(--font-body); font-weight: 500; font-size: 0.92rem; }
+    </style>
+  </head>
+  <body>
+    <div class="computer-bg" aria-hidden="true"></div>
+
+    <div class="page">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <a href="../index.html" class="brand">
+            <span class="brand-name">Manoj Kumar</span>
+            <span class="brand-last">Madireddy</span>
+          </a>
+
+          <div class="topbar-actions">
+            <nav class="top-nav" aria-label="Main navigation">
+              <a href="../index.html">Home</a>
+              <a href="../index.html#about">About</a>
+              <a href="../index.html#resume">Resume</a>
+              <a href="../index.html#projects">Projects</a>
+              <a href="../index.html#contact">Contact</a>
+            </nav>
+            <button type="button" class="theme-toggle" aria-label="Switch to light theme">
+              <span class="theme-icon" aria-hidden="true">☀</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div class="concepts-layout">
+        <!-- Left side: list of concepts. To add a concept, add a link here
+             and a matching <section class="concept" id="..."> below. -->
+        <aside class="sidebar" aria-label="Terraform concepts">
+          <h2>Terraform Concepts</h2>
+          <ul class="concept-list">
+            <li><a href="#variables" class="concept-link">Variables</a></li>
+            <li><a href="#loops" class="concept-link">Loops</a></li>
+            <li><a href="#datasource" class="concept-link">Data Source</a></li>
+            <li><a href="#terraform-state" class="concept-link">Terraform State</a></li>
+          </ul>
+        </aside>
+
+        <main class="content-area">
+      <!-- ===================== VARIABLES ===================== -->
+      <section class="concept" id="variables">
+        <h1>Different Ways of Setting Variables in Terraform</h1>
+        <p class="lead">
+          There are 6 ways to give values to variables in Terraform.
+        </p>
+
+        <article class="article">
+          <ol>
+            <li>Default values</li>
+            <li>terraform.tfvars or *.tfvars</li>
+            <li>Environment variables</li>
+            <li>Command line</li>
+            <li>Prompt</li>
+            <li>.auto.tfvars or .auto.tfvars.json</li>
+          </ol>
+
+          <hr />
+
+          <h2>1. Default values</h2>
+          <p>
+            Create a file called <code>variables.tf</code> and define all the commonly used variables there.
+          </p>
+
+          <pre><code>variable "aws_region" {
+  description = "The AWS region to deploy resources into"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "instance_type" {
+  description = "EC2 instance type"
+  type        = string
+  default     = "t3.micro"
+}</code></pre>
+
+          <p>
+            You can use these variables in <code>main.tf</code> (or any other <code>.tf</code> file) with
+            <code>var.&lt;variable_name&gt;</code>.
+          </p>
+
+          <pre><code># main.tf
+resource "aws_instance" "web" {
+  ami           = "ami-0abcdef1234567890"
+  instance_type = var.instance_type
+}</code></pre>
+
+          <p>
+            Default values get committed to Git with the code, so don't put any sensitive information here.
+          </p>
+
+          <hr />
+
+          <h2>2. terraform.tfvars</h2>
+          <p>
+            If you put values in <code>terraform.tfvars</code>, Terraform loads them automatically. Don't put sensitive information in this file.
+          </p>
+          <p>
+            Even if we declare the variable in <code>terraform.tfvars</code>, in order to use that value we still need a matching variable declaration in <code>variables.tf</code>.
+          </p>
+
+          <pre><code># terraform.tfvars
+instance_type = "t3.medium"</code></pre>
+
+          <pre><code># variables.tf
+variable "instance_type" {
+  description = "EC2 instance type"
+  type        = string
+}</code></pre>
+
+          <p>
+            In <code>main.tf</code> we can refer to the variable like this:
+          </p>
+
+          <pre><code># main.tf
+resource "aws_instance" "web" {
+  ami           = "ami-0abcdef1234567890"
+  instance_type = var.instance_type
+}</code></pre>
+
+          <p>
+            If you have multiple environments like Dev1, Dev2, SIT1, SIT2, and Prod, you usually keep a separate variables file for each one, like <code>dev1.tfvars</code>, <code>dev2.tfvars</code>, and <code>prod.tfvars</code>.
+          </p>
+
+          <p>Terraform won't read these files automatically. You must pass the file name when you run the command:</p>
+
+          <pre><code>terraform plan -var-file=dev1.tfvars
+terraform apply -var-file=prod.tfvars</code></pre>
+
+          <hr />
+
+          <h2>3. Environment variables</h2>
+
+          <pre><code>export TF_VAR_instance_type="t3.small"   # to set
+unset TF_VAR_instance_type               # to unset
+
+terraform plan   # instance_type = t3.small</code></pre>
+
+          <ul>
+            <li>Environment variables can leak through shell history, CI logs, or env dumps in debug output.</li>
+            <li>They don't show up in code, so it's easy to forget one is set and get an unexpected value.</li>
+          </ul>
+
+          <hr />
+
+          <h2>4. Command line</h2>
+
+          <pre><code>terraform plan -var="instance_type=c5.xlarge"</code></pre>
+
+          <hr />
+
+          <h2>5. Prompt</h2>
+
+          <p>If you declare a variable without a default value and don't provide it anywhere else, Terraform asks you for it at runtime.</p>
+
+          <pre><code>$ terraform plan
+var.instance_type
+  Enter a value:</code></pre>
+
+          <hr />
+
+          <h2>6. .auto.tfvars or .auto.tfvars.json</h2>
+
+          <p>
+            Terraform loads any file ending in <code>.auto.tfvars</code> or <code>.auto.tfvars.json</code> automatically, the same way it loads <code>terraform.tfvars</code>. You don't need to pass a flag.
+          </p>
+
+          <hr />
+
+          <h2>Which one takes precedence?</h2>
+
+          <p>
+            Terraform loads values in this order, with the last one winning:
+          </p>
+
+          <ol>
+            <li>Default values (lowest)</li>
+            <li>Environment variables (<code>TF_VAR_</code>)</li>
+            <li><code>terraform.tfvars</code></li>
+            <li><code>terraform.tfvars.json</code></li>
+            <li><code>*.auto.tfvars</code> / <code>*.auto.tfvars.json</code> in alphabetical order</li>
+            <li><code>-var</code> and <code>-var-file</code> on the command line (highest)</li>
+          </ol>
+
+          <p>
+            So the <strong>command line always wins</strong>.
+          </p>
+
+          <p>
+            Terraform only prompts you if the variable has no value from any other source.
+          </p>
+
+          <hr />
+
+          <h2>Note on sensitive values</h2>
+
+          <p>
+            Even if a variable is marked as <code>sensitive = true</code>, Terraform still stores its value in <code>terraform.tfstate</code> as plain text. So don't commit the state file to Git, and keep secrets out of your variable files.
+          </p>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+
+      <!-- ===================== LOOPS ===================== -->
+      <section class="concept" id="loops">
+        <h1>Loops in Terraform</h1>
+        <p class="lead">count, for_each and for expressions.</p>
+        <article class="article">
+          <p class="placeholder">Content coming soon.</p>
+        </article>
+      </section>
+
+      <!-- ===================== DATA SOURCE ===================== -->
+      <section class="concept" id="datasource">
+        <h1>Data Sources in Terraform</h1>
+        <p class="lead">Reading existing infrastructure into Terraform.</p>
+        <article class="article">
+          <p class="placeholder">Content coming soon.</p>
+        </article>
+      </section>
+
+      <!-- ===================== TERRAFORM STATE ===================== -->
+      <section class="concept" id="terraform-state">
+        <h1>Terraform State</h1>
+        <p class="lead">How Terraform tracks what it manages.</p>
+        <article class="article">
+          <p class="placeholder">Content coming soon.</p>
+        </article>
+      </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      // Shows the concept matching the URL hash (e.g. terraform.html#loops).
+      // Falls back to the first concept when there's no hash or it doesn't match.
+      function showConcept() {
+        const sections = document.querySelectorAll('.concept');
+        const id = location.hash.slice(1);
+        const target = document.getElementById(id) || sections[0];
+
+        sections.forEach((s) => s.classList.toggle('active', s === target));
+        document.querySelectorAll('.concept-link').forEach((link) => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + target.id);
+        });
+        window.scrollTo(0, 0);
+      }
+
+      window.addEventListener('hashchange', showConcept);
+      showConcept();
+    </script>
+    <script>
+      // Light/dark theme toggle. The choice is saved, so every page uses it.
+      (function () {
+        const root = document.documentElement;
+        const btn = document.querySelector('.theme-toggle');
+        if (!btn) return;
+        const icon = btn.querySelector('.theme-icon');
+
+        function apply(theme) {
+          if (theme === 'light') {
+            root.setAttribute('data-theme', 'light');
+          } else {
+            root.removeAttribute('data-theme');
+          }
+          const isLight = theme === 'light';
+          icon.textContent = isLight ? '☾' : '☀';
+          btn.setAttribute('aria-label', isLight ? 'Switch to dark theme' : 'Switch to light theme');
+        }
+
+        apply(root.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+
+        btn.addEventListener('click', function () {
+          const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+          apply(next);
+          try { localStorage.setItem('theme', next); } catch (e) {}
+        });
+      })();
+    </script>
+  </body>
+</html>

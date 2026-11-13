@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manoj Kumar Madireddy | DevSecOps Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <script>
+      // Apply the saved theme before the page draws, so it doesn't flash dark first.
+      try {
+        if (localStorage.getItem('theme') === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch (e) {}
+    </script>
+    <style>
+      :root {
+        --bg: #101417;
+        --bg-soft: #181f24;
+        --panel: rgba(18, 24, 28, 0.78);
+        --panel-strong: rgba(22, 28, 33, 0.84);
+        --text: #f4f5f7;
+        --muted: #bcc8cf;
+        --primary: #ffffff;
+        --secondary: #9aa8b1;
+        --accent: #ffd166;
+        --accent-soft: rgba(255, 209, 102, 0.12);
+        --brand: #ffb454;
+        --line: rgba(255, 255, 255, 0.08);
+        --shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /*
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes floatIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      */
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at center, rgba(255, 209, 102, 0.07), transparent 30%),
+          linear-gradient(180deg, #0a0f12 0%, #10161b 35%, #121b20 100%);
+        color: var(--text);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.7;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      .video-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+        background: #0a0f12;
+      }
+
+      .video-bg::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(180deg, rgba(9, 13, 17, 0.72), rgba(9, 13, 17, 0.82)),
+          radial-gradient(circle at center, rgba(127, 170, 255, 0.1), transparent 38%);
+      }
+
+      .computer-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+        background:
+          linear-gradient(180deg, rgba(8, 12, 16, 0.72), rgba(8, 12, 16, 0.84)),
+          url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+        filter: saturate(1.1) contrast(1.02) brightness(0.42);
+      }
+
+      .computer-bg::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, rgba(124, 196, 255, 0.08), transparent 52%);
+      }
+
+      .bg-stream {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+        opacity: 0.62;
+      }
+
+      .bg-stream::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, rgba(110, 231, 216, 0.06), transparent 68%);
+      }
+
+      .command-star {
+        position: absolute;
+        left: var(--x);
+        top: var(--y);
+        color: rgba(136, 203, 214, 0.34);
+        text-shadow: 0 0 8px rgba(110, 231, 216, 0.16);
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 13.2px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+        opacity: 0.6;
+        filter: blur(0.12px);
+        transform: translate3d(0, 0, 0) scale(0.82);
+        animation: none;
+      }
+
+      /*
+      @keyframes overlapStream {
+        0% {
+          opacity: 0;
+          transform: translate3d(0, 0, 0) scale(0.82);
+        }
+        18% {
+          opacity: 0.36;
+        }
+        40% {
+          opacity: 0.62;
+          transform: translate3d(var(--dx), var(--dy), 0) scale(1.02);
+        }
+        64% {
+          opacity: 0.44;
+          transform: translate3d(calc(var(--dx) * 1.45), calc(var(--dy) * 1.35), 0) scale(1.08);
+        }
+        100% {
+          opacity: 0;
+          transform: translate3d(calc(var(--dx) * 2.2), calc(var(--dy) * 1.9), 0) scale(1.18);
+        }
+      }
+      */
+
+      img {
+        max-width: 100%;
+        display: block;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        width: 84%;
+        max-width: 1380px;
+        margin: 0 auto;
+        padding: 0 28px 80px;
+        animation: none;
+        background: rgba(15, 20, 24, 0.34);
+        border-radius: 0;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        padding: 18px 20px 20px;
+        border: none;
+        border-radius: 0;
+        background: rgba(17, 22, 25, 0.82);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(10px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        width: min(1380px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.38rem;
+        font-size: clamp(1.12rem, 1vw + 0.78rem, 1.92rem);
+        font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      .brand-name {
+        font-weight: 400;
+        letter-spacing: -0.05em;
+        color: #ffb454;
+        font-style: italic;
+        font-family: Georgia, "Times New Roman", serif;
+        text-shadow: none;
+        line-height: 1;
+      }
+
+      .brand-last {
+        font-weight: 400;
+        color: #f4f7fb;
+        letter-spacing: 0.01em;
+        font-style: italic;
+        font-family: Georgia, "Times New Roman", serif;
+        line-height: 1;
+      }
+
+      .top-nav {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .top-nav a {
+        color: rgba(244, 245, 247, 0.8);
+        font-size: 0.7rem;
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        transition: color 0.2s ease;
+        font-style: italic;
+        font-family: Georgia, "Times New Roman", serif;
+        line-height: 1.15;
+      }
+
+      .top-nav a:hover {
+        color: #ffb454;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 28px;
+        padding-top: 52px;
+        align-items: center;
+        animation: none;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        margin: 0 0 10px;
+        color: var(--secondary);
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.8rem, 5vw, 5rem);
+        line-height: 0.96;
+        letter-spacing: -0.07em;
+        font-weight: 800;
+      }
+
+      .accent {
+        color: var(--accent);
+      }
+
+      .intro {
+        max-width: 640px;
+        margin-top: 18px;
+        color: #d5e7f0;
+        font-size: 1.08rem;
+        line-height: 1.8;
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 160px;
+        border-radius: 999px;
+        padding: 13px 20px;
+        font-weight: 700;
+        transition: none;
+      }
+
+      .btn:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
+      .btn-primary {
+        background: var(--text);
+        color: var(--bg);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--text);
+      }
+
+      .hero-note {
+        position: relative;
+        background: rgba(255, 255, 255, 0.02);
+        border: none;
+        border-radius: 20px;
+        padding: 22px 20px;
+        box-shadow: none;
+      }
+
+      .hero-note .label {
+        display: block;
+        margin-bottom: 10px;
+        color: var(--secondary);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .hero-note p {
+        margin: 0;
+        color: #d4eaf5;
+        font-size: 0.96rem;
+        line-height: 1.8;
+      }
+
+      .hero-note strong {
+        display: block;
+        margin-top: 12px;
+        color: var(--text);
+        font-size: 1.1rem;
+      }
+
+      .tag-row {
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        margin-top: 8px;
+        background: rgba(18, 23, 28, 0.74);
+        border: none;
+        border-radius: 0;
+        padding: 12px 20px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+      }
+
+      .tag-row-inner {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        width: min(1380px, calc(100% - 40px));
+        margin: 0 auto;
+        overflow: visible;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #dceaf5;
+        font-weight: 400;
+        font-size: clamp(0.72rem, 0.78vw, 1rem);
+        letter-spacing: 0.02em;
+        line-height: 1.15;
+        text-transform: none;
+        padding: 6px 2px;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        cursor: pointer;
+        transition: color 0.2s ease, transform 0.2s ease;
+        white-space: nowrap;
+        text-align: center;
+        font-style: normal;
+        font-family: Georgia, "Times New Roman", serif;
+      }
+
+      .chip:hover {
+        color: #ffb454;
+        transform: translateY(-1px);
+      }
+
+      .chip-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .chip-menu {
+        position: absolute;
+        top: calc(100% + 12px);
+        left: 0;
+        display: none;
+        min-width: 220px;
+        background: rgba(20, 25, 31, 0.96);
+        border: 1px solid rgba(255, 180, 84, 0.25);
+        border-radius: 14px;
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
+        padding: 8px;
+        backdrop-filter: blur(8px);
+        z-index: 50;
+      }
+
+      .chip-wrap.open .chip-menu {
+        display: grid;
+        gap: 4px;
+      }
+
+      .chip-menu a {
+        display: block;
+        padding: 10px 12px;
+        border-radius: 10px;
+        color: #edf5fb;
+        font-size: 0.82rem;
+        font-weight: 500;
+        transition: background 0.2s ease, color 0.2s ease;
+      }
+
+      .chip-menu a:hover {
+        background: rgba(255, 180, 84, 0.14);
+        color: #ffb454;
+      }
+
+      .intro-center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 220px);
+        margin: 0 auto;
+        max-width: 980px;
+        text-align: center;
+        padding: 18px 14px 10px;
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.7s ease, transform 0.7s ease;
+      }
+
+      .intro-center.is-transitioning {
+        opacity: 0;
+        transform: translateY(-22px);
+        pointer-events: none;
+      }
+
+      .intro-center .hello {
+        margin: 0;
+        font-size: clamp(4rem, 8vw, 8.5rem);
+        line-height: 0.9;
+        letter-spacing: -0.065em;
+        color: #f5f1ec;
+        font-weight: 500;
+        font-family: Georgia, "Times New Roman", serif;
+        font-style: normal;
+        text-shadow: none;
+        animation: heroReveal 1.1s ease both;
+      }
+
+      .intro-center .hello .hash {
+        color: #f5f1ec;
+        margin-right: 0.18em;
+      }
+
+      .intro-center .tagline {
+        margin: 22px auto 0;
+        max-width: 520px;
+        color: rgba(245, 241, 236, 0.7);
+        font-size: clamp(1.05rem, 1.2vw, 1.35rem);
+        line-height: 1.6;
+        font-weight: 400;
+        letter-spacing: -0.02em;
+      }
+
+      .experience-section {
+        margin-top: 36px;
+        padding: 28px 20px 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        scroll-margin-top: 90px;
+        opacity: 0;
+        transform: translateY(36px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+        position: relative;
+        top: 0;
+      }
+
+      .experience-section.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .experience-section.stick-top {
+        position: sticky;
+        top: 88px;
+      }
+
+      .experience-section h2 {
+        margin: 0 0 20px;
+        font-size: clamp(2rem, 3vw, 3rem);
+        line-height: 1.05;
+        letter-spacing: -0.06em;
+        font-family: Georgia, "Times New Roman", serif;
+        color: #f3f7fb;
+        animation: sectionTitleReveal 0.8s ease both;
+      }
+
+      .experience-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .experience-card {
+        background: rgba(18, 24, 28, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 18px;
+        padding: 20px 18px;
+        transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      }
+
+      .experience-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(255, 180, 84, 0.38);
+        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18);
+      }
+
+      .experience-card .meta {
+        color: #9ad8ff;
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+
+      .experience-card h3 {
+        margin: 12px 0 10px;
+        font-size: 1.3rem;
+        color: #eef6ff;
+      }
+
+      .experience-card p {
+        margin: 0;
+        color: rgba(240, 246, 255, 0.78);
+        line-height: 1.7;
+      }
+
+      .main {
+        margin-top: 30px;
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 24px;
+      }
+
+      .section {
+        background: rgba(255, 255, 255, 0.02);
+        border: none;
+        border-radius: 22px;
+        box-shadow: none;
+        padding: 22px 22px;
+        animation: none;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 22px;
+      }
+
+      .section-header h3 {
+        margin: 0;
+        font-size: clamp(1.3rem, 1vw + 1rem, 2rem);
+        letter-spacing: -0.04em;
+      }
+
+      .section-header span {
+        color: #a9d7e2;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .timeline {
+        display: grid;
+        gap: 18px;
+      }
+
+      .event {
+        border-left: none;
+        padding-left: 0;
+        margin-left: 0;
+      }
+
+      .event h4 {
+        margin: 0 0 6px;
+        font-size: 1.1rem;
+      }
+
+      .meta {
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 0.8rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .event p {
+        margin: 10px 0 0;
+        color: #d4eaf5;
+      }
+
+      .skills {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(150px, 1fr));
+        gap: 12px;
+      }
+
+      .skill-card {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(17, 17, 17, 0.08);
+        border-radius: 16px;
+        padding: 16px 14px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .skill-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 18px rgba(28, 45, 56, 0.06);
+      }
+
+      .skill-card h4 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+      }
+
+      .skill-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .project-list {
+        display: grid;
+        gap: 16px;
+      }
+
+      .project {
+        background: rgba(255, 255, 255, 0.02);
+        border: none;
+        border-radius: 16px;
+        padding: 18px 18px 16px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .project:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 18px rgba(28, 45, 56, 0.05);
+      }
+
+      .project h4 {
+        margin: 0 0 8px;
+        font-size: 1.08rem;
+      }
+
+      .project p {
+        margin: 0 0 12px;
+        color: #d4eaf5;
+      }
+
+      .project-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .project-tags span {
+        background: var(--accent-soft);
+        color: var(--text);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.72rem;
+        font-weight: 700;
+      }
+
+      .contact {
+        display: grid;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .contact a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .footer {
+        padding-top: 28px;
+        text-align: center;
+        color: #b8d7e3;
+        font-size: 0.9rem;
+      }
+
+      @keyframes heroReveal {
+        from {
+          opacity: 0;
+          transform: translateY(18px) scale(0.985);
+          filter: blur(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+          filter: blur(0);
+        }
+      }
+
+      @keyframes sectionTitleReveal {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 860px) {
+        .hero,
+        .main {
+          grid-template-columns: 1fr;
+        }
+
+        .page {
+          padding-inline: 16px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .cta-row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .btn {
+          width: 100%;
+        }
+
+        .skills {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ---------- Theme toggle button ---------- */
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--text);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: color 0.2s ease, border-color 0.2s ease;
+      }
+
+      .theme-toggle:hover { color: var(--brand); border-color: var(--brand); }
+      .theme-toggle:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+      /* ---------- Light (white) theme ---------- */
+      :root[data-theme="light"] {
+        --bg: #dfeaf3;
+        --bg-soft: #edf3f8;
+        --panel: rgba(255, 255, 255, 0.72);
+        --panel-strong: rgba(255, 255, 255, 0.85);
+        --text: #1c2d38;
+        --muted: #5d7382;
+        --primary: #1c2d38;
+        --secondary: #647f8f;
+        --accent: #a86500;
+        --accent-soft: rgba(168, 101, 0, 0.1);
+        --brand: #c46a00;
+        --line: rgba(28, 45, 56, 0.12);
+        --shadow: 0 18px 38px rgba(32, 52, 64, 0.08);
+      }
+
+      :root[data-theme="light"] body {
+        background:
+          radial-gradient(circle at top left, rgba(108, 166, 182, 0.18), transparent 24%),
+          radial-gradient(circle at bottom right, rgba(147, 183, 201, 0.16), transparent 28%),
+          linear-gradient(135deg, #dfeaf3 0%, #d7e3ee 34%, #c9dfe9 100%);
+      }
+
+      /* Light theme: same computer photo as dark, washed out so dark text stays readable */
+      :root[data-theme="light"] .computer-bg {
+        background:
+          linear-gradient(180deg, rgba(236, 243, 248, 0.8), rgba(223, 234, 243, 0.88)),
+          url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+        filter: saturate(0.85);
+      }
+      :root[data-theme="light"] .page { background: transparent; }
+      :root[data-theme="light"] .topbar {
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 0 0 1px var(--line);
+      }
+      :root[data-theme="light"] .brand-name { color: var(--brand); }
+      :root[data-theme="light"] .brand-last { color: var(--text); }
+      :root[data-theme="light"] .top-nav a { color: var(--muted); }
+      :root[data-theme="light"] .top-nav a:hover { color: var(--brand); }
+
+      /* Light theme: home page sections */
+      :root[data-theme="light"] .bg-stream { opacity: 0.5; }
+      :root[data-theme="light"] .command-star {
+        color: rgba(28, 45, 56, 0.22);
+        text-shadow: none;
+      }
+      :root[data-theme="light"] .tag-row {
+        background: rgba(255, 255, 255, 0.7);
+        box-shadow: 0 0 0 1px var(--line);
+      }
+      :root[data-theme="light"] .chip { color: var(--text); }
+      :root[data-theme="light"] .chip:hover { color: var(--brand); }
+      :root[data-theme="light"] .chip-menu {
+        background: rgba(255, 255, 255, 0.98);
+        border-color: rgba(196, 106, 0, 0.25);
+        box-shadow: 0 14px 28px rgba(32, 52, 64, 0.12);
+      }
+      :root[data-theme="light"] .chip-menu a { color: var(--text); }
+      :root[data-theme="light"] .chip-menu a:hover {
+        background: var(--accent-soft);
+        color: var(--brand);
+      }
+      :root[data-theme="light"] .intro-center .hello,
+      :root[data-theme="light"] .intro-center .hello .hash,
+      :root[data-theme="light"] .experience-section h2,
+      :root[data-theme="light"] .experience-card h3 { color: var(--text); }
+      :root[data-theme="light"] .intro-center .tagline,
+      :root[data-theme="light"] .experience-card p,
+      :root[data-theme="light"] .hero-note p,
+      :root[data-theme="light"] .event p,
+      :root[data-theme="light"] .project p,
+      :root[data-theme="light"] .footer { color: var(--muted); }
+      :root[data-theme="light"] .section-header span { color: var(--secondary); }
+      :root[data-theme="light"] .experience-section { border-top-color: var(--line); }
+      :root[data-theme="light"] .experience-card {
+        background: var(--panel);
+        border-color: var(--line);
+      }
+      :root[data-theme="light"] .experience-card .meta { color: #2f7fae; }
+      :root[data-theme="light"] .hero-note,
+      :root[data-theme="light"] .section,
+      :root[data-theme="light"] .project { background: rgba(255, 255, 255, 0.45); }
+
+      /* ================= Premium polish: shared header ================= */
+      :root {
+        --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+        --font-body: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        --gold-1: #f7dc9c;
+        --gold-2: #d29a3c;
+        --ivory: #f5f1ec;
+        --hairline: rgba(255, 209, 102, 0.28);
+        --glass: rgba(16, 21, 26, 0.55);
+      }
+
+      :root[data-theme="light"] {
+        --gold-1: #b8862f;
+        --gold-2: #7d500e;
+        --ivory: #1c2d38;
+        --hairline: rgba(168, 101, 0, 0.25);
+        --glass: rgba(255, 255, 255, 0.6);
+      }
+
+      body {
+        font-family: var(--font-body);
+        font-weight: 400;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      ::selection { background: rgba(255, 209, 102, 0.3); }
+
+      .topbar { position: sticky; }
+
+      /* fine gold hairline under the top bar */
+      .topbar::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--hairline) 20%, var(--hairline) 80%, transparent);
+      }
+
+      .brand {
+        font-family: var(--font-display);
+        font-size: clamp(1.35rem, 1vw + 1rem, 2.1rem);
+        font-weight: 600;
+        gap: 0.32rem;
+      }
+
+      .brand-name,
+      .brand-last {
+        font-family: var(--font-display);
+        font-weight: 600;
+        letter-spacing: 0.01em;
+      }
+
+      .brand-name {
+        background: linear-gradient(120deg, var(--gold-1), var(--gold-2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      :root[data-theme="light"] .brand-name { color: transparent; }
+
+      .top-nav { gap: 30px; }
+
+      .top-nav a {
+        position: relative;
+        font-family: var(--font-body);
+        font-style: normal;
+        font-weight: 500;
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+        padding: 4px 0;
+      }
+
+      /* gold underline that draws in on hover */
+      .top-nav a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+      }
+
+      .top-nav a:hover::after { transform: scaleX(1); }
+
+      .theme-toggle {
+        border-color: var(--hairline);
+        color: var(--gold-1);
+        backdrop-filter: blur(6px);
+      }
+
+      .theme-toggle:hover {
+        color: var(--gold-2);
+        border-color: var(--gold-2);
+      }
+
+      /* ================= Premium polish: home page ================= */
+      .page { background: transparent; }  /* one even background edge to edge */
+      .tag-row { margin-top: 0; }
+      /* The blur makes the skills bar its own layer, so lift it above the hero;
+         otherwise the hero covers the Terraform drop-down and blocks clicks.
+         Kept below the sticky top bar (z-index 30). */
+      .tag-row { position: relative; z-index: 25; }
+      .tag-row {
+        background: var(--glass);
+        backdrop-filter: blur(10px);
+        box-shadow: none;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .chip {
+        font-family: var(--font-body);
+        font-size: clamp(0.66rem, 0.7vw, 0.8rem);
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        padding: 8px 2px;
+      }
+
+      .chip:hover { color: var(--gold-1); transform: none; }
+
+      .chip-menu {
+        background: var(--glass);
+        border: 1px solid var(--hairline);
+        border-radius: 16px;
+        backdrop-filter: blur(14px);
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+      }
+
+      .chip-menu a {
+        font-family: var(--font-body);
+        font-size: 0.82rem;
+        letter-spacing: 0.02em;
+      }
+
+      .intro-center .eyebrow-line {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        margin: 0 0 26px;
+        font-family: var(--font-body);
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        color: var(--gold-1);
+      }
+
+      .intro-center .eyebrow-line::before,
+      .intro-center .eyebrow-line::after {
+        content: "";
+        width: 48px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gold-2));
+      }
+
+      .intro-center .eyebrow-line::after {
+        background: linear-gradient(90deg, var(--gold-2), transparent);
+      }
+
+      .intro-center .hello {
+        font-family: var(--font-display);
+        font-weight: 500;
+        font-size: clamp(3.6rem, 8vw, 8rem);
+        letter-spacing: -0.03em;
+        line-height: 0.95;
+        color: var(--ivory);
+      }
+
+      .intro-center .hello .name {
+        font-style: italic;
+        background: linear-gradient(120deg, var(--gold-1) 10%, var(--gold-2) 90%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        padding-right: 0.08em; /* keeps the italic "j" from being clipped */
+      }
+
+      /* let the hero use the full page width so the one-line tagline fits */
+      .intro-center { max-width: none; }
+
+      /* GitHub + LinkedIn side by side, centred under the tagline */
+      .social-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: clamp(20px, 3vw, 44px);
+        margin-top: clamp(22px, 2.6vw, 34px);
+      }
+
+      .github-btn {
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        gap: clamp(10px, 1.1vw, 16px);
+        text-decoration: none;
+        border-radius: 14px;
+        transition: transform 0.25s ease;
+        animation: heroReveal 1.1s ease both;
+      }
+
+      /* icon tile — 75% of the original clamp(58px, 6.5vw, 92px) */
+      .github-btn__tile {
+        position: relative;
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: clamp(44px, 4.9vw, 69px);
+        aspect-ratio: 1;
+        border-radius: 24%;
+        background: linear-gradient(160deg, #1a2440, #0d1428);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 10px 28px rgba(0, 0, 0, 0.45);
+        transition: box-shadow 0.25s ease;
+      }
+
+      .github-btn__text {
+        font-family: var(--font-body);
+        font-weight: 500;
+        font-size: clamp(1.1rem, 1.5vw, 1.5rem);
+        letter-spacing: 0.01em;
+        color: var(--ivory);
+        transition: color 0.25s ease;
+      }
+
+      /* soft rainbow glow behind the mark */
+      .github-btn__tile::before {
+        content: "";
+        position: absolute;
+        inset: 18%;
+        border-radius: 50%;
+        background: conic-gradient(from 200deg, #5ad1ff, #7b6cff, #ff5fa2, #ff6b4a, #ffd84a, #4ade80, #5ad1ff);
+        filter: blur(14px);
+        opacity: 0.45;
+        transition: opacity 0.25s ease;
+      }
+
+      /* rainbow ring with the cat cut out, shaped by the GitHub mark */
+      .github-btn__mark {
+        position: relative;
+        width: 66%;
+        aspect-ratio: 1;
+        background: conic-gradient(from 200deg, #5ad1ff, #7b6cff, #ff5fa2, #ff6b4a, #ffd84a, #4ade80, #5ad1ff);
+        --gh: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z'/%3E%3C/svg%3E");
+        -webkit-mask: var(--gh) center / contain no-repeat;
+        mask: var(--gh) center / contain no-repeat;
+        animation: ghSpin 8s linear infinite;
+      }
+
+      .github-btn:hover,
+      .github-btn:focus-visible { transform: translateY(-4px); }
+      .github-btn:hover .github-btn__tile,
+      .github-btn:focus-visible .github-btn__tile {
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          0 16px 36px rgba(0, 0, 0, 0.5),
+          0 0 30px rgba(123, 108, 255, 0.35);
+      }
+      .github-btn:hover .github-btn__tile::before { opacity: 0.75; }
+      .github-btn:hover .github-btn__text { color: var(--brand); }
+      .github-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 4px; }
+
+      /* LinkedIn variant: same tile, blue glow, "in" logo cut out of a blue square */
+      .github-btn--linkedin .github-btn__tile::before {
+        background: radial-gradient(circle, #3ea6ff, #0a66c2 70%);
+      }
+      .github-btn--linkedin .github-btn__mark {
+        width: 58%;
+        border-radius: 0;
+        background: linear-gradient(135deg, #5cc8ff, #0a66c2 55%, #004182);
+        --gh: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z'/%3E%3C/svg%3E");
+        animation: none; /* keep LinkedIn blue instead of cycling colours */
+      }
+      .github-btn--linkedin:hover .github-btn__tile,
+      .github-btn--linkedin:focus-visible .github-btn__tile {
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          0 16px 36px rgba(0, 0, 0, 0.5),
+          0 0 30px rgba(10, 102, 194, 0.45);
+      }
+
+      @keyframes ghSpin {
+        /* turns the colours only; the cat shape stays still */
+        to { filter: hue-rotate(360deg); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .github-btn__mark { animation: none; }
+      }
+
+      .intro-center .tagline {
+        margin-top: 26px;
+        max-width: none;
+        white-space: nowrap; /* keep the tagline on a single line */
+        font-family: var(--font-body);
+        font-weight: 300;
+        font-size: clamp(1rem, 1.1vw, 1.2rem);
+        letter-spacing: 0.01em;
+        line-height: 1.8;
+      }
+
+      /* small phones: let it wrap so it doesn't run off the screen */
+      @media (max-width: 560px) {
+        .intro-center .tagline { white-space: normal; }
+      }
+
+      .experience-section { border-top: none; }
+
+      .experience-section h2 {
+        font-family: var(--font-display);
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .experience-card {
+        position: relative;
+        background: var(--glass);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 26px 24px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 18px 40px rgba(0, 0, 0, 0.18);
+      }
+
+      .experience-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--hairline);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 24px 50px rgba(0, 0, 0, 0.28), 0 0 0 1px var(--hairline);
+      }
+
+      .experience-card .meta {
+        font-family: var(--font-body);
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        color: var(--gold-1);
+      }
+
+      .experience-card h3 {
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 1.5rem;
+        letter-spacing: 0;
+      }
+
+      .experience-card p { font-weight: 300; }
+
+      /* Light theme versions of the polished pieces */
+      :root[data-theme="light"] .tag-row {
+        background: var(--glass);
+        box-shadow: none;
+      }
+      :root[data-theme="light"] .chip:hover { color: var(--gold-2); }
+      :root[data-theme="light"] .chip-menu {
+        background: rgba(255, 255, 255, 0.92);
+        border-color: var(--hairline);
+        box-shadow: 0 24px 48px rgba(32, 52, 64, 0.14);
+      }
+      :root[data-theme="light"] .experience-card {
+        background: var(--glass);
+        box-shadow: 0 18px 40px rgba(32, 52, 64, 0.08);
+      }
+      :root[data-theme="light"] .experience-card:hover {
+        box-shadow: 0 24px 50px rgba(32, 52, 64, 0.14), 0 0 0 1px var(--hairline);
+      }
+      :root[data-theme="light"] .experience-card .meta { color: var(--gold-2); }
+      :root[data-theme="light"] .intro-center .eyebrow-line { color: var(--gold-2); }
+    </style>
+  </head>
+  <body>
+    <div class="computer-bg" aria-hidden="true"></div>
+    <div class="bg-stream" aria-hidden="true" id="bgStream"></div>
+
+    <div class="page">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="brand">
+            <span class="brand-name">Manoj Kumar</span>
+            <span class="brand-last">Madireddy</span>
+          </div>
+
+          <div class="topbar-actions">
+            <nav class="top-nav" aria-label="Main navigation">
+              <a href="#about">About</a>
+              <a href="#resume">Resume</a>
+              <a href="#projects">Projects</a>
+              <a href="#contact">Contact</a>
+            </nav>
+            <button type="button" class="theme-toggle" aria-label="Switch to light theme">
+              <span class="theme-icon" aria-hidden="true">☀</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <header class="tag-row" aria-label="Skills banner">
+        <div class="tag-row-inner">
+          <a href="#" class="chip">Linux</a>
+          <a href="#" class="chip">Shell Scripting</a>
+          <a href="#" class="chip">Ansible</a>
+          <div class="chip-wrap">
+            <a href="#" class="chip chip-trigger" aria-expanded="false">Terraform</a>
+            <div class="chip-menu" aria-label="Terraform related topics">
+              <a href="terraform/index.html">Terraform concepts</a>
+              <a href="#projects">Roboshop using terraform</a>
+            </div>
+          </div>
+          <a href="#" class="chip">AWS</a>
+          <a href="#" class="chip">Roboshop</a>
+          <a href="#" class="chip">Docker</a>
+          <a href="#" class="chip">Kubernetes</a>
+          <a href="#" class="chip">SRE</a>
+          <a href="#" class="chip">Monitoring and Observability</a>
+        </div>
+      </header>
+
+      <section class="intro-center" aria-label="Introduction">
+        <p class="eyebrow-line">DevSecOps &middot; SRE &middot; Cloud</p>
+        <h1 class="hello">Hello! I'm <span class="name">Manoj</span></h1>
+        <p class="tagline">A passionate DevSecOps/SRE engineer from Dallas, Texas, USA</p>
+        <div class="social-links">
+          <a class="github-btn" href="https://github.com/MadireddyManojKumar"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="Visit my GitHub profile (opens in a new tab)" title="GitHub">
+            <span class="github-btn__tile" aria-hidden="true">
+              <span class="github-btn__mark"></span>
+            </span>
+            <span class="github-btn__text">GitHub</span>
+          </a>
+          <a class="github-btn github-btn--linkedin" href="https://www.linkedin.com/in/manoj-kumar-sse/"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="Visit my LinkedIn profile (opens in a new tab)" title="LinkedIn">
+            <span class="github-btn__tile" aria-hidden="true">
+              <span class="github-btn__mark"></span>
+            </span>
+            <span class="github-btn__text">LinkedIn</span>
+          </a>
+        </div>
+      </section>
+
+      <section id="experience" class="experience-section" aria-label="Experience">
+        <h2>Experience</h2>
+        <div class="experience-grid">
+          <article class="experience-card">
+            <div class="meta">2023 — Present</div>
+            <h3>DevSecOps Engineer</h3>
+            <p>Building secure cloud pipelines, automating deployments, and strengthening application reliability across production workloads.</p>
+          </article>
+          <article class="experience-card">
+            <div class="meta">2021 — 2023</div>
+            <h3>SRE Engineer</h3>
+            <p>Monitoring distributed systems, reducing incident response time, and improving service health through observability and automation.</p>
+          </article>
+          <article class="experience-card">
+            <div class="meta">2019 — 2021</div>
+            <h3>Cloud &amp; Infrastructure Engineer</h3>
+            <p>Managing infrastructure as code, Kubernetes environments, and CI/CD processes to improve speed, stability, and operational consistency.</p>
+          </article>
+        </div>
+      </section>
+
+    </div>
+
+    <script>
+      const terraformWrap = document.querySelector('.chip-wrap');
+      const terraformTrigger = document.querySelector('.chip-trigger');
+
+      if (terraformWrap && terraformTrigger) {
+        terraformTrigger.addEventListener('click', function (event) {
+          event.preventDefault();
+          const isOpen = terraformWrap.classList.contains('open');
+          terraformWrap.classList.toggle('open', !isOpen);
+          terraformTrigger.setAttribute('aria-expanded', String(!isOpen));
+        });
+
+        document.addEventListener('click', function (event) {
+          if (!terraformWrap.contains(event.target)) {
+            terraformWrap.classList.remove('open');
+            terraformTrigger.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
+
+      const introSection = document.querySelector('.intro-center');
+      const experienceSection = document.getElementById('experience');
+      const introHideThreshold = 140;
+
+      function updateIntroVisibility() {
+        const scrollY = window.scrollY || window.pageYOffset;
+        const shouldStickExperience = scrollY > 140;
+
+        introSection?.classList.remove('is-transitioning');
+        experienceSection?.classList.toggle('is-visible', scrollY > 20);
+        experienceSection?.classList.toggle('stick-top', shouldStickExperience);
+      }
+
+      window.addEventListener('scroll', updateIntroVisibility, { passive: true });
+      updateIntroVisibility();
+
+    </script>
+
+    <!--
+    <script>
+      const commands = [
+        'root@devops:~$ kubectl get pods', 'root@devops:~$ kubectl get svc', 'root@devops:~$ kubectl get ingress',
+        'root@devops:~$ kubectl logs -f deployment/api', 'root@devops:~$ kubectl rollout restart deployment/web',
+        'root@devops:~$ kubectl top pods', 'root@devops:~$ kubectl describe pod api-7d9b',
+        'root@devops:~$ kubectl apply -f deployment.yaml', 'root@devops:~$ kubectl set image deploy/web app=repo/web:v2',
+        'root@devops:~$ helm upgrade --install app ./charts/app', 'root@devops:~$ helm list', 'root@devops:~$ helm rollback app 1',
+        'root@devops:~$ terraform init', 'root@devops:~$ terraform plan', 'root@devops:~$ terraform apply -auto-approve',
+        'root@devops:~$ terraform validate', 'root@devops:~$ terraform destroy -auto-approve', 'root@devops:~$ terraform fmt',
+        'root@devops:~$ terraform output', 'root@devops:~$ terraform state list', 'root@devops:~$ docker ps -a',
+        'root@devops:~$ docker logs app', 'root@devops:~$ docker build -t app:latest .', 'root@devops:~$ docker compose up -d',
+        'root@devops:~$ docker image prune -a -f', 'root@devops:~$ docker run -p 8080:8080 app:latest', 'root@devops:~$ git pull origin main',
+        'root@devops:~$ git checkout -b feature/aiops', 'root@devops:~$ git status', 'root@devops:~$ git log --oneline -5',
+        'root@devops:~$ git add . && git commit -m "fix prod alerts"', 'root@devops:~$ git push origin feature/aiops',
+        'root@devops:~$ aws s3 ls', 'root@devops:~$ aws ecr get-login-password', 'root@devops:~$ aws eks update-kubeconfig --name prod-cluster',
+        'root@devops:~$ aws ec2 describe-instances', 'root@devops:~$ aws iam list-users', 'root@devops:~$ aws sts get-caller-identity',
+        'root@devops:~$ ansible-playbook deploy.yml', 'root@devops:~$ ansible-inventory --list', 'root@devops:~$ ansible-vault encrypt secrets.yml',
+        'root@devops:~$ jenkins-cli build pipeline --params BRANCH=main', 'root@devops:~$ jenkins-cli list-jobs',
+        'root@devops:~$ curl -sS http://localhost:8080/health', 'root@devops:~$ curl -sS https://api.example.com/metrics',
+        'root@devops:~$ curl -I https://prod.example.com', 'root@devops:~$ prometheus query "rate(http_requests_total[5m])"',
+        'root@devops:~$ grafana dashboards list', 'root@devops:~$ alertmanager config check', 'root@devops:~$ grep -R "ERROR" /var/log/app',
+        'root@devops:~$ tail -f /var/log/nginx/access.log', 'root@devops:~$ journalctl -u kubelet -f', 'root@devops:~$ kubectl get hpa',
+        'root@devops:~$ kubectl get pv', 'root@devops:~$ kubectl get nodes', 'root@devops:~$ kubectl get namespaces',
+        'root@devops:~$ vault kv get secret/prod/app', 'root@devops:~$ vault read secret/data/prod', 'root@devops:~$ kubeval deployment.yaml',
+        'root@devops:~$ kustomize build ./overlays/prod', 'root@devops:~$ argocd app sync app-prod', 'root@devops:~$ eksctl get cluster --name prod',
+        'root@devops:~$ eksctl utils write-kubeconfig', 'root@devops:~$ istioctl proxy-status', 'root@devops:~$ openssl req -x509 -newkey rsa:2048 -nodes',
+        'root@devops:~$ nginx -t', 'root@devops:~$ nginx -s reload', 'root@devops:~$ openssl s_client -connect api.example.com:443',
+        'root@devops:~$ netstat -tulnp', 'root@devops:~$ ss -tulnp', 'root@devops:~$ ps aux | grep java', 'root@devops:~$ top -b -n1',
+        'root@devops:~$ uptime', 'root@devops:~$ df -h', 'root@devops:~$ free -m', 'root@devops:~$ find / -name "*.log" -type f | head',
+        'root@devops:~$ tar -czf backup.tar.gz /var/www', 'root@devops:~$ rsync -avz /data/ prod-server:/backup',
+        'root@devops:~$ traceroute api.example.com', 'root@devops:~$ dig api.example.com', 'root@devops:~$ nslookup api.example.com',
+        'root@devops:~$ ping -c 3 api.example.com', 'root@devops:~$ kubectl exec -it deploy/api -- sh',
+        'root@devops:~$ kubectl cp ./config.yaml app:/tmp/config.yaml', 'root@devops:~$ kubectl get events --sort-by=.metadata.creationTimestamp',
+        'root@devops:~$ kubectl wait --for=condition=available deployment/app', 'root@devops:~$ kubectl auth can-i create pods',
+        'root@devops:~$ kubectl get clusterrolebinding', 'root@devops:~$ kubectl get crd', 'root@devops:~$ terraform workspace list',
+        'root@devops:~$ terraform show', 'root@devops:~$ terraform taint aws_instance.web', 'root@devops:~$ aws cloudwatch get-metric-data --metric-data file://metrics.json',
+        'root@devops:~$ aws logs tail /aws/lambda/app', 'root@devops:~$ az aks get-credentials --resource-group rg-prod --name prod',
+        'root@devops:~$ gcloud container clusters list', 'root@devops:~$ python3 app.py', 'root@devops:~$ gunicorn -w 4 app:app',
+        'root@devops:~$ node server.js', 'root@devops:~$ npm run build', 'root@devops:~$ npm test', 'root@devops:~$ python manage.py migrate',
+        'root@devops:~$ celery -A app worker -l info', 'root@devops:~$ redis-cli ping', 'root@devops:~$ redis-cli monitor',
+        'root@devops:~$ pg_isready -h localhost -p 5432', 'root@devops:~$ psql -d app -c "select * from users limit 5"',
+        'root@devops:~$ kafkacat -b brokers:9092 -L', 'root@devops:~$ kafka-topics --list --bootstrap-server brokers:9092',
+        'root@devops:~$ elasticsearch --version', 'root@devops:~$ curl -s http://localhost:9200/_cluster/health',
+        'root@devops:~$ prometheus --config.file=prometheus.yml', 'root@devops:~$ loki --config.file=loki-config.yaml',
+        'root@devops:~$ otelcol --config /etc/otelcol/config.yaml', 'root@devops:~$ fluent-bit -c /etc/fluent-bit/fluent-bit.conf',
+        'root@devops:~$ kubectl get secret', 'root@devops:~$ kubectl get configmap', 'root@devops:~$ kubectl get daemonset',
+        'root@devops:~$ kubectl get cronjob', 'root@devops:~$ kubectl get statefulset', 'root@devops:~$ kubectl get replicaset',
+        'root@devops:~$ kubectl get pod --all-namespaces', 'root@devops:~$ kubectl edit deploy/web', 'root@devops:~$ kubectl patch deploy/web -p ...',
+        'root@devops:~$ kubectl replace --force -f deployment.yaml', 'root@devops:~$ kubectl port-forward svc/api 8080:80',
+        'root@devops:~$ kubectl explain deployment.spec', 'root@devops:~$ terraform import aws_s3_bucket.logs logs-bucket',
+        'root@devops:~$ terraform graph | dot -Tsvg > graph.svg', 'root@devops:~$ aws configure list',
+        'root@devops:~$ aws sts assume-role --role-arn arn:aws:iam::123:role/admin', 'root@devops:~$ vault login -method=aws',
+        'root@devops:~$ kubectl cluster-info', 'root@devops:~$ kubectl api-resources', 'root@devops:~$ jenkins-cli get-job app-prod',
+        'root@devops:~$ git tag -a v1.4.0 -m "prod release"', 'root@devops:~$ kubectl drain node-1', 'root@devops:~$ kubectl uncordon node-1',
+        'root@devops:~$ systemctl status jenkins', 'root@devops:~$ systemctl restart docker', 'root@devops:~$ journalctl -u jenkins -n 50',
+        'root@devops:~$ systemctl status prometheus', 'root@devops:~$ systemctl restart nginx', 'root@devops:~$ python3 -m http.server 8000',
+        'root@devops:~$ nmap -sV app.example.com', 'root@devops:~$ sslyze app.example.com:443', 'root@devops:~$ openssl rand -base64 32',
+        'root@devops:~$ az login', 'root@devops:~$ terraform providers', 'root@devops:~$ packer build .', 'root@devops:~$ consul members',
+        'root@devops:~$ consul catalog services', 'root@devops:~$ nomad job status', 'root@devops:~$ nomad run app.nomad',
+        'root@devops:~$ helm template ./charts/app', 'root@devops:~$ flux reconcile source git flux-system', 'root@devops:~$ flux get kustomizations',
+        'root@devops:~$ istioctl version', 'root@devops:~$ kubeadm version', 'root@devops:~$ kind create cluster --name demo',
+        'root@devops:~$ kind delete cluster --name demo', 'root@devops:~$ kubectl get mutatingwebhookconfiguration',
+        'root@devops:~$ kubectl get validatingwebhookconfiguration', 'root@devops:~$ kubectl get jobs', 'root@devops:~$ kubectl get cm',
+        'root@devops:~$ kubectl get sa', 'root@devops:~$ kubectl get endpoints', 'root@devops:~$ kubectl get networkpolicy',
+        'root@devops:~$ terraform refresh', 'root@devops:~$ terraform show -json', 'root@devops:~$ terraform output -json',
+        'root@devops:~$ terraform validate -json', 'root@devops:~$ aws lambda list-functions', 'root@devops:~$ aws apigateway get-rest-apis',
+        'root@devops:~$ aws s3 mb s3://logs-prod --region us-east-1', 'root@devops:~$ aws route53 list-hosted-zones',
+        'root@devops:~$ aws cloudfront list-distributions', 'root@devops:~$ aws autoscaling describe-auto-scaling-groups',
+        'root@devops:~$ kubectl get pod -o wide', 'root@devops:~$ kubectl logs -l app=api --tail=100', 'root@devops:~$ kubectl top node',
+        'root@devops:~$ kubectl get rs', 'root@devops:~$ kubectl get ds', 'root@devops:~$ kubectl get cj', 'root@devops:~$ kubectl get cs',
+        'root@devops:~$ kubectl patch svc api --patch ...', 'root@devops:~$ kubectl label deploy/api app=api',
+        'root@devops:~$ kubectl annotate deploy/api version=v2', 'root@devops:~$ python3 -m pytest tests/test_api.py -q',
+        'root@devops:~$ pytest -q', 'root@devops:~$ mypy app', 'root@devops:~$ flake8 app', 'root@devops:~$ sonar-scanner',
+        'root@devops:~$ trivy fs --severity HIGH,CRITICAL .', 'root@devops:~$ tfsec .', 'root@devops:~$ checkov -d .',
+        'root@devops:~$ snyk test', 'root@devops:~$ grype repo .', 'root@devops:~$ semgrep --config=auto .', 'root@devops:~$ bandit -r .',
+        'root@devops:~$ gitleaks detect --source .', 'root@devops:~$ trivy image app:latest', 'root@devops:~$ aws iam get-user',
+        'root@devops:~$ aws iam list-access-keys', 'root@devops:~$ aws s3api list-buckets', 'root@devops:~$ aws route53 list-resource-record-sets',
+        'root@devops:~$ kubectl run debug --image=busybox -it --rm -- sh', 'root@devops:~$ kubectl delete pod debug',
+        'root@devops:~$ curl -H "Authorization: Bearer $TOKEN" https://api.example.com/health', 'root@devops:~$ jq . /tmp/metrics.json',
+        'root@devops:~$ yq e ".spec.replicas" deployment.yaml', 'root@devops:~$ cat values.yaml', 'root@devops:~$ vim deployment.yaml',
+        'root@devops:~$ sed -i "s/image:.*/image: app:v2/" deployment.yaml', 'root@devops:~$ awk "/ERROR/ {print \$0}" /var/log/app.log',
+        'root@devops:~$ grep -E "ERROR|WARN|INFO" /var/log/app.log', 'root@devops:~$ find . -name "*.tf" -maxdepth 3',
+        'root@devops:~$ find . -name "*.yaml" -o -name "*.yml" | head', 'root@devops:~$ locust -f load_test.py --headless -u 10 -r 2',
+        'root@devops:~$ hey -n 10000 -c 50 http://localhost:8080/health', 'root@devops:~$ k6 run load.js',
+        'root@devops:~$ ab -n 10000 -c 50 http://localhost:8080/health', 'root@devops:~$ kubectl get deployment api -o yaml | less',
+        'root@devops:~$ terraform console', 'root@devops:~$ terraform plan -var-file=prod.tfvars', 'root@devops:~$ kubectl logs deployment/api | tail -n 50',
+        'root@devops:~$ docker exec -it container sh', 'root@devops:~$ ls -la', 'root@devops:~$ pwd', 'root@devops:~$ cat /etc/os-release',
+        'root@devops:~$ whoami', 'root@devops:~$ uname -a', 'root@devops:~$ df -h /var', 'root@devops:~$ free -h',
+        'root@devops:~$ netstat -ano | head', 'root@devops:~$ uptime', 'root@devops:~$ echo $PATH', 'root@devops:~$ env | sort',
+        'root@devops:~$ date', 'root@devops:~$ hostname', 'root@devops:~$ curl -s http://localhost:9090/api/v1/targets',
+        'root@devops:~$ curl -s http://localhost:3000/api/health', 'root@devops:~$ kubectl get pods -A', 'root@devops:~$ kubectl get ingress -A',
+        'root@devops:~$ kubectl logs deployment/api --tail=200', 'root@devops:~$ kubectl wait --for=condition=ready pod -l app=api',
+        'root@devops:~$ kubectl get ns', 'root@devops:~$ kubectl get events -n prod', 'root@devops:~$ terraform plan -out=tfplan',
+        'root@devops:~$ terraform apply tfplan', 'root@devops:~$ terraform output -raw endpoint', 'root@devops:~$ docker compose ps',
+        'root@devops:~$ docker stats --no-stream', 'root@devops:~$ git log --graph --decorate --oneline --all', 'root@devops:~$ git branch -a',
+        'root@devops:~$ aws ecs list-clusters', 'root@devops:~$ aws s3 ls s3://logs-prod', 'root@devops:~$ aws lambda list-functions --region us-east-1',
+        'root@devops:~$ eksctl get nodegroup --cluster prod', 'root@devops:~$ ansible-playbook --syntax-check deploy.yml',
+        'root@devops:~$ ansible-playbook -i inventory/prod deploy.yml', 'root@devops:~$ jenkins-cli build app-prod -s',
+        'root@devops:~$ curl -k https://localhost:8443/health', 'root@devops:~$ prometheus query "up"',
+        'root@devops:~$ grafana-cli admin reset-admin-password', 'root@devops:~$ journalctl -u docker -n 100',
+        'root@devops:~$ tail -n 50 /var/log/syslog', 'root@devops:~$ systemctl status nginx', 'root@devops:~$ systemctl restart prometheus',
+        'root@devops:~$ kubeadm config images list', 'root@devops:~$ kubeadm upgrade plan', 'root@devops:~$ kind create cluster --image kindest/node:v1.29.0',
+        'root@devops:~$ docker network ls', 'root@devops:~$ python3 -m pip install -r requirements.txt', 'root@devops:~$ npm ci',
+        'root@devops:~$ yarn build', 'root@devops:~$ python3 manage.py check', 'root@devops:~$ celery -A app inspect active',
+        'root@devops:~$ redis-cli -h redis cluster info', 'root@devops:~$ psql -U postgres -l', 'root@devops:~$ kafka-topics --describe --topic app-events',
+        'root@devops:~$ elasticsearch-certutil ca', 'root@devops:~$ otelcol --version', 'root@devops:~$ fluent-bit --version',
+        'root@devops:~$ trivy image app:latest', 'root@devops:~$ semgrep --config auto .', 'root@devops:~$ grype repo .',
+        'root@devops:~$ checkov -d .', 'root@devops:~$ sonarqube-scanner', 'root@devops:~$ gitleaks detect --source .',
+        'root@devops:~$ aws iam list-roles', 'root@devops:~$ aws route53 list-hosted-zones', 'root@devops:~$ kubectl get secret -A',
+        'root@devops:~$ kubectl get cm -A', 'root@devops:~$ kubectl get deploy -o wide', 'root@devops:~$ kubectl get sts -A',
+        'root@devops:~$ terraform workspace select prod', 'root@devops:~$ terraform graph', 'root@devops:~$ aws apigateway get-rest-apis',
+        'root@devops:~$ aws cloudfront list-distributions', 'root@devops:~$ kubectl patch ingress app --type merge',
+        'root@devops:~$ kubectl explain ingress.spec', 'root@devops:~$ kubectl get hpa -A', 'root@devops:~$ kubectl top node',
+        'root@devops:~$ kubectl auth can-i get pods --as system:admin', 'root@devops:~$ helm upgrade --install app ./charts/app --atomic',
+        'root@devops:~$ flux get all', 'root@devops:~$ prometheus --version', 'root@devops:~$ alertmanager --version', 'root@devops:~$ loki --version',
+        'root@devops:~$ dig +short api.example.com', 'root@devops:~$ nslookup api.example.com', 'root@devops:~$ dig @8.8.8.8 api.example.com',
+        'root@devops:~$ traceroute api.example.com', 'root@devops:~$ ssh prod-app "df -h"', 'root@devops:~$ scp file.txt prod-app:/tmp/file.txt',
+        'root@devops:~$ rsync -avz ./app prod-app:/srv/app', 'root@devops:~$ pgrep -af java', 'root@devops:~$ lsof -i :8080',
+        'root@devops:~$ netstat -tlpn | grep 8080', 'root@devops:~$ iostat -x 1'
+      ];
+
+      const stream = document.getElementById('bgStream');
+      const visibleCount = 20;
+
+      function renderCommands() {
+        stream.innerHTML = '';
+        const sample = [...commands].sort(() => Math.random() - 0.5).slice(0, visibleCount);
+
+        sample.forEach((item) => {
+          const star = document.createElement('span');
+          star.className = 'command-star';
+          star.textContent = item.replace(/^root@devops:\~\$\s*/, '');
+
+          const x = (8 + Math.random() * 76).toFixed(2);
+          const y = (10 + Math.random() * 72).toFixed(2);
+
+          const dx = ((Math.random() - 0.5) * 220).toFixed(1) + 'px';
+          const dy = ((Math.random() - 0.5) * 120).toFixed(1) + 'px';
+          const dur = (12 + Math.random() * 18).toFixed(2) + 's';
+
+          star.style.setProperty('--x', x + '%');
+          star.style.setProperty('--y', y + '%');
+          star.style.setProperty('--dx', dx);
+          star.style.setProperty('--dy', dy);
+          star.style.setProperty('--dur', dur);
+          star.style.animationDelay = (Math.random() * 4).toFixed(2) + 's';
+          stream.appendChild(star);
+        });
+      }
+
+      renderCommands();
+    </script>
+    -->
+    <script>
+      // Light/dark theme toggle. The choice is saved, so every page uses it.
+      (function () {
+        const root = document.documentElement;
+        const btn = document.querySelector('.theme-toggle');
+        if (!btn) return;
+        const icon = btn.querySelector('.theme-icon');
+
+        function apply(theme) {
+          if (theme === 'light') {
+            root.setAttribute('data-theme', 'light');
+          } else {
+            root.removeAttribute('data-theme');
+          }
+          const isLight = theme === 'light';
+          icon.textContent = isLight ? '☾' : '☀';
+          btn.setAttribute('aria-label', isLight ? 'Switch to dark theme' : 'Switch to light theme');
+        }
+
+        apply(root.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+
+        btn.addEventListener('click', function () {
+          const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+          apply(next);
+          try { localStorage.setItem('theme', next); } catch (e) {}
+        });
+      })();
+    </script>
+  </body>
+</html>
