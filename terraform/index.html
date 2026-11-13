@@ -285,7 +285,10 @@
       .back-link:hover { color: var(--brand); }
 
       @media (max-width: 900px) {
-        .concepts-layout { grid-template-columns: 1fr; }
+        .page { width: 100%; }
+        /* minmax(0, 1fr), not 1fr: a plain 1fr column grows to fit the longest
+           code line and pushes the whole page wider than the phone screen. */
+        .concepts-layout { grid-template-columns: minmax(0, 1fr); }
         .sidebar { position: static; }
         .concept-list { flex-direction: row; flex-wrap: wrap; }
       }
@@ -548,19 +551,54 @@
         .concept { --tab: 1em; }                          /* smaller indent on phones */
       }
 
-      /* ================= Phone layout ================= */
-      @media (max-width: 680px) {
+      /* ================= Tablet + phone layout ================= */
+      body { overflow-x: clip; }   /* nothing can push the page sideways; "clip" keeps the sticky top bar working */
+
+      /* Long words like terraform.tfvars.json wrap instead of running off-screen */
+      .concept h1,
+      .lead,
+      .article p,
+      .article li { overflow-wrap: anywhere; }
+
+      @media (max-width: 900px) {
+        /* Top bar: name on the first line, menu + theme button on the second (same as home) */
         .topbar { padding: 12px 16px; }
-        .topbar-inner { width: 100%; align-items: center; }
-        .brand { font-size: 1.25rem; }
+        .topbar-inner { width: 100%; flex-direction: column; align-items: center; gap: 10px; }
+        .brand { white-space: nowrap; }
         .topbar-actions { width: 100%; justify-content: center; gap: 14px; }
-        .top-nav { gap: 16px; flex-wrap: wrap; justify-content: center; }   /* desktop rule set 30px */
-        .concepts-layout { padding-top: 20px; gap: 16px; }
-        .sidebar { padding: 14px 12px; border-radius: 16px; }
-        .article { border-radius: 16px; }
-        .concept h1 { font-size: 1.6rem; }
-        .article h2 { font-size: 1.3rem; }
-        pre { font-size: 0.8rem; padding: 14px 12px; }   /* long code lines scroll inside the box */
+        .top-nav { gap: 22px; flex-wrap: wrap; justify-content: center; }
+      }
+
+      @media (max-width: 680px) {
+        .page { padding: 0 12px 48px; }
+        .brand { font-size: 1.25rem; }
+        .topbar-actions { gap: 10px; }
+        .top-nav { gap: 12px; }   /* 5 links here vs 4 on home, so keep them on one line */
+        .top-nav a { font-size: 0.64rem; letter-spacing: 0.08em; }
+        .theme-toggle { width: 32px; height: 32px; flex: none; }
+
+        /* Concept list: compact pills, wrapping onto two lines if needed */
+        .concepts-layout { padding-top: 16px; gap: 14px; }
+        .sidebar { padding: 12px; border-radius: 16px; }
+        .sidebar h2 { margin: 0 0 8px 4px; }
+        .concept-list { gap: 6px; }
+        .concept-link { padding: 7px 12px; font-size: 0.85rem; }
+
+        .concept h1 { font-size: 1.55rem; margin-bottom: 10px; }
+        .lead { font-size: 0.95rem; margin-bottom: 14px; }
+        .article { padding: 18px 14px 22px; border-radius: 16px; }
+        .article h2 { font-size: 1.3rem; margin-top: 22px; }
+        .article p,
+        .article li { font-size: 0.95rem; line-height: 1.65; }
+        .article ul,
+        .article ol { padding-left: 20px; }
+        .article hr { margin: 20px 0; }
+        pre { font-size: 0.78rem; padding: 12px; border-radius: 10px; }   /* long code lines scroll inside the box */
+      }
+
+      @media (max-width: 680px) {
+        .concept { --tab: 0px; }   /* no extra indent on phones; every pixel of width counts */
+        .concept > .lead { margin-left: 0; }
       }
     </style>
   </head>

@@ -1325,30 +1325,49 @@
 
         /* Experience: 2 cards per row */
         .experience-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      }
-
-      /* ---------- Phones (≤ 560px) ---------- */
-      @media (max-width: 560px) {
-        .page { padding-inline: 16px; padding-bottom: 48px; }
 
         /* Top bar: name on the first line, menu + theme button on the second */
-        .topbar { padding: 12px 16px 12px; }
+        .topbar { padding: 12px 16px; }
         .topbar-inner {
           width: 100%;
           flex-direction: column;
           align-items: center;
           gap: 10px;
         }
-        .brand { font-size: 1.25rem; }
+        .brand { white-space: nowrap; }
         .topbar-actions { width: 100%; justify-content: center; gap: 14px; }
-        .top-nav { gap: 18px; justify-content: center; }
+        .top-nav { gap: 22px; justify-content: center; }
+
+        /* Terraform drop-down: open as a centred panel just under the whole
+           skills banner, so it never runs off the screen or covers other chips. */
+        .chip-wrap,
+        .tag-row-inner { position: static; }
+        .chip-menu {
+          top: calc(100% + 6px);
+          left: 50%;
+          transform: translateX(-50%);
+          width: min(320px, calc(100vw - 32px));
+          min-width: 0;
+          background: rgba(30, 30, 32, 0.98);   /* solid, so banner text doesn't show through */
+          backdrop-filter: none;
+        }
+        .chip-menu a { padding: 12px 14px; font-size: 0.9rem; text-align: center; }
+        :root[data-theme="light"] .chip-menu { background: #ffffff; }
+      }
+
+      /* ---------- Phones (≤ 560px) ---------- */
+      @media (max-width: 560px) {
+        .page { padding-inline: 16px; padding-bottom: 48px; }
+
+        /* Top bar: smaller name and menu text (stacking is set in the ≤ 860px block) */
+        .brand { font-size: 1.25rem; }
+        .top-nav { gap: 18px; }
         .top-nav a { font-size: 0.68rem; letter-spacing: 0.12em; }
 
         /* Skills banner: smaller text, tighter spacing */
         .tag-row { padding: 8px 12px; }
         .tag-row-inner { gap: 2px 14px; }
         .chip { font-size: 0.78rem; padding: 6px 2px; }
-        .chip-menu { left: 50%; transform: translateX(-50%); }   /* keep drop-down on screen */
 
         /* Hero */
         .intro-center {
