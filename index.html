@@ -1217,6 +1217,24 @@
           0 0 30px rgba(10, 102, 194, 0.45);
       }
 
+      /* Email / Contact variant: same tile, gold glow, envelope cut out of a gold gradient */
+      .github-btn--email .github-btn__tile::before {
+        background: radial-gradient(circle, var(--gold-1), var(--gold-2) 70%);
+      }
+      .github-btn--email .github-btn__mark {
+        width: 62%;
+        background: linear-gradient(135deg, var(--gold-1), var(--gold-2));
+        --gh: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z'/%3E%3C/svg%3E");
+        animation: none;
+      }
+      .github-btn--email:hover .github-btn__tile,
+      .github-btn--email:focus-visible .github-btn__tile {
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          0 16px 36px rgba(0, 0, 0, 0.5),
+          0 0 30px rgba(210, 154, 60, 0.45);
+      }
+
       @keyframes ghSpin {
         /* turns the colours only; the cat shape stays still */
         to { filter: hue-rotate(360deg); }
@@ -1282,6 +1300,88 @@
 
       .experience-card p { font-weight: 300; }
 
+      /* Education: same cards as Experience, two per row */
+      .education-block { margin-top: 40px; scroll-margin-top: 90px; }
+      .education-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .education-grid .edu-masters { order: -1; }   /* Master's on the left when side by side */
+
+      /* University name on the left, dates on the same line at the far right of
+         the card. A long name wraps inside its own column; the dates stay put,
+         lined up with the name's first line. */
+      .edu-head {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+      .edu-head h3 { margin: 0; flex: 1 1 0; min-width: 0; font-size: 1.65rem; line-height: 1.3; }   /* a bit larger than job titles (1.5rem) */
+      .edu-head .meta {
+        flex: none;
+        white-space: nowrap;
+        text-align: right;
+      }
+
+      /* Small grey "under construction" note just below the skills banner, top left */
+      .construction-note {
+        position: relative;
+        z-index: 1;
+        margin: 10px 0 0;
+        font-family: var(--font-body);
+        font-size: 0.78rem;
+        letter-spacing: 0.02em;
+        color: var(--secondary);
+        text-align: left;
+      }
+      /* Desktop: line it up with the name and the first banner item, which sit in
+         a centred min(1380px, 100vw - 80px) column (20px bar padding + 20px inner
+         inset on each side), wider than the page content. */
+      @media (min-width: 861px) {
+        .construction-note {
+          --edge: min(1380px, calc(100vw - 80px));
+          width: var(--edge);
+          margin-left: calc(50% - var(--edge) / 2);
+        }
+      }
+
+      /* Experience card with a company: company name on top as the card title,
+         in the same gold gradient as "Manoj Kumar" in the header. */
+      .experience-card h3.exp-company {
+        margin: 0 0 4px;     /* small gap down to the role line */
+        line-height: 1.25;   /* keeps a two-line company name compact too */
+      }
+      /* Gold gradient (same as "Manoj Kumar") for company names and university names */
+      .experience-card h3.exp-company,
+      .edu-head h3 {
+        background: linear-gradient(120deg, var(--gold-1), var(--gold-2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      :root[data-theme="light"] .experience-card h3.exp-company,
+      :root[data-theme="light"] .edu-head h3 { color: transparent; }
+
+      /* Role on the left, dates on the same line at the far right.
+         In a narrow card where both don't fit, the dates move to the next line
+         (still right-aligned) instead of overlapping the role. */
+      .exp-role-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 2px 10px;
+        margin-bottom: 10px;
+      }
+      .exp-role-row .exp-role { flex: 0 1 auto; }
+      .exp-role-row .meta { margin-left: auto; white-space: nowrap; text-align: right; }
+      .experience-card .exp-role-row .meta { font-size: 0.8rem; }   /* lets role + date share a line on phones */
+
+      /* Degree / role name: plain card text colour, slightly bolder than body text */
+      .experience-card p.edu-degree,
+      .experience-card p.exp-role {
+        font-weight: 500;
+        font-size: 1.02rem;
+        letter-spacing: 0.01em;
+      }
+
       /* Light theme versions of the polished pieces */
       :root[data-theme="light"] .tag-row {
         background: var(--glass);
@@ -1300,8 +1400,21 @@
       :root[data-theme="light"] .experience-card:hover {
         box-shadow: 0 24px 50px rgba(32, 52, 64, 0.14), 0 0 0 1px var(--hairline);
       }
-      :root[data-theme="light"] .experience-card .meta { color: var(--gold-2); }
       :root[data-theme="light"] .intro-center .eyebrow-line { color: var(--gold-2); }
+
+      /* Dates on Experience + Education cards: muted grey italic, normal case,
+         so the job title / university name stands out more. */
+      .experience-card .meta,
+      .edu-head .meta {
+        font-family: var(--font-body);
+        font-style: italic;
+        font-weight: 400;
+        font-size: 0.86rem;
+        letter-spacing: 0.02em;
+        text-transform: none;
+        color: var(--muted);
+      }
+      :root[data-theme="light"] .experience-card .meta { color: var(--muted); }
 
       /* =====================================================================
          PHONE & TABLET LAYOUT
@@ -1389,8 +1502,12 @@
         /* Experience: one card per row, and no sticky pinning on small screens */
         .experience-section { padding: 20px 0 8px; margin-top: 16px; }
         .experience-section.stick-top { position: relative; top: 0; }
-        .experience-grid { grid-template-columns: 1fr; gap: 14px; }
+        .experience-grid,
+        .education-grid { grid-template-columns: 1fr; gap: 14px; }
         .experience-card h3 { font-size: 1.15rem; }
+        .education-block { margin-top: 28px; }
+        .edu-head h3 { font-size: 1.3rem; }   /* phones: a bit larger than job titles (1.15rem) */
+        .education-grid .edu-masters { order: 0; }   /* stacked on phones: Master's goes back to the bottom */
       }
     </style>
   </head>
@@ -1411,7 +1528,7 @@
               <a href="#about">About</a>
               <a href="#resume">Resume</a>
               <a href="#projects">Projects</a>
-              <a href="#contact">Contact</a>
+              <a href="mailto:Manoj.sde2@gmail.com?subject=Hello%20Manoj%20%E2%80%94%20from%20your%20website">Contact</a>
             </nav>
             <button type="button" class="theme-toggle" aria-label="Switch to light theme">
               <span class="theme-icon" aria-hidden="true">☀</span>
@@ -1441,6 +1558,8 @@
         </div>
       </header>
 
+      <p class="construction-note">This site is under construction.</p>
+
       <section class="intro-center" aria-label="Introduction">
         <p class="eyebrow-line">DevSecOps &middot; SRE &middot; Cloud</p>
         <h1 class="hello">Hello! I'm <span class="name">Manoj</span></h1>
@@ -1462,6 +1581,15 @@
             </span>
             <span class="github-btn__text">LinkedIn</span>
           </a>
+          <!-- Opens the visitor's email app with a new message to Manoj -->
+          <a class="github-btn github-btn--email"
+             href="mailto:Manoj.sde2@gmail.com?subject=Hello%20Manoj%20%E2%80%94%20from%20your%20website"
+             aria-label="Send me an email" title="Email">
+            <span class="github-btn__tile" aria-hidden="true">
+              <span class="github-btn__mark"></span>
+            </span>
+            <span class="github-btn__text">Contact</span>
+          </a>
         </div>
       </section>
 
@@ -1469,20 +1597,53 @@
         <h2>Experience</h2>
         <div class="experience-grid">
           <article class="experience-card">
-            <div class="meta">2023 — Present</div>
-            <h3>DevSecOps Engineer</h3>
+            <h3 class="exp-company">Infosys Limited</h3>
+            <div class="exp-role-row">
+              <p class="exp-role">Technology Lead</p>
+              <div class="meta">Jul 2023 — Present</div>
+            </div>
             <p>Building secure cloud pipelines, automating deployments, and strengthening application reliability across production workloads.</p>
           </article>
           <article class="experience-card">
-            <div class="meta">2021 — 2023</div>
-            <h3>SRE Engineer</h3>
+            <h3 class="exp-company">HCL Technologies</h3>
+            <div class="exp-role-row">
+              <p class="exp-role">Senior Software Engineer</p>
+              <div class="meta">Jan 2020 — Oct 2021</div>
+            </div>
             <p>Monitoring distributed systems, reducing incident response time, and improving service health through observability and automation.</p>
           </article>
           <article class="experience-card">
-            <div class="meta">2019 — 2021</div>
-            <h3>Cloud &amp; Infrastructure Engineer</h3>
+            <h3 class="exp-company">Business Intelli Solutions</h3>
+            <div class="exp-role-row">
+              <p class="exp-role">Software Developer</p>
+              <div class="meta">Mar 2017 — Dec 2019</div>
+            </div>
             <p>Managing infrastructure as code, Kubernetes environments, and CI/CD processes to improve speed, stability, and operational consistency.</p>
           </article>
+        </div>
+
+        <!-- Education: kept inside the Experience section so it scrolls with it
+             (the Experience section turns sticky on scroll; a separate section
+             after it would slide underneath it). -->
+        <div id="education" class="education-block">
+          <h2>Education</h2>
+          <div class="experience-grid education-grid">
+            <article class="experience-card">
+              <div class="edu-head">
+                <h3>Jawaharlal Nehru Technological University</h3>
+                <div class="meta">2012 — 2016</div>
+              </div>
+              <p class="edu-degree">Bachelor's Degree</p>
+            </article>
+            <!-- "edu-masters": shown on the left on desktop, at the bottom on phones -->
+            <article class="experience-card edu-masters">
+              <div class="edu-head">
+                <h3>University of Missouri–Kansas City</h3>
+                <div class="meta">Jan 2022 — May 2023</div>
+              </div>
+              <p class="edu-degree">Master's in Computer Science</p>
+            </article>
+          </div>
         </div>
       </section>
 
