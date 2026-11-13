@@ -629,8 +629,13 @@
       </header>
 
       <div class="concepts-layout">
-        <!-- Left side: list of concepts. To add a concept, add a link here
-             and a matching <section class="concept" id="..."> below. -->
+        <!-- Left side: list of concepts. To add a concept:
+             1. add a link here,
+             2. add a matching <section class="concept" id="..."> below,
+             3. copy the folder terraform/variables/ to terraform/<id>/ and change
+                "variables" to <id> inside its index.html (so reloading
+                /terraform/<id> works instead of showing 404). -->
+
         <aside class="sidebar" aria-label="Terraform concepts">
           <h2>Terraform Concepts</h2>
           <ul class="concept-list">
