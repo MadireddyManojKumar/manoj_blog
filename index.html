@@ -1028,14 +1028,32 @@
 
       .chip {
         font-family: var(--font-body);
-        font-size: clamp(0.66rem, 0.7vw, 0.8rem);
+        font-size: clamp(0.7rem, 0.76vw, 0.88rem);
         font-weight: 500;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        text-transform: none; /* show labels exactly as written */
         padding: 8px 2px;
       }
 
       .chip:hover { color: var(--gold-1); transform: none; }
+
+      /* gold underline that draws in on hover — same as the top nav (Resume) */
+      .chip { position: relative; }
+      .chip::after {
+        content: "";
+        position: absolute;
+        left: 2px;   /* match the chip's side padding so the line sits under the text */
+        right: 2px;
+        bottom: 3px;
+        height: 1px;
+        background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+      }
+      .chip:hover::after,
+      .chip:focus-visible::after,
+      .chip-wrap.open .chip-trigger::after { transform: scaleX(1); }
 
       .chip-menu {
         background: var(--glass);
@@ -1111,20 +1129,20 @@
         flex: none;
         display: inline-flex;
         align-items: center;
-        gap: clamp(10px, 1.1vw, 16px);
+        gap: clamp(7px, 0.77vw, 11px);
         text-decoration: none;
         border-radius: 14px;
         transition: transform 0.25s ease;
         animation: heroReveal 1.1s ease both;
       }
 
-      /* icon tile — 75% of the original clamp(58px, 6.5vw, 92px) */
+      /* icon tile — 30% smaller than before (was clamp(44px, 4.9vw, 69px)) */
       .github-btn__tile {
         position: relative;
         flex: none;
         display: grid;
         place-items: center;
-        width: clamp(44px, 4.9vw, 69px);
+        width: clamp(31px, 3.43vw, 48px);
         aspect-ratio: 1;
         border-radius: 24%;
         background: linear-gradient(160deg, #1a2440, #0d1428);
@@ -1137,7 +1155,7 @@
       .github-btn__text {
         font-family: var(--font-body);
         font-weight: 500;
-        font-size: clamp(1.1rem, 1.5vw, 1.5rem);
+        font-size: clamp(0.77rem, 1.05vw, 1.05rem);
         letter-spacing: 0.01em;
         color: var(--ivory);
         transition: color 0.25s ease;
@@ -1150,7 +1168,7 @@
         inset: 18%;
         border-radius: 50%;
         background: conic-gradient(from 200deg, #5ad1ff, #7b6cff, #ff5fa2, #ff6b4a, #ffd84a, #4ade80, #5ad1ff);
-        filter: blur(14px);
+        filter: blur(10px);
         opacity: 0.45;
         transition: opacity 0.25s ease;
       }
@@ -1325,11 +1343,11 @@
             </div>
           </div>
           <a href="#" class="chip">AWS</a>
-          <a href="#" class="chip">Roboshop</a>
+          <a href="#" class="chip">RoboShop</a>
           <a href="#" class="chip">Docker</a>
           <a href="#" class="chip">Kubernetes</a>
           <a href="#" class="chip">SRE</a>
-          <a href="#" class="chip">Monitoring and Observability</a>
+          <a href="#" class="chip">Monitoring &amp; Observability</a>
         </div>
       </header>
 
