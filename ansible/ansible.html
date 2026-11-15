@@ -1,0 +1,3127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ansible Concepts | Manoj Kumar Madireddy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <script>
+      // Apply the saved theme before the page draws, so it doesn't flash dark first.
+      try {
+        if (localStorage.getItem('theme') === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch (e) {}
+    </script>
+    <style>
+      /* Same colour tokens as ../index.html */
+      :root {
+        --bg: #101417;
+        --bg-soft: #181f24;
+        --panel: rgba(18, 24, 28, 0.78);
+        --panel-strong: rgba(22, 28, 33, 0.84);
+        --text: #f4f5f7;
+        --muted: #bcc8cf;
+        --primary: #ffffff;
+        --secondary: #9aa8b1;
+        --accent: #ffd166;
+        --accent-soft: rgba(255, 209, 102, 0.12);
+        --brand: #ffb454;
+        --line: rgba(255, 255, 255, 0.08);
+        --shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      * { box-sizing: border-box; }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at center, rgba(255, 209, 102, 0.07), transparent 30%),
+          linear-gradient(180deg, #0a0f12 0%, #10161b 35%, #121b20 100%);
+        color: var(--text);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.7;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      /* Background image, same as the home page */
+      .computer-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(180deg, rgba(8, 12, 16, 0.72), rgba(8, 12, 16, 0.84)),
+          url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+        filter: saturate(1.1) contrast(1.02) brightness(0.42);
+      }
+
+      a { color: inherit; text-decoration: none; }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        width: 84%;
+        max-width: 1380px;
+        margin: 0 auto;
+        padding: 0 28px 80px;
+        background: rgba(15, 20, 24, 0.34);
+        min-height: 100vh;
+      }
+
+      /* ---------- Top bar (matches home page) ---------- */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        padding: 18px 20px 20px;
+        background: rgba(17, 22, 25, 0.82);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(10px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        width: min(1380px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.38rem;
+        font-size: clamp(1.12rem, 1vw + 0.78rem, 1.92rem);
+        font-style: italic;
+        font-family: Georgia, "Times New Roman", serif;
+        line-height: 1;
+      }
+
+      .brand-name { color: var(--brand); letter-spacing: -0.05em; }
+      .brand-last { color: #f4f7fb; letter-spacing: 0.01em; }
+
+      .top-nav {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .top-nav a {
+        color: rgba(244, 245, 247, 0.8);
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-style: italic;
+        font-family: Georgia, "Times New Roman", serif;
+        transition: color 0.2s ease;
+      }
+
+      .top-nav a:hover { color: var(--brand); }
+
+      /* ---------- Concepts layout: sidebar + content ---------- */
+      .concepts-layout {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        gap: 28px;
+        align-items: start;
+        padding-top: 40px;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 100px;
+        background: var(--panel-strong);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 22px 16px;
+        backdrop-filter: blur(8px);
+      }
+
+      .sidebar h2 {
+        margin: 0 0 12px 10px;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--secondary);
+      }
+
+      .concept-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .concept-link {
+        display: block;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-weight: 600;
+        color: var(--muted);
+        transition: background 0.2s ease, color 0.2s ease;
+      }
+
+      /* Same highlight as the Ansible drop-down on the home page */
+      .concept-link:hover,
+      .concept-link.active {
+        background: rgba(255, 180, 84, 0.14);
+        color: var(--brand);
+      }
+
+      .concept { display: none; }
+      .concept.active { display: block; }
+
+      .concept h1 {
+        margin: 0 0 18px;
+        font-size: clamp(1.6rem, 1.2vw + 1.1rem, 2.1rem);
+        line-height: 1.25;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+
+      .lead {
+        color: #d5e7f0;
+        font-size: 1rem;
+        margin: 0 0 22px;
+      }
+
+      .placeholder {
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      /* ---------- Article content ---------- */
+      .article {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 28px 28px 36px;
+        backdrop-filter: blur(8px);
+      }
+
+      .article h2 {
+        margin-top: 28px;
+        margin-bottom: 10px;
+        font-size: 1.3rem;
+        line-height: 1.35;
+        letter-spacing: -0.01em;
+        color: var(--accent);
+      }
+
+      .article h3 {
+        margin-top: 24px;
+        margin-bottom: 8px;
+        font-size: 1.05rem;
+      }
+
+      .article p,
+      .article li {
+        color: var(--text);
+        font-size: 1.01rem;
+      }
+
+      .article strong { color: inherit; }  /* bold only, no colour: only headings are highlighted */
+
+      .article ul,
+      .article ol { padding-left: 22px; }
+
+      code, pre {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      }
+
+      pre {
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 18px 16px;
+        overflow-x: auto;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #d5e7f0;
+      }
+
+      /* Inline code (e.g. vars_files, inventory.ini): monospace only, no highlight */
+      code {
+        background: none;
+        color: inherit;
+        padding: 0;
+        font-size: 0.95em;
+      }
+
+      pre code {
+        background: none;
+        color: inherit;
+        padding: 0;
+      }
+
+      .article hr {
+        border: 0;
+        border-top: 1px solid var(--line);
+        margin: 26px 0;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-top: 18px;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .back-link:hover { color: var(--brand); }
+
+      @media (max-width: 900px) {
+        .page { width: 100%; }
+        /* minmax(0, 1fr), not 1fr: a plain 1fr column grows to fit the longest
+           code line and pushes the whole page wider than the phone screen. */
+        .concepts-layout { grid-template-columns: minmax(0, 1fr); }
+        .sidebar { position: static; }
+        .concept-list { flex-direction: row; flex-wrap: wrap; }
+      }
+
+      @media (max-width: 680px) {
+        .page { width: 100%; padding-inline: 16px; }
+        .topbar-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .top-nav { gap: 14px; }
+        .article { padding: 20px 18px 24px; }
+      }
+
+      /* ---------- Theme toggle button ---------- */
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--text);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: color 0.2s ease, border-color 0.2s ease;
+      }
+
+      .theme-toggle:hover { color: var(--brand); border-color: var(--brand); }
+      .theme-toggle:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+      /* ---------- Light (white) theme ---------- */
+      :root[data-theme="light"] {
+        --bg: #dfeaf3;
+        --bg-soft: #edf3f8;
+        --panel: rgba(255, 255, 255, 0.72);
+        --panel-strong: rgba(255, 255, 255, 0.85);
+        --text: #1c2d38;
+        --muted: #5d7382;
+        --primary: #1c2d38;
+        --secondary: #647f8f;
+        --accent: #a86500;
+        --accent-soft: rgba(168, 101, 0, 0.1);
+        --brand: #c46a00;
+        --line: rgba(28, 45, 56, 0.12);
+        --shadow: 0 18px 38px rgba(32, 52, 64, 0.08);
+      }
+
+      :root[data-theme="light"] body {
+        background:
+          radial-gradient(circle at top left, rgba(108, 166, 182, 0.18), transparent 24%),
+          radial-gradient(circle at bottom right, rgba(147, 183, 201, 0.16), transparent 28%),
+          linear-gradient(135deg, #dfeaf3 0%, #d7e3ee 34%, #c9dfe9 100%);
+      }
+
+      :root[data-theme="light"] .computer-bg { display: none; }
+      :root[data-theme="light"] .page { background: transparent; }
+      :root[data-theme="light"] .topbar {
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 0 0 1px var(--line);
+      }
+      :root[data-theme="light"] .brand-name { color: var(--brand); }
+      :root[data-theme="light"] .brand-last { color: var(--text); }
+      :root[data-theme="light"] .top-nav a { color: var(--muted); }
+      :root[data-theme="light"] .top-nav a:hover { color: var(--brand); }
+
+      /* Light theme: concept page content */
+      :root[data-theme="light"] .concept-link:hover,
+      :root[data-theme="light"] .concept-link.active {
+        background: var(--accent-soft);
+        color: var(--brand);
+      }
+      :root[data-theme="light"] .lead { color: var(--muted); }
+      :root[data-theme="light"] pre {
+        background: rgba(28, 45, 56, 0.05);
+        color: var(--text);
+      }
+      :root[data-theme="light"] pre code {
+        background: none;
+        color: inherit;
+      }
+
+      /* ================= Premium polish: shared header ================= */
+      :root {
+        --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+        --font-body: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        --gold-1: #f7dc9c;
+        --gold-2: #d29a3c;
+        --ivory: #f5f1ec;
+        --hairline: rgba(255, 209, 102, 0.28);
+        --glass: rgba(16, 21, 26, 0.55);
+      }
+
+      :root[data-theme="light"] {
+        --gold-1: #b8862f;
+        --gold-2: #7d500e;
+        --ivory: #1c2d38;
+        --hairline: rgba(168, 101, 0, 0.25);
+        --glass: rgba(255, 255, 255, 0.6);
+      }
+
+      body {
+        font-family: var(--font-body);
+        font-weight: 400;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      ::selection { background: rgba(255, 209, 102, 0.3); }
+
+      .topbar { position: sticky; }
+
+      /* fine gold hairline under the top bar */
+      .topbar::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--hairline) 20%, var(--hairline) 80%, transparent);
+      }
+
+      .brand {
+        font-family: var(--font-display);
+        font-size: clamp(1.35rem, 1vw + 1rem, 2.1rem);
+        font-weight: 600;
+        gap: 0.32rem;
+      }
+
+      .brand-name,
+      .brand-last {
+        font-family: var(--font-display);
+        font-weight: 600;
+        letter-spacing: 0.01em;
+      }
+
+      .brand-name {
+        background: linear-gradient(120deg, var(--gold-1), var(--gold-2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      :root[data-theme="light"] .brand-name { color: transparent; }
+
+      .top-nav { gap: 30px; }
+
+      .top-nav a {
+        position: relative;
+        font-family: var(--font-body);
+        font-style: normal;
+        font-weight: 500;
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+        padding: 4px 0;
+      }
+
+      /* gold underline that draws in on hover */
+      .top-nav a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+      }
+
+      .top-nav a:hover::after { transform: scaleX(1); }
+
+      .theme-toggle {
+        border-color: var(--hairline);
+        color: var(--gold-1);
+        backdrop-filter: blur(6px);
+      }
+
+      .theme-toggle:hover {
+        color: var(--gold-2);
+        border-color: var(--gold-2);
+      }
+
+      /* ================= Premium polish: concepts page ================= */
+      .page { background: transparent; }  /* one even background edge to edge */
+      .concept h1 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; font-size: clamp(1.9rem, 1.4vw + 1.3rem, 2.5rem); }
+      .article h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.55rem; letter-spacing: 0; }
+      .article p, .article li { font-weight: 400; }
+      .lead { font-weight: 300; }
+      .sidebar, .article { background: var(--glass); backdrop-filter: blur(12px); }
+      .sidebar h2 { font-family: var(--font-body); font-weight: 600; letter-spacing: 0.24em; font-size: 0.7rem; color: var(--gold-1); }
+      :root[data-theme="light"] .sidebar h2 { color: var(--gold-2); }
+      .concept-link { font-family: var(--font-body); font-weight: 500; font-size: 0.92rem; }
+
+      /* ================= Flat charcoal background (dark theme only) ================= */
+      :root:not([data-theme="light"]) {
+        --charcoal: #1e1e20;
+        --charcoal-raised: #252528;
+        --divider: rgba(255, 255, 255, 0.14);   /* thin light line, as in the reference */
+      }
+      :root:not([data-theme="light"]) body { background: var(--charcoal); }
+      :root:not([data-theme="light"]) .computer-bg { display: none; }   /* drop the photo */
+      :root:not([data-theme="light"]) .topbar {
+        background: rgba(30, 30, 32, 0.92);
+        box-shadow: none;
+      }
+      :root:not([data-theme="light"]) .topbar::after { background: var(--divider); }
+      :root:not([data-theme="light"]) .sidebar,
+      :root:not([data-theme="light"]) .article {
+        background: var(--charcoal-raised);
+        backdrop-filter: none;
+        border: 1px solid var(--divider);
+        box-shadow: none;
+      }
+
+      /* ================= Light theme: quiet background, content stands out ================= */
+      /* Mirrors the dark theme: muted page behind, solid raised cards for the content. */
+      :root[data-theme="light"] {
+        --paper-bg: #eceef1;          /* soft neutral grey, no blue gradient */
+        --paper-card: #ffffff;        /* solid white content cards */
+        --paper-line: rgba(28, 45, 56, 0.10);
+        --paper-shadow: 0 1px 2px rgba(20, 30, 40, 0.04), 0 8px 24px rgba(20, 30, 40, 0.06);
+      }
+      :root[data-theme="light"] body { background: var(--paper-bg); }
+      :root[data-theme="light"] .topbar {
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: none;
+      }
+      :root[data-theme="light"] .topbar::after { background: var(--paper-line); }
+      :root[data-theme="light"] .sidebar,
+      :root[data-theme="light"] .article {
+        background: var(--paper-card);
+        backdrop-filter: none;
+        border: 1px solid var(--paper-line);
+        box-shadow: var(--paper-shadow);
+      }
+      :root[data-theme="light"] .concept h1 { color: #14212b; }
+      :root[data-theme="light"] .article p,
+      :root[data-theme="light"] .article li { color: #24323c; }
+      :root[data-theme="light"] pre {
+        background: #f5f6f8;
+        border: 1px solid var(--paper-line);
+        color: #1c2d38;
+      }
+
+      /* ================= Indent content under headings (one "tab") ================= */
+      .concept { --tab: 2em; }
+      .concept > .lead,                                   /* intro line under the page title */
+      .article > :not(h1):not(h2):not(h3):not(hr) {        /* paragraphs, lists, code under each heading */
+        margin-left: var(--tab);
+      }
+      @media (max-width: 680px) {
+        .concept { --tab: 1em; }                          /* smaller indent on phones */
+      }
+
+      /* ================= Tablet + phone layout ================= */
+      body { overflow-x: clip; }   /* nothing can push the page sideways; "clip" keeps the sticky top bar working */
+
+      /* Long words like global_variables.yaml wrap instead of running off-screen */
+      .concept h1,
+      .lead,
+      .article p,
+      .article li { overflow-wrap: anywhere; }
+
+      @media (max-width: 900px) {
+        /* Top bar: name on the first line, menu + theme button on the second (same as home) */
+        .topbar { padding: 12px 16px; }
+        .topbar-inner { width: 100%; flex-direction: column; align-items: center; gap: 10px; }
+        .brand { white-space: nowrap; }
+        .topbar-actions { width: 100%; justify-content: center; gap: 14px; }
+        .top-nav { gap: 22px; flex-wrap: wrap; justify-content: center; }
+      }
+
+      @media (max-width: 680px) {
+        .page { padding: 0 12px 48px; }
+        .brand { font-size: 1.25rem; }
+        .topbar-actions { gap: 10px; }
+        .top-nav { gap: 12px; }   /* 5 links here vs 4 on home, so keep them on one line */
+        .top-nav a { font-size: 0.64rem; letter-spacing: 0.08em; }
+        .theme-toggle { width: 32px; height: 32px; flex: none; }
+
+        /* Concept list: compact pills, wrapping onto two lines if needed */
+        .concepts-layout { padding-top: 16px; gap: 14px; }
+        .sidebar { padding: 12px; border-radius: 16px; }
+        .sidebar h2 { margin: 0 0 8px 4px; }
+        .concept-list { gap: 6px; }
+        .concept-link { padding: 7px 12px; font-size: 0.85rem; }
+
+        .concept h1 { font-size: 1.55rem; margin-bottom: 10px; }
+        .lead { font-size: 0.95rem; margin-bottom: 14px; }
+        .article { padding: 18px 14px 22px; border-radius: 16px; }
+        .article h2 { font-size: 1.3rem; margin-top: 22px; }
+        .article p,
+        .article li { font-size: 0.95rem; line-height: 1.65; }
+        .article ul,
+        .article ol { padding-left: 20px; }
+        .article hr { margin: 20px 0; }
+        pre { font-size: 0.78rem; padding: 12px; border-radius: 10px; }   /* long code lines scroll inside the box */
+      }
+
+      @media (max-width: 680px) {
+        .concept { --tab: 0px; }   /* no extra indent on phones; every pixel of width counts */
+        .concept > .lead { margin-left: 0; }
+      }
+      /* ================= Architecture diagrams (inline SVG) ================= */
+      .diagram {
+        margin-top: 18px;
+        margin-bottom: 18px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.22);
+        overflow-x: auto;                 /* phones: the diagram scrolls inside its box */
+        --dg-fill: rgba(255, 255, 255, 0.04);
+        --dg-stroke: rgba(255, 255, 255, 0.22);
+      }
+      .diagram svg { display: block; width: 100%; min-width: 640px; height: auto; }
+      .diagram .dg-outer { fill: none; stroke: var(--gold-2); stroke-width: 1.5; }
+      .diagram .dg-box { fill: var(--dg-fill); stroke: var(--dg-stroke); stroke-width: 1; }
+      .diagram .dg-key { stroke: var(--gold-2); stroke-dasharray: 5 4; }
+      .diagram .dg-chip { fill: var(--accent-soft); stroke: var(--hairline); }
+      .diagram .dg-h { fill: var(--gold-1); font: 600 14px var(--font-body); }
+      .diagram .dg-t { fill: var(--text); font: 500 13px var(--font-body); }
+      .diagram .dg-s { fill: var(--muted); font: 400 11.5px var(--font-body); }
+      .diagram .dg-line { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+      .diagram .dg-dash { stroke-dasharray: 4 4; }
+      .diagram .dg-arrowhead { fill: var(--muted); }
+      :root[data-theme="light"] .diagram {
+        background: #f5f6f8;
+        --dg-fill: #ffffff;
+        --dg-stroke: rgba(28, 45, 56, 0.22);
+      }
+      :root[data-theme="light"] .diagram .dg-h { fill: var(--gold-2); }
+      /* Links inside article text (Overview page) */
+      .article p a:not(.back-link),
+      .article li a { color: var(--brand); text-decoration: underline; text-underline-offset: 3px; }
+      .article p a:not(.back-link):hover,
+      .article li a:hover { color: var(--gold-1); }
+      .source-link { overflow-wrap: anywhere; }
+    </style>
+  </head>
+  <body>
+    <div class="computer-bg" aria-hidden="true"></div>
+
+    <div class="page">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <a href="../index.html" class="brand">
+            <span class="brand-name">Manoj Kumar</span>
+            <span class="brand-last">Madireddy</span>
+          </a>
+
+          <div class="topbar-actions">
+            <nav class="top-nav" aria-label="Main navigation">
+              <a href="../index.html">Home</a>
+              <a href="../index.html#about">About</a>
+              <a href="../index.html#resume">Resume</a>
+              <a href="../index.html#projects">Projects</a>
+              <a href="mailto:Manoj.sde2@gmail.com?subject=Hello%20Manoj%20%E2%80%94%20from%20your%20website">Contact</a>
+            </nav>
+            <button type="button" class="theme-toggle" aria-label="Switch to light theme">
+              <span class="theme-icon" aria-hidden="true">☀</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div class="concepts-layout">
+        <!-- Left side: list of concepts. To add a concept:
+             1. add a link here,
+             2. add a matching <section class="concept" id="..."> below,
+             3. (optional) copy ansible/variables/variables.html to
+                ansible/<id>/<id>.html and change "variables" to <id> inside it,
+                so the old folder link forwards to ansible.html#<id>. -->
+
+        <aside class="sidebar" aria-label="Ansible concepts">
+          <h2>Ansible Concepts</h2>
+          <ul class="concept-list">
+            <li><a href="#overview" class="concept-link">Overview</a></li>
+            <li><a href="#variables" class="concept-link">Variables</a></li>
+            <li><a href="#datatypes" class="concept-link">Data Types</a></li>
+            <li><a href="#conditions" class="concept-link">Conditions</a></li>
+            <li><a href="#loops" class="concept-link">Loops</a></li>
+            <li><a href="#functions" class="concept-link">Functions</a></li>
+            <li><a href="#exception-handling" class="concept-link">Exception Handling</a></li>
+            <li><a href="#aws-ec2" class="concept-link">Launching AWS EC2</a></li>
+            <li><a href="#inventory" class="concept-link">inventory.ini</a></li>
+            <li><a href="#ansible-cfg" class="concept-link">ansible.cfg</a></li>
+          </ul>
+        </aside>
+
+        <main class="content-area">
+      <!-- ===================== OVERVIEW ===================== -->
+      <section class="concept" id="overview">
+        <h1>Ansible Overview</h1>
+
+        <article class="article">
+          <p>
+            These pages explain the Ansible concepts I used to deploy <strong>roboshop</strong>, a sample e-commerce
+            application made of 10 components:
+          </p>
+          <ul>
+            <li><strong>Databases and messaging:</strong> mongodb, redis, mysql, rabbitmq</li>
+            <li><strong>Application services:</strong> catalogue, user, cart, shipping, payment</li>
+            <li><strong>Web:</strong> frontend</li>
+          </ul>
+          <p>
+            Each component runs on its own server, and each one needs software installed, configuration files copied,
+            a system user created and a service started.
+          </p>
+          <p>
+            <strong>Source code:</strong>
+            <a class="source-link" href="https://github.com/MadireddyManojKumar/ansible_roboshop/tree/master/ansible_concepts" target="_blank" rel="noopener noreferrer">github.com/MadireddyManojKumar/ansible_roboshop/ansible_concepts</a>
+          </p>
+
+          <hr />
+
+          <h2>Deploying with Linux commands and shell scripts</h2>
+          <p>
+            The first way to deploy roboshop is by hand: log in to each server and run Linux commands, then put those
+            commands into shell scripts. It works, but it gets hard quickly:
+          </p>
+          <ul>
+            <li><strong>One server at a time.</strong> You copy the script to each of the 10 servers and run it there over SSH. There is no single place to run everything from.</li>
+            <li><strong>Running a script twice can break things.</strong> Commands like <code>useradd</code> fail if the user already exists, and appending to a config file adds the same line again. You have to write an <code>if</code> check around almost every command.</li>
+            <li><strong>Errors are easy to miss.</strong> By default a script keeps going after a command fails, and there is no built-in way to roll back.</li>
+            <li><strong>No clear report.</strong> At the end you don't get a summary of what changed and what was already in place.</li>
+            <li><strong>Different systems need different commands.</strong> For example, <code>dnf</code> on RHEL and <code>apt</code> on Ubuntu, and the script has to handle each one by hand.</li>
+            <li><strong>Hard to maintain.</strong> As scripts grow, there is no standard structure, so they become difficult for someone else to read and reuse.</li>
+          </ul>
+          <p>
+            For example, creating the roboshop system user safely in a shell script needs a check first:
+          </p>
+          <pre><code>id roboshop &amp;&gt;/dev/null
+if [ $? -ne 0 ]; then
+  useradd --system --home /app --shell /sbin/nologin roboshop
+fi</code></pre>
+
+          <hr />
+
+          <h2>Why Ansible</h2>
+          <p>
+            Ansible solves these problems. You describe the end result you want, and Ansible makes each server match it.
+          </p>
+          <ul>
+            <li><strong>Agentless.</strong> Nothing to install on the servers. Ansible connects over SSH from one machine, the control node.</li>
+            <li><strong>All servers in one place.</strong> The inventory file lists every server, and one command configures all of them, several at the same time.</li>
+            <li><strong>Safe to run again (idempotent).</strong> Modules check the current state first and only change what is different. The output shows <code>ok</code> for things already in place and <code>changed</code> for what was updated.</li>
+            <li><strong>Easy to read.</strong> Playbooks are written in YAML, so they read almost like a list of steps.</li>
+            <li><strong>Built-in tools.</strong> <a href="#variables">Variables</a>, <a href="#conditions">conditions</a>, <a href="#loops">loops</a>, <a href="#functions">functions</a> and <a href="#exception-handling">error handling</a> are part of the language, and roles make the code reusable.</li>
+            <li><strong>Handles different systems.</strong> Facts tell Ansible the operating system of each server, so one playbook can work on all of them.</li>
+          </ul>
+          <p>
+            The same roboshop system user in Ansible. There is no <code>if</code> check: if the user already exists, Ansible
+            simply reports <code>ok</code> and moves on.
+          </p>
+          <pre><code>- name: Create roboshop system user
+  ansible.builtin.user:
+    name: roboshop
+    comment: "roboshop system user"
+    system: true
+    home: /app
+    shell: /sbin/nologin
+    create_home: false</code></pre>
+
+          <hr />
+
+          <h2>Where Ansible falls short: creating infrastructure</h2>
+          <p>
+            Ansible can also create and delete the roboshop EC2 instances and their DNS records (see
+            <a href="#aws-ec2">Launching AWS EC2</a>). But it is hard to maintain:
+          </p>
+          <ul>
+            <li><strong>It doesn't remember what it created.</strong> Ansible keeps no record of the infrastructure, so to clean up you have to write separate delete tasks yourself.</li>
+            <li><strong>Changes are hard.</strong> Changing something, like the instance type or a security group, often means editing the playbook and handling the existing resources yourself.</li>
+            <li><strong>No preview.</strong> It can't show you what will be created, changed or deleted before it runs.</li>
+          </ul>
+          <p>
+            To overcome this, we use <a href="../terraform/terraform.html"><strong>Terraform</strong></a>. Terraform keeps a
+            <strong>state file</strong> of everything it created, shows a <strong>plan</strong> before making any change,
+            and can update or destroy the whole setup with one command.
+          </p>
+          <p>
+            So the two tools work together: <strong>Terraform creates the infrastructure</strong> (servers, networks, DNS),
+            and <strong>Ansible configures the servers</strong> (packages, users, services).
+          </p>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+
+      <!-- ===================== VARIABLES ===================== -->
+      <section class="concept" id="variables">
+        <h1>Different Ways of Setting Variables in Ansible</h1>
+        <p class="lead">
+          There are 6 ways to give values to variables in Ansible.
+        </p>
+
+        <article class="article">
+          <ol>
+            <li>Playbook level variables</li>
+            <li>Task level variables</li>
+            <li>Variable file (vars_files)</li>
+            <li>Prompt (vars_prompt)</li>
+            <li>Inventory file</li>
+            <li>Command line</li>
+          </ol>
+
+          <p>
+            Wherever a variable is defined, you use it the same way: wrap its name in double curly braces, like
+            <code>{{ first_name }}</code>. When Ansible sees the double curly braces, it knows you are referring to a
+            variable and replaces it with the variable's value.
+          </p>
+
+          <hr />
+
+          <h2>1. Playbook level variables</h2>
+          <p>
+            Define variables under <code>vars</code> at the play level. These variables are available to every task in the playbook.
+          </p>
+
+          <pre><code>- name: "Ansible variables"
+  hosts: localhost
+  connection: local
+  vars:
+    my_var: "Hello, Ansible!"
+    first_name: "Manoj"
+    last_name: "Madireddy"
+
+  tasks:
+    - name: "playbook level variables"
+      ansible.builtin.debug:
+        msg: "{{ my_var }} My name is {{ first_name }} {{ last_name }}"</code></pre>
+
+          <hr />
+
+          <h2>2. Task level variables</h2>
+          <p>
+            Define variables under <code>vars</code> inside a single task. These variables are available only to that task.
+          </p>
+
+          <pre><code>    - name: "task level variables"
+      vars:
+        first_name: "Rajesh"
+        middle_name: "kumar"
+        location: "Dallas, Texas, USA"
+      ansible.builtin.debug:
+        msg: "{{ my_var }} My name is {{ first_name }} {{ middle_name }} and I live in {{ location }}"</code></pre>
+
+          <p>
+            If the same variable is defined at both the playbook level and the task level, the task level value wins.
+            Here <code>first_name</code> prints <strong>Rajesh</strong>, not Manoj.
+          </p>
+
+          <hr />
+
+          <h2>3. Variable file (vars_files)</h2>
+          <p>
+            When you have hundreds of variables, keep them in a separate file and refer to that file from the playbook with
+            <code>vars_files</code>. The same file can be reused by any playbook.
+          </p>
+
+          <pre><code># global_variables.yaml
+first_name: "Manoj"
+last_name: "Madireddy"
+location: "Dallas, Texas, USA"
+occupation: "Site Reliability Engineer"
+years_of_experience: 9</code></pre>
+
+          <pre><code># playbook
+  vars_files:
+    - global_variables.yaml
+
+  tasks:
+    - name: "global variables from variable file"
+      ansible.builtin.debug:
+        msg: "I am a {{ occupation }} with {{ years_of_experience }} years of experience."</code></pre>
+
+          <p>
+            <code>occupation</code> and <code>years_of_experience</code> are not defined in the playbook or the task, so Ansible
+            takes their values from the variable file.
+          </p>
+
+          <hr />
+
+          <h2>4. Prompt (vars_prompt)</h2>
+          <p>
+            Use <code>vars_prompt</code> to ask the user for values when the playbook runs. Ansible shows the
+            <code>prompt</code> text, reads what the user types and stores it in the variable named by <code>name</code>.
+            The value is available to every task in the playbook.
+          </p>
+
+          <pre><code>  vars_prompt:
+    - name: "user_name"
+      prompt: "What is your name?"
+      private: false
+
+    - name: "user_occupation"
+      prompt: "What is your occupation?"
+      private: true
+
+  tasks:
+    - name: "variables from prompt"
+      ansible.builtin.debug:
+        msg: "Your name is {{ user_name }} and your occupation is {{ user_occupation }}"</code></pre>
+
+          <ul>
+            <li><code>private: false</code> shows what the user types on the screen.</li>
+            <li><code>private: true</code> hides what the user types, like a password. Use it for sensitive values.</li>
+          </ul>
+
+          <hr />
+
+          <h2>5. Inventory file</h2>
+          <p>
+            Variables can be defined for a group of hosts in <code>inventory.ini</code>. Ansible loads them automatically
+            when it loads the inventory, and they can be used in the playbook.
+          </p>
+
+          <pre><code># inventory.ini
+[frontend]
+35.146.170.65
+
+[frontend:vars]
+appname=roboshop
+version=v1</code></pre>
+
+          <hr />
+
+          <h2>6. Command line</h2>
+          <p>
+            If a playbook expects a variable that isn't declared anywhere, pass it with <code>-e</code> when you run the playbook:
+          </p>
+
+          <pre><code>ansible-playbook -i inventory.ini ansible_variables.yaml -e "app_version=v2.0"</code></pre>
+
+          <p>
+            Now <code>v2.0</code> is used wherever the playbook refers to <code>{{ app_version }}</code>.
+          </p>
+
+          <hr />
+
+          <h2>Which one takes precedence?</h2>
+
+          <p>
+            If the same variable is defined in more than one place, Ansible uses this order, with the last one winning:
+          </p>
+
+          <ol>
+            <li>Inventory file (lowest)</li>
+            <li>Playbook level <code>vars</code></li>
+            <li><code>vars_prompt</code></li>
+            <li><code>vars_files</code></li>
+            <li>Task level <code>vars</code></li>
+            <li><code>-e</code> on the command line (highest)</li>
+          </ol>
+
+          <p>
+            So the <strong>command line always wins</strong>.
+          </p>
+
+          <p>
+            If a variable isn't given a value anywhere, the playbook fails with an error saying the variable is undefined.
+          </p>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+
+      <!-- ===================== DATA TYPES ===================== -->
+      <section class="concept" id="datatypes">
+        <h1>Data Types in Ansible</h1>
+
+        <article class="article">
+          <p>
+            Ansible playbooks are written in YAML, so Ansible's data types come from YAML.
+            There are 6 main data types:
+          </p>
+
+          <ol>
+            <li>String</li>
+            <li>Number</li>
+            <li>Boolean</li>
+            <li>List</li>
+            <li>Dictionary</li>
+            <li>Null</li>
+          </ol>
+
+          <p>
+            You don't declare a type in Ansible. It works out the type from how you write the value.
+            To check which type Ansible picked, add the <code>type_debug</code> filter: <code>{{ my_var | type_debug }}</code>.
+          </p>
+
+          <p>All the examples below come from one playbook:</p>
+
+          <pre><code>- name: ansible data types
+  hosts: local
+  connection: local
+  gather_facts: false   # we don't need facts here, so skip them to run faster</code></pre>
+
+          <hr />
+
+          <h2>1. String</h2>
+          <p>
+            A string is plain text. Quotes are optional, but use them if the value has special characters like
+            <code>:</code> or <code>#</code>.
+          </p>
+
+          <pre><code>vars:
+  # Quotes are optional, but use them when the value has special characters (: { } # etc.)
+  course_name: "DevSecOps"
+  tool: ansible                 # no quotes, still a string
+  version_as_string: "2.17"     # quoted, so it's a STRING, not a number</code></pre>
+
+          <pre><code>- name: print string
+  debug:
+    msg: "course={{ course_name }}, tool={{ tool }}, type={{ course_name | type_debug }}"   # type -> str
+
+- name: quoted number is a string
+  debug:
+    msg: "{{ version_as_string }} is {{ version_as_string | type_debug }}"   # str, because it's in quotes</code></pre>
+
+          <p>
+            Watch out for <code>"2.17"</code>: it looks like a number, but the quotes make it a string.
+          </p>
+
+          <h3>Multi-line strings</h3>
+          <p>For text that runs over several lines, YAML gives you two options:</p>
+          <ul>
+            <li><code>|</code> keeps each line on its own line.</li>
+            <li><code>&gt;</code> joins all the lines into one line.</li>
+          </ul>
+
+          <pre><code>  # Multi-line strings:
+  # "|" (literal) keeps the line breaks as they are -> good for scripts and config files
+  literal_text: |
+    line one
+    line two
+  # ">" (folded) joins the lines into one line with spaces -> good for long sentences
+  folded_text: >
+    this is a long sentence
+    that becomes one line</code></pre>
+
+          <pre><code>- name: multi-line strings
+  debug:
+    msg:
+      - "literal: {{ literal_text }}"   # keeps \n between lines
+      - "folded: {{ folded_text }}"     # one line</code></pre>
+
+          <hr />
+
+          <h2>2. Number</h2>
+          <p>
+            A number without quotes is either an integer (whole number) or a float (decimal). You can do math with numbers.
+          </p>
+
+          <pre><code>  port: 8080          # integer
+  cpu_limit: 1.5      # float (decimal)</code></pre>
+
+          <pre><code>- name: print numbers and do math
+  debug:
+    msg: "port={{ port }} ({{ port | type_debug }}), cpu={{ cpu_limit }} ({{ cpu_limit | type_debug }}), port+1={{ port + 1 }}"
+    # int and float support arithmetic. A string like "8080" would need "| int" first.</code></pre>
+
+          <hr />
+
+          <h2>3. Boolean</h2>
+          <p>
+            A boolean is either <code>true</code> or <code>false</code>. You'll mostly use booleans with <code>when</code>
+            to decide whether a task runs.
+          </p>
+
+          <pre><code>  # Use true/false (lowercase) as best practice.
+  # YAML also accepts yes/no, True/False, on/off, but keep it consistent.
+  is_production: false
+  enable_firewall: true</code></pre>
+
+          <pre><code>- name: use boolean in a condition
+  debug:
+    msg: "Firewall is enabled"
+  when: enable_firewall      # booleans are mostly used with "when"
+
+- name: skipped because is_production is false
+  debug:
+    msg: "This runs only in production"
+  when: is_production</code></pre>
+
+          <p>
+            The first task runs. The second one is skipped, because <code>is_production</code> is <code>false</code>.
+          </p>
+
+          <hr />
+
+          <h2>4. List</h2>
+          <p>
+            A list holds several values in order. Each item goes on its own line starting with <code>-</code>, or you can
+            write the whole list on one line in square brackets.
+          </p>
+
+          <pre><code>  # Each item starts with "-". Items are read by index, starting at 0.
+  packages:
+    - nginx
+    - git
+    - python3
+  # Inline (flow) style for the same kind of list:
+  ports_list: [80, 443, 8080]</code></pre>
+
+          <p>
+            You can read one item by its position (counting from 0) or count the items with <code>length</code>.
+          </p>
+
+          <pre><code>- name: print list and access items by index
+  debug:
+    msg:
+      - "full list: {{ packages }}"
+      - "first item: {{ packages[0] }}"        # index starts at 0
+      - "count: {{ packages | length }}"       # length filter gives the number of items
+      - "type: {{ packages | type_debug }}"    # list</code></pre>
+
+          <p>
+            To run a task once for every item, use <code>loop</code>. Each time round, <code>item</code> holds the current value.
+          </p>
+
+          <pre><code>- name: loop over a list
+  debug:
+    msg: "installing {{ item }}" # item is a reserved word in ansible
+  loop: "{{ packages }}"     # "item" holds the current element on each pass</code></pre>
+
+          <hr />
+
+          <h2>5. Dictionary</h2>
+          <p>
+            A dictionary groups related values under names (keys). Think of it as one object with several fields,
+            like a database with a host, a port and an SSL setting.
+          </p>
+
+          <pre><code>  # key: value pairs. Read with dot notation (db.host) or brackets (db['host']).
+  db:
+    host: mongodb.example.com
+    port: 27017
+    ssl: true
+  # Inline (flow) style:
+  app: { name: catalogue, replicas: 2 }</code></pre>
+
+          <p>Read a value with a dot (<code>db.host</code>) or with brackets (<code>db['port']</code>):</p>
+
+          <pre><code>- name: access dictionary values
+  debug:
+    msg:
+      - "db host (dot): {{ db.host }}"
+      - "db port (bracket): {{ db['port'] }}"   # bracket style is safer when keys have - or spaces
+      - "app name: {{ app.name }}"
+      - "type: {{ db | type_debug }}"           # dict</code></pre>
+
+          <p>
+            <code>loop</code> only works on lists, so to loop over a dictionary, first turn it into a list with
+            <code>dict2items</code>. Each item then has a <code>key</code> and a <code>value</code>.
+          </p>
+
+          <pre><code>- name: loop over a dictionary
+  debug:
+    msg: "{{ item.key }} = {{ item.value }}"
+  loop: "{{ db | dict2items }}"   # dict2items turns a dict into a list of {key, value} so loop can use it</code></pre>
+
+          <h3>List of dictionaries</h3>
+          <p>
+            In real playbooks you'll often combine the two: a list where each item is a dictionary. For example, a list
+            of users, each with a name, a uid and groups.
+          </p>
+
+          <pre><code>  # Very common in real playbooks, e.g. creating many users with loop.
+  users:
+    - name: manoj
+      uid: 1001
+      groups: [wheel, docker]
+    - name: roboshop
+      uid: 1002
+      groups: [roboshop]</code></pre>
+
+          <pre><code>- name: loop over a list of dictionaries
+  debug:
+    msg: "user={{ item.name }}, uid={{ item.uid }}, groups={{ item.groups | join(',') }}"
+  loop: "{{ users }}"</code></pre>
+
+          <hr />
+
+          <h2>6. Null</h2>
+          <p>
+            Null means "no value". Use it for a variable that exists but hasn't been given a value yet.
+            Check for it with <code>is none</code>.
+          </p>
+
+          <pre><code>  # Empty value, "null", or "~" all mean null (Python None).
+  optional_value: null</code></pre>
+
+          <pre><code>- name: check null value
+  debug:
+    msg: "optional_value is null -> {{ optional_value is none }}"   # "is none" tests for null</code></pre>
+
+          <hr />
+
+          <h2>Converting between types</h2>
+          <p>
+            Sometimes a value has the wrong type, for example a number stored as a string. Filters like <code>int</code>,
+            <code>string</code>, <code>bool</code> and <code>float</code> convert it.
+          </p>
+
+          <pre><code>- name: type conversion with filters
+  debug:
+    msg:
+      - "{{ '100' | int + 5 }}"          # string -> int   => 105
+      - "{{ port | string }}"            # int -> string
+      - "{{ 'yes' | bool }}"             # string -> boolean => True
+      - "{{ '3.14' | float }}"           # string -> float</code></pre>
+
+          <hr />
+
+          <h2>Running the playbook</h2>
+
+          <pre><code>ansible-playbook -i inventory.ini ansible_datatypes.yaml
+
+# Syntax check only:
+ansible-playbook -i inventory.ini ansible_datatypes.yaml --syntax-check</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== CONDITIONS ===================== -->
+      <section class="concept" id="conditions">
+        <h1>Conditions in Ansible</h1>
+
+        <article class="article">
+          <p>
+            A condition decides whether a task runs. In Ansible you add it to a task with the <code>"when:"</code> keyword.
+          </p>
+          <ul>
+            <li>If the condition is <strong>true</strong>, the task runs.</li>
+            <li>If the condition is <strong>false</strong>, the task is skipped. It is not marked as failed.</li>
+          </ul>
+          <p>
+            Ansible checks the condition for every host separately, so the same task can run on one server and be skipped on another.
+          </p>
+
+          <hr />
+
+          <h2>Rules for writing conditions</h2>
+
+          <h3>1. Don't use <code>{{ }}</code> inside <code>when</code></h3>
+          <p>
+            <code>when</code> already understands variables, so write the variable name on its own.
+          </p>
+          <pre><code>right : when: env == "dev"
+wrong : when: "{{ env }}" == "dev"</code></pre>
+
+          <h3>2. Quote the whole condition if it starts with a quote</h3>
+          <p>
+            If the condition starts with <code>'</code> or <code>"</code>, put quotes around the whole thing. Otherwise YAML can't read the line.
+          </p>
+          <pre><code>when: "'git' in packages"</code></pre>
+
+          <h3>3. Convert values from <code>-e</code> and the inventory</h3>
+          <p>
+            Values passed with <code>-e</code> or set in the inventory arrive as strings. Convert them with <code>| int</code> or
+            <code>| bool</code> before you compare them, as in sections 1 and 2 below.
+          </p>
+
+          <hr />
+
+          <h2>The example playbook</h2>
+          <p>
+            All the examples on this page come from one playbook. These are the variables it uses:
+          </p>
+          <pre><code>- name: Ansible conditions examples
+  hosts: local
+  connection: local            # run on this machine without SSH
+  gather_facts: true           # needed for the ansible_facts examples below
+  vars:
+    env: dev
+    app_port: 8080
+    enable_debug: true
+    db_password: ""            # left empty on purpose to demo the length check
+    packages: [nginx, git, curl]
+    users:
+      - { name: alice, admin: true }
+      - { name: bob, admin: false }</code></pre>
+
+          <hr />
+
+          <h2>1. Basic comparisons</h2>
+          <p>
+            Compare a variable with a value using <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code> or <code>&lt;=</code>.
+          </p>
+          <pre><code>- name: Equal - runs only in dev
+  ansible.builtin.debug:
+    msg: "Environment is {{ env }}"
+  when: env == "dev"
+
+- name: Not equal - runs everywhere except prod
+  ansible.builtin.debug:
+    msg: "Not a production run"
+  when: env != "prod"
+
+# Values from inventory or -e come in as strings, so convert with "| int" before comparing numbers
+- name: Number compare - port is not a privileged port
+  ansible.builtin.debug:
+    msg: "Port {{ app_port }} does not need root"
+  when: app_port | int &gt; 1024</code></pre>
+
+          <hr />
+
+          <h2>2. Booleans and <code>not</code></h2>
+          <p>
+            A true/false variable can be the whole condition. Add <code>not</code> to flip it. <code>| bool</code> makes sure strings like <code>"yes"</code> or <code>"true"</code> become a real true/false.
+          </p>
+          <pre><code># "| bool" turns "yes", "true", "1" (strings from -e) into a real true/false
+- name: Boolean - debug mode on
+  ansible.builtin.debug:
+    msg: "Debug mode is enabled"
+  when: enable_debug | bool
+
+- name: Negation - debug mode off
+  ansible.builtin.debug:
+    msg: "Debug mode is disabled"
+  when: not (enable_debug | bool)</code></pre>
+
+          <hr />
+
+          <h2>3. Combining conditions: <code>and</code> / <code>or</code></h2>
+          <p>
+            Sometimes one check isn't enough and you need to combine two or more. There are two ways to combine them:
+          </p>
+          <ul>
+            <li><strong>AND</strong>: the task runs only if <strong>all</strong> the conditions are true. Write each condition on its own line under <code>when</code>, as a list.</li>
+            <li><strong>OR</strong>: the task runs if <strong>at least one</strong> condition is true. Write the conditions on one line, joined with <code>or</code>.</li>
+          </ul>
+          <p>
+            In the example below, the first task runs only when the environment is dev <strong>and</strong> the port is 8080.
+            The second task runs when the environment is dev <strong>or</strong> qa.
+          </p>
+          <pre><code># A list under "when" means AND - every line must be true
+- name: AND (list form) - dev on port 8080
+  ansible.builtin.debug:
+    msg: "Dev app on 8080"
+  when:
+    - env == "dev"
+    - app_port | int == 8080
+
+- name: OR - non-production environments
+  ansible.builtin.debug:
+    msg: "Lower environment: {{ env }}"
+  when: env == "dev" or env == "qa"</code></pre>
+
+          <hr />
+
+          <h2>4. Membership: <code>in</code> / <code>not in</code></h2>
+          <p>
+            Use <code>in</code> when you want to ask "is this value one of these?". The task runs only if the value is found in the list.
+            <code>not in</code> does the opposite: the task runs only if the value is <strong>not</strong> in the list.
+          </p>
+          <p>
+            For example, both of these lines mean "run if the environment is dev or qa". The second one is shorter and stays
+            easy to read even when the list gets longer:
+          </p>
+          <pre><code>when: env == "dev" or env == "qa"
+when: env in ["dev", "qa"]</code></pre>
+          <p>
+            In the example below, the first task checks whether <code>env</code> is one of the allowed environments. The second checks
+            whether <code>git</code> is one of the items in the <code>packages</code> list.
+          </p>
+          <pre><code># Cleaner than writing many "or" checks
+- name: IN list - env is one of dev/qa
+  ansible.builtin.debug:
+    msg: "{{ env }} is a test environment"
+  when: env in ["dev", "qa"]
+
+# Starts with a quote, so the whole condition is quoted
+- name: IN list - git is in the package list
+  ansible.builtin.debug:
+    msg: "git will be installed"
+  when: "'git' in packages"</code></pre>
+
+          <hr />
+
+          <h2>5. Is the variable defined or empty?</h2>
+          <p>
+            Use <code>is defined</code> and <code>is not defined</code> for optional variables, so the playbook doesn't fail with an "undefined variable" error. Try running it with and without <code>-e app_version=v2</code>.
+          </p>
+          <pre><code># Avoids "undefined variable" errors for optional vars (try: -e app_version=v2)
+- name: Defined - optional variable was passed
+  ansible.builtin.debug:
+    msg: "Deploying version {{ app_version }}"
+  when: app_version is defined
+
+- name: Not defined - fall back to latest
+  ansible.builtin.debug:
+    msg: "app_version not given, using latest"
+  when: app_version is not defined</code></pre>
+          <p>
+            A variable set to <code>""</code> still counts as defined. To catch an empty value, check its length:
+          </p>
+          <pre><code># "is defined" is true even for "", so also check the length for empty strings
+- name: Empty string - password not set
+  ansible.builtin.debug:
+    msg: "WARNING: db_password is empty"
+  when: db_password | length == 0</code></pre>
+
+          <hr />
+
+          <h2>6. Conditions on facts</h2>
+          <p>
+            Facts are details Ansible collects about each host, like its OS and memory. The most common use is running the right commands for each OS. Facts need <code>gather_facts: true</code>.
+          </p>
+          <pre><code># Most common real use: pick the right commands for the OS
+- name: Facts - only on macOS
+  ansible.builtin.debug:
+    msg: "macOS host, use homebrew"
+  when: ansible_facts['os_family'] == "Darwin"
+
+- name: Facts - only on RedHat family (skipped on a Mac)
+  ansible.builtin.debug:
+    msg: "RedHat host, use dnf"
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Facts - enough memory
+  ansible.builtin.debug:
+    msg: "Host has {{ ansible_facts['memtotal_mb'] }} MB RAM"
+  when: ansible_facts['memtotal_mb'] | int &gt;= 4096</code></pre>
+
+          <hr />
+
+          <h2>7. Conditions on an earlier task's result</h2>
+          <p>
+            <code>register</code> saves a task's result in a variable. Later tasks can check it, for example the return code (<code>rc</code>, where 0 means success) or what the command printed (<code>stdout</code>).
+          </p>
+          <pre><code># failed_when: false -&gt; never fail, we only want the return code
+# changed_when: false -&gt; a read-only check should not show "changed"
+- name: Register - check if git is installed
+  ansible.builtin.command: which git
+  register: git_check
+  failed_when: false
+  changed_when: false
+
+- name: Register - rc is 0 means command worked
+  ansible.builtin.debug:
+    msg: "git found at {{ git_check.stdout }}"
+  when: git_check.rc == 0
+
+- name: Register - rc not 0 means git is missing
+  ansible.builtin.debug:
+    msg: "git is NOT installed"
+  when: git_check.rc != 0</code></pre>
+          <pre><code># Check what the command printed
+- name: Register - read OS name
+  ansible.builtin.command: uname -s
+  register: os_name
+  changed_when: false
+
+- name: Register - output contains a word
+  ansible.builtin.debug:
+    msg: "uname says Darwin"
+  when: "'Darwin' in os_name.stdout"</code></pre>
+
+          <hr />
+
+          <h2>8. Does a file or directory exist?</h2>
+          <p>
+            The <code>stat</code> module looks at a path and registers what it finds. Then <code>stat.exists</code> tells you whether it is there.
+          </p>
+          <pre><code>- name: Stat - look at /etc/hosts
+  ansible.builtin.stat:
+    path: /etc/hosts
+  register: hosts_file
+
+- name: Stat - file exists
+  ansible.builtin.debug:
+    msg: "/etc/hosts exists"
+  when: hosts_file.stat.exists</code></pre>
+
+          <hr />
+
+          <h2>9. <code>when</code> with <code>loop</code></h2>
+          <p>
+            When a task has both <code>loop</code> and <code>when</code>, the condition is checked for each item. Here only alice is printed, because bob is not an admin.
+          </p>
+          <pre><code>- name: Loop - print only admin users
+  ansible.builtin.debug:
+    msg: "{{ item.name }} is an admin"
+  loop: "{{ users }}"
+  when: item.admin</code></pre>
+
+          <hr />
+
+          <h2>10. <code>when</code> on a block</h2>
+          <p>
+            To apply one condition to several tasks, group them in a <code>block</code> and put <code>when</code> on the block, instead of repeating it on every task.
+          </p>
+          <pre><code>- name: Block - dev-only setup
+  when: env == "dev"
+  block:
+    - name: Block task 1
+      ansible.builtin.debug:
+        msg: "Enabling verbose logs"
+
+    - name: Block task 2
+      ansible.builtin.debug:
+        msg: "Seeding test data"</code></pre>
+
+          <hr />
+
+          <h2>11. Inventory groups</h2>
+          <p>
+            <code>group_names</code> lists the inventory groups the current host belongs to. Use it to run a task only on certain groups, like frontend or database servers.
+          </p>
+          <pre><code># group_names = list of groups the current host belongs to (from inventory.ini)
+- name: Inventory - host is in the local group
+  ansible.builtin.debug:
+    msg: "{{ inventory_hostname }} is in group(s) {{ group_names }}"
+  when: "'local' in group_names"</code></pre>
+
+          <hr />
+
+          <h2>12. <code>failed_when</code>, <code>changed_when</code> and <code>assert</code></h2>
+          <p>
+            Conditions can also decide a task's status:
+          </p>
+          <ul>
+            <li><code>failed_when</code> sets your own rule for when a task counts as failed.</li>
+            <li><code>changed_when</code> sets when a task reports "changed". Read-only commands should use <code>false</code>.</li>
+            <li><code>assert</code> checks your inputs and stops the play early with a clear message if they are wrong.</li>
+          </ul>
+          <pre><code># failed_when: decide yourself what counts as a failure
+- name: failed_when - fail only if disk usage output is empty
+  ansible.builtin.command: df -h /
+  register: disk
+  changed_when: false
+  failed_when: disk.stdout | length == 0
+
+# assert: stop the play early with a clear message if inputs are wrong
+- name: Assert - validate inputs before deploying
+  ansible.builtin.assert:
+    that:
+      - env in ["dev", "qa", "prod"]
+      - app_port | int &gt; 0
+    fail_msg: "Invalid env or port"
+    success_msg: "Inputs look good"</code></pre>
+
+          <hr />
+
+          <h2>Running the playbook</h2>
+          <p>
+            Run it once as it is, then again with <code>env=prod</code> to see which tasks change from running to skipped.
+          </p>
+          <pre><code>ansible-playbook -i inventory.ini ansible_conditions.yaml
+ansible-playbook -i inventory.ini ansible_conditions.yaml -e env=prod   # see what changes</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== LOOPS ===================== -->
+      <section class="concept" id="loops">
+        <h1>Loops in Ansible</h1>
+
+        <article class="article">
+          <p>
+            A loop runs the same task once for every item in a list. Roboshop has 10 components. Instead of writing 10 tasks, you write one task and give it the list of components.
+          </p>
+          <ul>
+            <li>Put the list under <code>loop:</code>.</li>
+            <li>On each pass, the current item is in the variable <code>item</code>.</li>
+            <li><code>loop</code> only accepts a list. Other data, like a dictionary or a range of numbers, has to be turned into a list first with a filter.</li>
+          </ul>
+          <p>
+            These are the ways to loop covered on this page:
+          </p>
+          <ol>
+            <li>Simple list</li>
+            <li>List of dictionaries</li>
+            <li>Dictionary</li>
+            <li>Range of numbers</li>
+            <li>Nested loop</li>
+            <li>loop_control</li>
+            <li>loop with when</li>
+            <li>loop with register</li>
+            <li>until (retry loop)</li>
+            <li>Old style: with_items</li>
+          </ol>
+          <p>
+            All the examples come from one roboshop playbook. These are the variables it uses:
+          </p>
+          <pre><code>- name: Ansible loops examples - roboshop
+  hosts: local
+  connection: local            # run on this machine without SSH
+  gather_facts: false          # no facts needed for these examples
+  vars:
+    components: [mongodb, rabbitmq, mysql, redis, catalogue, cart, user, shipping, payment, frontend]
+    servers:
+      - { name: mongodb, port: 27017, database: true }
+      - { name: redis, port: 6379, database: true }
+      - { name: catalogue, port: 8080, database: false }
+      - { name: frontend, port: 80, database: false }
+    db_ports:
+      mongodb: 27017
+      rabbitmq: 5672
+      mysql: 3306
+      redis: 6379
+    app_users:
+      - { server: catalogue, user: roboshop, home: /app, shell: /sbin/nologin }
+      - { server: cart, user: roboshop, home: /app, shell: /sbin/nologin }
+      - { server: user, user: roboshop, home: /app, shell: /sbin/nologin }
+      - { server: shipping, user: roboshop, home: /app, shell: /sbin/nologin }
+      - { server: payment, user: roboshop, home: /app, shell: /sbin/nologin }
+    envs: [dev, qa]
+    app_components: [catalogue, cart, user, shipping, payment]</code></pre>
+
+          <hr />
+
+          <h2>1. Simple list</h2>
+          <p>
+            The most common loop. The task runs once for each value in the list, and <code>item</code> holds the current value. Here it runs once for each of the 10 roboshop components.
+          </p>
+          <pre><code>- name: Simple loop - one task per roboshop component
+  ansible.builtin.debug:
+    msg: "Setting up {{ item }}"
+  loop: "{{ components }}"</code></pre>
+          <p>
+            The output shows one line per component:
+          </p>
+          <pre><code>TASK [Simple loop - one task per roboshop component] ****************
+ok: [localhost] =&gt; (item=mongodb)  =&gt; { "msg": "Setting up mongodb" }
+ok: [localhost] =&gt; (item=rabbitmq) =&gt; { "msg": "Setting up rabbitmq" }
+ok: [localhost] =&gt; (item=mysql)    =&gt; { "msg": "Setting up mysql" }
+...
+ok: [localhost] =&gt; (item=frontend) =&gt; { "msg": "Setting up frontend" }</code></pre>
+          <p>
+            The list doesn't have to be a variable. You can write it directly under <code>loop</code>:
+          </p>
+          <pre><code>- name: Inline list
+  ansible.builtin.debug:
+    msg: "Creating instance {{ item }}"
+  loop:
+    - mongodb
+    - catalogue
+    - frontend</code></pre>
+
+          <hr />
+
+          <h2>2. List of dictionaries</h2>
+          <p>
+            When each item has several fields, like a server with a name and a port, each item is a dictionary. Read a field with <code>item.&lt;key&gt;</code>.
+          </p>
+          <pre><code>- name: List of dictionaries - one task per server
+  ansible.builtin.debug:
+    msg: "{{ item.name }} listens on port {{ item.port }}"
+  loop: "{{ servers }}"</code></pre>
+
+          <h3>Real example: the roboshop system user</h3>
+          <p>
+            In roboshop, every app component (catalogue, cart, user, shipping, payment) runs as a <strong>system user</strong> called <code>roboshop</code>. A system user is meant for running an application, not for people: it has no login shell (<code>/sbin/nologin</code>), and its home is <code>/app</code>, where the app code lives.
+          </p>
+          <p>
+            Each item in <code>app_users</code> describes the user for one app server:
+          </p>
+          <pre><code>- name: roboshop system user - one entry per app server
+  ansible.builtin.debug:
+    msg: "{{ item.server }}: create user {{ item.user }}, home {{ item.home }}, shell {{ item.shell }}"
+  loop: "{{ app_users }}"
+  loop_control:
+    label: "{{ item.server }}"</code></pre>
+          <pre><code>catalogue: create user roboshop, home /app, shell /sbin/nologin
+cart: create user roboshop, home /app, shell /sbin/nologin
+user: create user roboshop, home /app, shell /sbin/nologin
+shipping: create user roboshop, home /app, shell /sbin/nologin
+payment: create user roboshop, home /app, shell /sbin/nologin</code></pre>
+          <p>
+            On a real server, the task that creates the user looks like this. You run it on each app server, and Ansible already repeats a play for every host in the group, so you don't need a <code>loop</code> for the servers:
+          </p>
+          <pre><code>- name: Create the roboshop system user
+  hosts: catalogue
+  become: true
+  tasks:
+    - name: Create roboshop system user
+      ansible.builtin.user:
+        name: roboshop
+        comment: "roboshop system user"
+        system: true
+        home: /app
+        shell: /sbin/nologin
+        create_home: false
+
+    - name: Create /app directory owned by roboshop
+      ansible.builtin.file:
+        path: /app
+        state: directory
+        owner: roboshop
+        group: roboshop</code></pre>
+
+          <hr />
+
+          <h2>3. Dictionary</h2>
+          <p>
+            <code>loop</code> can't read a dictionary directly. The <code>dict2items</code> filter turns it into a list where each item has a <code>key</code> and a <code>value</code>. Here the key is the database and the value is its port.
+          </p>
+          <pre><code>- name: Dictionary - database name and port
+  ansible.builtin.debug:
+    msg: "{{ item.key }} runs on port {{ item.value }}"
+  loop: "{{ db_ports | dict2items }}"</code></pre>
+          <pre><code>mongodb runs on port 27017
+rabbitmq runs on port 5672
+mysql runs on port 3306
+redis runs on port 6379</code></pre>
+
+          <hr />
+
+          <h2>4. Range of numbers</h2>
+          <p>
+            To loop over numbers, use <code>range(start, end)</code>. It stops <strong>before</strong> the end number, so <code>range(1, 4)</code> gives 1, 2 and 3. Here it names three catalogue instances.
+          </p>
+          <pre><code>- name: Range - create 3 catalogue instances
+  ansible.builtin.debug:
+    msg: "catalogue-{{ item }}"
+  loop: "{{ range(1, 4) | list }}"</code></pre>
+          <pre><code>catalogue-1
+catalogue-2
+catalogue-3</code></pre>
+
+          <hr />
+
+          <h2>5. Nested loop</h2>
+          <p>
+            Sometimes you need every combination of two lists, for example every app component in every environment. The <code>product</code> filter builds those pairs. In each pair, <code>item.0</code> is from the first list (the environment) and <code>item.1</code> is from the second (the component).
+          </p>
+          <pre><code>- name: Nested loop - every environment with every component
+  ansible.builtin.debug:
+    msg: "Deploying {{ item.1 }} to {{ item.0 }}"
+  loop: "{{ envs | product(app_components) | list }}"</code></pre>
+          <pre><code>Deploying catalogue to dev
+Deploying cart to dev
+...
+Deploying payment to dev
+Deploying catalogue to qa
+...
+Deploying payment to qa</code></pre>
+
+          <hr />
+
+          <h2>6. loop_control</h2>
+          <p>
+            <code>loop_control</code> changes how the loop behaves. The three options you'll use most:
+          </p>
+          <ul>
+            <li><code>index_var</code>: gives you the position of the current item, starting at 0.</li>
+            <li><code>label</code>: what to print for each item in the output. Without it, Ansible prints the whole item, which gets long for dictionaries.</li>
+            <li><code>loop_var</code>: renames <code>item</code>. You need this when one loop runs inside another, so the two <code>item</code> variables don't clash.</li>
+          </ul>
+          <pre><code>- name: loop_control - index and a short label
+  ansible.builtin.debug:
+    msg: "Server {{ idx + 1 }} of {{ servers | length }} is {{ item.name }}"
+  loop: "{{ servers }}"
+  loop_control:
+    index_var: idx
+    label: "{{ item.name }}"
+
+- name: loop_control - rename item
+  ansible.builtin.debug:
+    msg: "Component: {{ component }}"
+  loop: "{{ app_components }}"
+  loop_control:
+    loop_var: component</code></pre>
+          <pre><code>Server 1 of 4 is mongodb
+Server 2 of 4 is redis
+Server 3 of 4 is catalogue
+Server 4 of 4 is frontend</code></pre>
+
+          <hr />
+
+          <h2>7. loop with when</h2>
+          <p>
+            When a task has both <code>loop</code> and <code>when</code>, the condition is checked for <strong>each item</strong>. Items where it is false are skipped, and the rest still run. Here only the database servers are printed.
+          </p>
+          <pre><code>- name: loop with when - only database servers
+  ansible.builtin.debug:
+    msg: "{{ item.name }} is a database server"
+  loop: "{{ servers }}"
+  when: item.database
+  loop_control:
+    label: "{{ item.name }}"</code></pre>
+          <pre><code>ok: [localhost] =&gt; (item=mongodb) =&gt; { "msg": "mongodb is a database server" }
+ok: [localhost] =&gt; (item=redis)   =&gt; { "msg": "redis is a database server" }
+skipping: [localhost] =&gt; (item=catalogue)
+skipping: [localhost] =&gt; (item=frontend)</code></pre>
+
+          <hr />
+
+          <h2>8. loop with register</h2>
+          <p>
+            When you <code>register</code> a task that loops, the result of every pass is saved in a list called <code>results</code>. Each entry also remembers which item it was for, in <code>item</code>.
+          </p>
+          <pre><code>- name: loop with register - run a command for each app component
+  ansible.builtin.command: "echo starting {{ item }}"
+  loop: "{{ app_components }}"
+  register: start_out
+  changed_when: false
+
+- name: Read the saved results
+  ansible.builtin.debug:
+    msg: "{{ item.item }} -&gt; {{ item.stdout }}"
+  loop: "{{ start_out.results }}"
+  loop_control:
+    label: "{{ item.item }}"</code></pre>
+          <pre><code>catalogue -&gt; starting catalogue
+cart -&gt; starting cart
+user -&gt; starting user
+shipping -&gt; starting shipping
+payment -&gt; starting payment</code></pre>
+
+          <hr />
+
+          <h2>9. until (retry loop)</h2>
+          <p>
+            <code>until</code> is a different kind of loop: it runs <strong>one task again and again</strong> until a condition becomes true. It is mostly used to wait. For example, catalogue needs mongodb, so you wait until mongodb is ready before starting catalogue.
+          </p>
+          <ul>
+            <li><code>until</code>: the condition to wait for.</li>
+            <li><code>retries</code>: the maximum number of tries. If the condition is still false after that, the task fails.</li>
+            <li><code>delay</code>: seconds to wait between tries.</li>
+          </ul>
+          <p>
+            In this example a counter goes up by 1 on each try, so the condition becomes true on the third try:
+          </p>
+          <pre><code>- name: until - wait for mongodb to be ready
+  ansible.builtin.shell: "n=$(cat /tmp/mongodb_check 2&gt;/dev/null || echo 0); n=$((n+1)); echo $n &gt; /tmp/mongodb_check; echo $n"
+  register: mongodb_check
+  until: mongodb_check.stdout | int &gt;= 3
+  retries: 5               # try at most 5 times
+  delay: 1                 # wait 1 second between tries
+  changed_when: false
+
+- name: Clean up the counter file
+  ansible.builtin.file:
+    path: /tmp/mongodb_check
+    state: absent</code></pre>
+          <pre><code>FAILED - RETRYING: [localhost]: until - wait for mongodb to be ready (4 retries left).
+FAILED - RETRYING: [localhost]: until - wait for mongodb to be ready (3 retries left).
+ok: [localhost]</code></pre>
+          <p>
+            The "FAILED - RETRYING" lines are normal. They only mean mongodb wasn't ready yet.
+          </p>
+
+          <hr />
+
+          <h2>10. Old style: with_items</h2>
+          <p>
+            Older playbooks use <code>with_*</code> keywords instead of <code>loop</code>. They still work, so you will see them in existing code, but <code>loop</code> is recommended for new playbooks.
+          </p>
+          <pre><code>- name: Old style - with_items
+  ansible.builtin.debug:
+    msg: "Setting up {{ item }}"
+  with_items: "{{ app_components }}"</code></pre>
+          <p>
+            How the old keywords map to <code>loop</code>:
+          </p>
+          <ul>
+            <li><code>with_items</code> → <code>loop</code></li>
+            <li><code>with_dict</code> → <code>loop</code> with <code>| dict2items</code></li>
+            <li><code>with_sequence</code> → <code>loop</code> with <code>range(...) | list</code></li>
+            <li><code>with_nested</code> → <code>loop</code> with <code>| product(...) | list</code></li>
+          </ul>
+
+          <hr />
+
+          <h2>A tip for packages</h2>
+          <p>
+            Modules like <code>dnf</code>, <code>apt</code> and <code>package</code> accept a whole list in one go. Passing the list is faster than looping, because Ansible installs everything in one step instead of one package at a time. For example, on the frontend server:
+          </p>
+          <pre><code>- name: Install frontend packages in one step
+  ansible.builtin.dnf:
+    name: [nginx, git, curl]
+    state: present</code></pre>
+
+          <hr />
+
+          <h2>Running the playbook</h2>
+          <pre><code>ansible-playbook -i inventory.ini ansible_loops.yaml</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+
+      <!-- ===================== FUNCTIONS ===================== -->
+      <section class="concept" id="functions">
+        <h1>Functions in Ansible</h1>
+
+        <article class="article">
+          <p>
+            Functions let you change a value before you use it: make it uppercase, remove duplicates from a list, give a default when a variable is missing, and so on. In Ansible, functions come in two kinds: <strong>filters</strong> and <strong>lookups</strong>.
+          </p>
+
+          <h3>Filters</h3>
+          <p>
+            A filter takes the value on the left of <code>|</code> and gives back a new value.
+          </p>
+          <pre><code>{{ value | filter_name(args) }}
+{{ "roboshop" | upper }}   -&gt;  ROBOSHOP</code></pre>
+          <p>
+            You can chain filters. They run from left to right, each one working on the result of the one before:
+          </p>
+          <pre><code>{{ list | unique | sort | join(',') }}</code></pre>
+
+          <h3>Lookups</h3>
+          <p>
+            A lookup reads data from <strong>outside</strong> the playbook, such as an environment variable, a file or the output of a command. Lookups always run on your own machine (the control node), not on the servers you are configuring.
+          </p>
+          <pre><code>{{ lookup('plugin_name', 'arg') }}</code></pre>
+          <p>
+            You can't write your own function inside a playbook. To reuse logic, use <code>include_tasks</code>, a role, or a custom filter plugin written in Python.
+          </p>
+
+          <hr />
+
+          <h2>The example playbook</h2>
+          <p>
+            All the examples on this page come from one roboshop playbook. These are the variables it uses:
+          </p>
+          <pre><code>- name: Ansible functions (filters and lookups) examples
+  hosts: local
+  connection: local            # run on this machine without SSH
+  gather_facts: false          # not needed here, makes the run faster
+  vars:
+    project: roboshop
+    version: "v1.2.3"
+    app_port: "8080"             # a string on purpose, to show the | int conversion
+    packages: [nginx, git, curl, git, nginx]     # has duplicates on purpose
+    components:
+      - { name: mongodb, database: true }
+      - { name: catalogue, database: false }
+      - { name: mysql, database: true }
+      - { name: cart, database: false }
+      - { name: redis, database: true }
+    default_config: { port: 80, debug: false }
+    override_config: { debug: true }
+    log_path: /var/log/roboshop/catalogue.log</code></pre>
+
+          <hr />
+
+          <h2>1. String functions</h2>
+          <p>
+            Change text: make it upper case or title case, count its characters, replace part of it, or split it into a list.
+          </p>
+          <pre><code>- name: String - upper / lower / title / length
+  ansible.builtin.debug:
+    msg:
+      - "upper  : {{ project | upper }}"        # ROBOSHOP
+      - "title  : {{ project | title }}"        # Roboshop
+      - "length : {{ project | length }}"       # 8
+
+- name: String - replace / split / regex_replace
+  ansible.builtin.debug:
+    msg:
+      - "replace : {{ version | replace('v', '') }}"            # 1.2.3
+      - "split   : {{ version | replace('v', '') | split('.') }}" # ['1','2','3']
+      - "major   : {{ version | regex_replace('^v(\\d+).*', '\\1') }}"  # 1</code></pre>
+          <p>
+            <code>regex_replace</code> uses a pattern to pull out part of the text. Here it takes the major version <code>1</code> out of <code>v1.2.3</code>.
+          </p>
+
+          <hr />
+
+          <h2>2. Type conversion</h2>
+          <p>
+            Values from the inventory or from <code>-e</code> arrive as strings. To do math or compare numbers, convert them first. <code>app_port</code> is the string <code>"8080"</code>, so <code>app_port + 1</code> would fail, but <code>app_port | int + 1</code> gives <code>8081</code>.
+          </p>
+          <pre><code>- name: Convert - int / bool / string
+  ansible.builtin.debug:
+    msg:
+      - "port + 1 : {{ app_port | int + 1 }}"       # 8081 (without | int this fails)
+      - "bool     : {{ 'yes' | bool }}"          # True
+      - "string   : {{ 42 | string }}"           # '42'</code></pre>
+
+          <hr />
+
+          <h2>3. default() and ternary()</h2>
+          <p>
+            <code>default</code> is the filter you'll use most. It gives a fallback value when a variable isn't set, so the playbook doesn't fail with an "undefined variable" error.
+          </p>
+          <pre><code>- name: Default - use 'frontend' if app_name is not passed
+  ansible.builtin.debug:
+    msg: "App name is {{ app_name | default('frontend') }}"</code></pre>
+          <p>
+            Run it normally and it prints <code>App name is frontend</code>. Run it with <code>-e app_name=cart</code> and it prints <code>App name is cart</code>.
+          </p>
+          <p>
+            <code>ternary</code> is a one-line if/else: <code>(condition) | ternary(value_if_true, value_if_false)</code>.
+          </p>
+          <pre><code>- name: Ternary - pick a value based on a condition
+  ansible.builtin.debug:
+    msg: "Mode is {{ (app_port | int &gt; 1024) | ternary('non-root', 'root') }}"</code></pre>
+          <p>
+            8080 is greater than 1024, so this prints <code>Mode is non-root</code>.
+          </p>
+
+          <hr />
+
+          <h2>4. List functions</h2>
+          <p>
+            Clean up and read lists: remove duplicates, sort, join into one string, take the first or last item, or count the items.
+          </p>
+          <pre><code>- name: List - unique / sort / join / first / last / count
+  ansible.builtin.debug:
+    msg:
+      - "unique : {{ packages | unique }}"                      # [nginx, git, curl]
+      - "sorted : {{ packages | unique | sort }}"               # [curl, git, nginx]
+      - "joined : {{ packages | unique | join(', ') }}"         # nginx, git, curl
+      - "first  : {{ packages | first }} / last: {{ packages | last }}"
+      - "count  : {{ packages | length }}"                      # 5</code></pre>
+          <p>
+            For a list of numbers you can also get the smallest, largest and total:
+          </p>
+          <pre><code>- name: List - math on numbers
+  ansible.builtin.debug:
+    msg: "min={{ [4, 9, 2] | min }} max={{ [4, 9, 2] | max }} sum={{ [4, 9, 2] | sum }}"</code></pre>
+          <p>
+            Output: <code>min=2 max=9 sum=15</code>.
+          </p>
+
+          <hr />
+
+          <h2>5. Picking items from a list of dictionaries</h2>
+          <p>
+            Each roboshop component in <code>components</code> has a <code>name</code> and a <code>database</code> flag. Three filters, chained together, pull out just what you need:
+          </p>
+          <ul>
+            <li><code>selectattr('database')</code> keeps only the items where <code>database</code> is true. <code>rejectattr</code> does the opposite.</li>
+            <li><code>map(attribute='name')</code> keeps only the <code>name</code> of each item.</li>
+            <li><code>list</code> turns the result into a normal list. Always add it at the end.</li>
+          </ul>
+          <pre><code>- name: Select - names of database components only
+  ansible.builtin.debug:
+    msg: "Databases: {{ components | selectattr('database') | map(attribute='name') | list }}"   # [mongodb, mysql, redis]
+
+- name: Reject - names of app components
+  ansible.builtin.debug:
+    msg: "Apps: {{ components | rejectattr('database') | map(attribute='name') | list }}"   # [catalogue, cart]</code></pre>
+
+          <hr />
+
+          <h2>6. Dictionary functions</h2>
+          <p>
+            <code>combine</code> merges two dictionaries. If both have the same key, the value from the one on the right wins. Here <code>debug</code> becomes <code>true</code> and <code>port</code> stays <code>80</code>.
+          </p>
+          <pre><code>- name: Dict - combine (merge) two dicts
+  ansible.builtin.debug:
+    msg: "{{ default_config | combine(override_config) }}"    # {port: 80, debug: true}</code></pre>
+          <p>
+            <code>dict2items</code> turns a dictionary into a list, so you can loop over it:
+          </p>
+          <pre><code>- name: Dict - dict2items to loop over key/value
+  ansible.builtin.debug:
+    msg: "{{ item.key }} = {{ item.value }}"
+  loop: "{{ default_config | dict2items }}"</code></pre>
+
+          <hr />
+
+          <h2>7. Paths, encoding and formats</h2>
+          <p>
+            <code>basename</code> gives the file name from a path, and <code>dirname</code> gives the folder it is in.
+          </p>
+          <pre><code>- name: Path - basename / dirname
+  ansible.builtin.debug:
+    msg:
+      - "file name : {{ log_path | basename }}"   # catalogue.log
+      - "directory : {{ log_path | dirname }}"    # /var/log/roboshop</code></pre>
+          <p>
+            <code>b64encode</code> and <code>b64decode</code> convert text to and from base64. <code>hash</code> creates a checksum, such as sha256.
+          </p>
+          <pre><code>- name: Encode - base64 and hash
+  ansible.builtin.debug:
+    msg:
+      - "base64 : {{ 'secret' | b64encode }}"
+      - "decode : {{ 'c2VjcmV0' | b64decode }}"
+      - "sha256 : {{ 'secret' | hash('sha256') }}"</code></pre>
+          <p>
+            <code>to_nice_json</code> (and <code>to_nice_yaml</code>) print data in a readable format:
+          </p>
+          <pre><code>- name: Format - convert to JSON / YAML
+  ansible.builtin.debug:
+    msg: "{{ default_config | to_nice_json }}"</code></pre>
+
+          <hr />
+
+          <h2>8. Lookups</h2>
+          <p>
+            Lookups read data from your own machine: <code>env</code> reads an environment variable, <code>pipe</code> runs a command and returns its output, and <code>file</code> reads a file.
+          </p>
+          <pre><code>- name: Lookup - environment variable / command output / file
+  ansible.builtin.debug:
+    msg:
+      - "HOME   : {{ lookup('env', 'HOME') }}"
+      - "whoami : {{ lookup('pipe', 'whoami') }}"
+      - "hosts  : {{ lookup('file', '/etc/hosts') | length }} characters"</code></pre>
+
+          <hr />
+
+          <h2>9. Global functions</h2>
+          <p>
+            A few functions are called directly, without <code>|</code>. <code>range</code> creates a list of numbers and <code>now</code> gives the current date and time.
+          </p>
+          <pre><code>- name: Global - range() and now()
+  ansible.builtin.debug:
+    msg:
+      - "range : {{ range(1, 4) | list }}"             # [1, 2, 3]
+      - "today : {{ now(fmt='%Y-%m-%d') }}"            # current date</code></pre>
+
+          <hr />
+
+          <h2>10. Real use: building a value with set_fact</h2>
+          <p>
+            Functions are most useful when you combine them. Here three functions build a release name, and <code>set_fact</code> saves it as a new variable that later tasks can use.
+          </p>
+          <pre><code>- name: set_fact - make a clean release name
+  ansible.builtin.set_fact:
+    release_name: "{{ project | upper }}-{{ version | replace('v', '') }}-{{ now(fmt='%Y%m%d') }}"
+
+- name: Show release name
+  ansible.builtin.debug:
+    var: release_name       # e.g. ROBOSHOP-1.2.3-20261101</code></pre>
+
+          <hr />
+
+          <h2>Trying filters quickly</h2>
+          <p>
+            To test a single filter without writing a playbook, use an ad-hoc command:
+          </p>
+          <pre><code>ansible localhost -m debug -a "msg={{ 'roboshop' | upper }}"
+ansible localhost -m debug -a "msg={{ [3,1,2] | sort }}"</code></pre>
+          <p>
+            To see every filter and lookup that is available, or the docs for one filter:
+          </p>
+          <pre><code>ansible-doc -t filter -l
+ansible-doc -t lookup -l
+ansible-doc -t filter ansible.builtin.combine</code></pre>
+
+          <hr />
+
+          <h2>Running the playbook</h2>
+          <pre><code>ansible-playbook -i inventory.ini ansible_functions.yaml
+ansible-playbook -i inventory.ini ansible_functions.yaml -e app_name=cart   # see default() change
+ansible-playbook -i inventory.ini ansible_functions.yaml -v                 # more output</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+
+      <!-- ===================== EXCEPTION HANDLING ===================== -->
+      <section class="concept" id="exception-handling">
+        <h1>Exception Handling in Ansible</h1>
+
+        <article class="article">
+          <p>
+            By default, when a task fails on a host, Ansible stops running the rest of the play on that host. Sometimes you want to <strong>react</strong> to the failure instead, for example roll back a bad deployment.
+          </p>
+          <p>
+            Ansible does this with three sections that work like try / catch / finally in other languages:
+          </p>
+          <ul>
+            <li><code>block</code> (try): the tasks you want to run.</li>
+            <li><code>rescue</code> (catch): runs <strong>only if</strong> a task in <code>block</code> failed.</li>
+            <li><code>always</code> (finally): runs <strong>every time</strong>, whether <code>block</code> worked or <code>rescue</code> ran.</li>
+          </ul>
+
+          <hr />
+
+          <h2>The example: deploying catalogue with rollback</h2>
+          <p>
+            This playbook deploys a new version of the roboshop catalogue service. If anything goes wrong, it puts the old version back. In short:
+          </p>
+          <ol>
+            <li><strong>block</strong>: back up the current code, download and extract the new version, restart catalogue, and check it is healthy.</li>
+            <li><strong>rescue</strong>: if any of those steps failed, show the error, restore the backup, restart catalogue on the old version, and mark the run as failed.</li>
+            <li><strong>always</strong>: delete the downloaded zip file.</li>
+          </ol>
+          <pre><code>- name: Deploy catalogue service with rollback on failure
+  hosts: catalogue
+  become: yes
+  vars:
+    app_dir: /app
+    backup_dir: /tmp/app_backup
+    artifact_url: https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip</code></pre>
+
+          <hr />
+
+          <h2>1. block: the deployment</h2>
+          <p>
+            These are the normal deployment steps. If any task fails, Ansible skips the remaining tasks in the block and jumps straight to <code>rescue</code>. It does not stop the play.
+          </p>
+          <pre><code>- name: Safe deployment
+  block:
+    - name: Back up current application code
+      ansible.builtin.copy:
+        src: "{{ app_dir }}/"
+        dest: "{{ backup_dir }}/"
+        remote_src: yes          # copy on the remote host, not from the controller
+
+    - name: Download new artifact
+      ansible.builtin.get_url:
+        url: "{{ artifact_url }}"
+        dest: /tmp/catalogue.zip
+        timeout: 30              # fail fast instead of hanging
+
+    - name: Extract new code into app directory
+      ansible.builtin.unarchive:
+        src: /tmp/catalogue.zip
+        dest: "{{ app_dir }}"
+        remote_src: yes
+
+    - name: Restart catalogue service
+      ansible.builtin.systemd:
+        name: catalogue
+        state: restarted
+        daemon_reload: yes
+
+    - name: Health check - app must answer HTTP 200
+      ansible.builtin.uri:
+        url: http://localhost:8080/health
+        status_code: 200
+      register: health
+      retries: 5                 # try up to 5 times
+      delay: 5                   # wait 5 seconds between tries
+      until: health.status == 200</code></pre>
+          <ul>
+            <li><code>remote_src: yes</code> means the files are already on the server, so copy or extract them there instead of from your machine.</li>
+            <li>The health check uses <code>until</code>, <code>retries</code> and <code>delay</code> to give catalogue time to start. If it still doesn't answer HTTP 200 after 5 tries, the task fails and <code>rescue</code> takes over.</li>
+          </ul>
+
+          <hr />
+
+          <h2>2. rescue: roll back</h2>
+          <p>
+            These tasks run only when a task in <code>block</code> failed.
+          </p>
+          <pre><code>rescue:
+  - name: Show what went wrong
+    ansible.builtin.debug:
+      msg: "Task '{{ ansible_failed_task.name }}' failed: {{ ansible_failed_result.msg | default('no message') }}"
+
+  - name: Restore previous code from backup
+    ansible.builtin.copy:
+      src: "{{ backup_dir }}/"
+      dest: "{{ app_dir }}/"
+      remote_src: yes
+
+  - name: Restart service on old version
+    ansible.builtin.systemd:
+      name: catalogue
+      state: restarted
+
+  - name: Mark deployment as failed after rollback
+    ansible.builtin.fail:
+      msg: "Deployment failed and was rolled back to the previous version."</code></pre>
+          <ul>
+            <li><code>ansible_failed_task</code> and <code>ansible_failed_result</code> are special variables Ansible fills in inside <code>rescue</code>. They tell you which task failed and why.</li>
+            <li>The last task fails on purpose. Once <code>rescue</code> succeeds, Ansible counts the host as "rescued", which is treated as a success. The deployment didn't really work, so <code>fail</code> makes sure the play recap and your CI/CD pipeline show it as failed.</li>
+          </ul>
+
+          <hr />
+
+          <h2>3. always: clean up</h2>
+          <p>
+            This task runs whether the deployment worked or was rolled back, so the downloaded zip never gets left behind.
+          </p>
+          <pre><code>always:
+  - name: Clean up downloaded artifact
+    ansible.builtin.file:
+      path: /tmp/catalogue.zip
+      state: absent</code></pre>
+
+          <hr />
+
+          <h2>What a failed deployment looks like</h2>
+          <p>
+            Say catalogue doesn't come up after the restart. The health check fails, the rollback runs, and clean-up still happens at the end:
+          </p>
+          <pre><code>TASK [Health check - app must answer HTTP 200] *******************
+FAILED - RETRYING: ... (4 retries left).
+...
+fatal: [catalogue]: FAILED! =&gt; {"msg": "Status code was 503 and not [200] ..."}
+
+TASK [Show what went wrong] **************************************
+"msg": "Task 'Health check - app must answer HTTP 200' failed: Status code was 503 and not [200] ..."
+
+TASK [Restore previous code from backup] *************************
+TASK [Restart service on old version] ****************************
+
+TASK [Mark deployment as failed after rollback] ******************
+fatal: [catalogue]: FAILED! =&gt; {"msg": "Deployment failed and was rolled back to the previous version."}
+
+TASK [Clean up downloaded artifact] ******************************
+
+PLAY RECAP *******************************************************
+catalogue : ok=...  failed=1  rescued=1</code></pre>
+          <p>
+            <code>rescued=1</code> shows the rollback ran, and <code>failed=1</code> shows the deployment itself failed.
+          </p>
+          <p>
+            If everything in <code>block</code> works, <code>rescue</code> is skipped completely, and only <code>always</code> runs after the block.
+          </p>
+
+          <hr />
+
+          <h2>Other ways to handle failures</h2>
+          <p>
+            <code>block</code> / <code>rescue</code> / <code>always</code> is for groups of tasks. For a single task there are simpler options:
+          </p>
+          <ul>
+            <li><code>ignore_errors: yes</code>: if this task fails, carry on as if it hadn't.</li>
+            <li><code>failed_when</code>: decide yourself when a task counts as failed (see Conditions).</li>
+            <li><code>any_errors_fatal: true</code>: on a play, stop the play on <strong>every</strong> host as soon as one host fails.</li>
+          </ul>
+
+          <hr />
+
+          <h2>Running the playbook</h2>
+          <pre><code>ansible-playbook -i inventory.ini ansible_exception_handling.yaml</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+
+      <!-- ===================== AWS EC2 ===================== -->
+      <section class="concept" id="aws-ec2">
+        <h1>Launching AWS EC2 Using Ansible</h1>
+
+        <article class="article">
+          <p>
+            This section shows how tools talk to AWS, how to connect the AWS CLI to your account, and how Ansible uses the same setup to create the roboshop EC2 instances and their DNS records.
+          </p>
+
+          <h2>How everyone talks to AWS</h2>
+          <p>
+            Every AWS service, such as EC2, S3 or Route 53, is controlled through an <strong>API</strong>: a set of web addresses that accept requests over HTTPS. Whatever tool you use, in the end it sends a request to that API.
+          </p>
+          <ul>
+            <li><strong>AWS Console</strong>: the website. You click, and the website sends the API request.</li>
+            <li><strong>AWS CLI</strong>: the <code>aws</code> command in your terminal.</li>
+            <li><strong>SDKs</strong>: libraries for programming languages, like <code>boto3</code> for Python.</li>
+            <li><strong>Ansible and Terraform</strong>: automation tools that call the API for you.</li>
+          </ul>
+          <p>
+            Because they all use the same API, anything you can do in the console you can also do from the CLI or from Ansible. For every request, AWS checks two things: <strong>who</strong> is asking (your access keys) and whether they are <strong>allowed</strong> (IAM permissions).
+          </p>
+
+          <hr />
+
+          <h2>Architecture</h2>
+          <figure class="diagram">
+<svg viewBox="0 0 800 470" role="img" aria-labelledby="aws-dg-title">
+<title id="aws-dg-title">Ansible and the AWS CLI on your laptop both send signed HTTPS requests to the AWS API, which creates the roboshop EC2 instances and Route 53 records</title>
+<defs><marker id="dg-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-arrowhead" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="dg-outer" x="10" y="10" width="330" height="450" rx="14"/>
+<text class="dg-h" x="175" y="34" text-anchor="middle">Your laptop (control node)</text>
+<rect class="dg-box" x="30" y="50" width="290" height="50" rx="10"/>
+<text class="dg-t" x="175.0" y="71.0" text-anchor="middle">ansible-playbook</text>
+<text class="dg-s" x="175.0" y="87.0" text-anchor="middle">roboshop_aws_infra.yaml</text>
+<rect class="dg-box" x="30" y="120" width="290" height="50" rx="10"/>
+<text class="dg-t" x="175.0" y="141.0" text-anchor="middle">amazon.aws collection</text>
+<text class="dg-s" x="175.0" y="157.0" text-anchor="middle">ec2_instance, route53 modules</text>
+<rect class="dg-box" x="30" y="190" width="290" height="50" rx="10"/>
+<text class="dg-t" x="175.0" y="211.0" text-anchor="middle">boto3</text>
+<text class="dg-s" x="175.0" y="227.0" text-anchor="middle">AWS SDK for Python</text>
+<rect class="dg-box" x="30" y="270" width="290" height="50" rx="10"/>
+<text class="dg-t" x="175.0" y="291.0" text-anchor="middle">AWS CLI</text>
+<text class="dg-s" x="175.0" y="307.0" text-anchor="middle">aws configure, aws ec2 ...</text>
+<rect class="dg-box dg-key" x="30" y="370" width="290" height="70" rx="10"/>
+<text class="dg-t" x="175.0" y="393.0" text-anchor="middle">~/.aws/credentials  +  ~/.aws/config</text>
+<text class="dg-s" x="175.0" y="409.0" text-anchor="middle">access key ID, secret access key</text>
+<text class="dg-s" x="175.0" y="425.0" text-anchor="middle">region: us-east-1</text>
+<path class="dg-line" d="M175,100 V116" marker-end="url(#dg-arrow)"/>
+<path class="dg-line" d="M175,170 V186" marker-end="url(#dg-arrow)"/>
+<path class="dg-line dg-dash" d="M30,215 H20 V405 H26" marker-end="url(#dg-arrow)"/>
+<path class="dg-line dg-dash" d="M175,320 V366" marker-end="url(#dg-arrow)"/>
+<text class="dg-s" x="185" y="349">both read the same keys</text>
+<path class="dg-line" d="M320,215 H430"/>
+<path class="dg-line" d="M320,295 H430 V85 H486" marker-end="url(#dg-arrow)"/>
+<text class="dg-s" x="378" y="128" text-anchor="middle">HTTPS API</text>
+<text class="dg-s" x="378" y="143" text-anchor="middle">requests,</text>
+<text class="dg-s" x="378" y="158" text-anchor="middle">signed with</text>
+<text class="dg-s" x="378" y="173" text-anchor="middle">your keys</text>
+<rect class="dg-outer" x="470" y="10" width="320" height="450" rx="14"/>
+<text class="dg-h" x="630" y="34" text-anchor="middle">AWS (us-east-1)</text>
+<rect class="dg-box" x="490" y="50" width="280" height="70" rx="10"/>
+<text class="dg-t" x="630.0" y="73.0" text-anchor="middle">AWS API endpoints</text>
+<text class="dg-s" x="630.0" y="89.0" text-anchor="middle">ec2.us-east-1.amazonaws.com</text>
+<text class="dg-s" x="630.0" y="105.0" text-anchor="middle">route53.amazonaws.com</text>
+<rect class="dg-box" x="490" y="140" width="280" height="44" rx="10"/>
+<text class="dg-t" x="630.0" y="166.0" text-anchor="middle">IAM checks the keys and permissions</text>
+<rect class="dg-box" x="490" y="204" width="280" height="136" rx="10"/>
+<text class="dg-t" x="630" y="224" text-anchor="middle">EC2: 10 roboshop instances</text>
+<rect class="dg-chip" x="502" y="234" width="122" height="16" rx="8"/><text class="dg-s" x="563" y="246" text-anchor="middle">roboshop-mongodb</text><rect class="dg-chip" x="636" y="234" width="122" height="16" rx="8"/><text class="dg-s" x="697" y="246" text-anchor="middle">roboshop-redis</text><rect class="dg-chip" x="502" y="254" width="122" height="16" rx="8"/><text class="dg-s" x="563" y="266" text-anchor="middle">roboshop-mysql</text><rect class="dg-chip" x="636" y="254" width="122" height="16" rx="8"/><text class="dg-s" x="697" y="266" text-anchor="middle">roboshop-rabbitmq</text><rect class="dg-chip" x="502" y="274" width="122" height="16" rx="8"/><text class="dg-s" x="563" y="286" text-anchor="middle">roboshop-catalogue</text><rect class="dg-chip" x="636" y="274" width="122" height="16" rx="8"/><text class="dg-s" x="697" y="286" text-anchor="middle">roboshop-user</text><rect class="dg-chip" x="502" y="294" width="122" height="16" rx="8"/><text class="dg-s" x="563" y="306" text-anchor="middle">roboshop-cart</text><rect class="dg-chip" x="636" y="294" width="122" height="16" rx="8"/><text class="dg-s" x="697" y="306" text-anchor="middle">roboshop-shipping</text><rect class="dg-chip" x="502" y="314" width="122" height="16" rx="8"/><text class="dg-s" x="563" y="326" text-anchor="middle">roboshop-payment</text><rect class="dg-chip" x="636" y="314" width="122" height="16" rx="8"/><text class="dg-s" x="697" y="326" text-anchor="middle">roboshop-frontend</text>
+<rect class="dg-box" x="490" y="360" width="280" height="80" rx="10"/>
+<text class="dg-t" x="630.0" y="380.0" text-anchor="middle">Route 53: manojkumar.blog</text>
+<text class="dg-s" x="630.0" y="396.0" text-anchor="middle">mongodb.manojkumar.blog → private IP</text>
+<text class="dg-s" x="630.0" y="412.0" text-anchor="middle">catalogue.manojkumar.blog → private IP</text>
+<text class="dg-s" x="630.0" y="428.0" text-anchor="middle">... one record per instance</text>
+<path class="dg-line" d="M630,120 V136" marker-end="url(#dg-arrow)"/>
+<path class="dg-line" d="M630,184 V200" marker-end="url(#dg-arrow)"/>
+<path class="dg-line" d="M630,340 V356" marker-end="url(#dg-arrow)"/>
+</svg>
+          </figure>
+          <p>
+            What happens when you run the playbook:
+          </p>
+          <ol>
+            <li>You run <code>ansible-playbook</code> on your laptop.</li>
+            <li>The <code>ec2_instance</code> and <code>route53</code> modules use <code>boto3</code> to build the API requests.</li>
+            <li><code>boto3</code> reads your access keys and region from <code>~/.aws</code>, the same files the AWS CLI uses.</li>
+            <li>The requests go over HTTPS to the AWS API endpoints, signed with your secret key.</li>
+            <li>IAM checks that your keys are valid and allowed to do this. Then EC2 creates the instances and Route 53 creates the DNS records.</li>
+            <li>AWS sends the results (instance IDs, IP addresses) back to Ansible, which can use them in the next task.</li>
+          </ol>
+
+          <hr />
+
+          <h2>Connecting with the AWS CLI</h2>
+
+          <h3>1. Create an access key</h3>
+          <p>
+            In the AWS Console, go to <strong>IAM → Users → your user → Security credentials → Create access key</strong>. AWS gives you an <strong>access key ID</strong> and a <strong>secret access key</strong>. The secret is shown only once, so save it somewhere safe.
+          </p>
+
+          <h3>2. Check the CLI is installed</h3>
+          <pre><code>aws --version</code></pre>
+
+          <h3>3. Run aws configure</h3>
+          <p>
+            It asks four questions:
+          </p>
+          <pre><code>$ aws configure
+AWS Access Key ID [None]: AKIA****************
+AWS Secret Access Key [None]: ****************************************
+Default region name [None]: us-east-1
+Default output format [None]: json</code></pre>
+
+          <h3>4. Test the connection</h3>
+          <p>
+            This shows which AWS account and user your keys belong to. If it works, the CLI is connected:
+          </p>
+          <pre><code>aws sts get-caller-identity</code></pre>
+
+          <hr />
+
+          <h2>What the AWS configuration means</h2>
+          <ul>
+            <li><strong>Access key ID</strong>: like a username, but for programs. It usually starts with <code>AKIA</code>.</li>
+            <li><strong>Secret access key</strong>: like the password. The CLI uses it to sign every request; the secret itself is never sent to AWS.</li>
+            <li><strong>Region</strong>: which AWS location to work in, for example <code>us-east-1</code> (N. Virginia). EC2 instances live in one region, so you have to say which.</li>
+            <li><strong>Output format</strong>: how the CLI prints results: <code>json</code>, <code>table</code> or <code>text</code>.</li>
+          </ul>
+          <p>
+            <code>aws configure</code> saves these in two files in your home folder:
+          </p>
+          <pre><code># ~/.aws/credentials
+[default]
+aws_access_key_id = AKIA****************
+aws_secret_access_key = ****************************************
+
+# ~/.aws/config
+[default]
+region = us-east-1
+output = json</code></pre>
+          <p>
+            Keep your keys safe:
+          </p>
+          <ul>
+            <li>Never put access keys in a playbook, a variable file or Git. Anyone who has them can use your AWS account.</li>
+            <li>If a key leaks, deactivate it right away in IAM and create a new one.</li>
+            <li>When Ansible runs on an EC2 server instead of your laptop, give the server an <strong>IAM role</strong> instead of keys.</li>
+          </ul>
+
+          <hr />
+
+          <h2>Domain names</h2>
+          <p>
+            Two kinds of domain names are involved, and they are easy to mix up.
+          </p>
+
+          <h3>AWS endpoint names</h3>
+          <p>
+            Every AWS service has its own address, and for most services the region is part of it, for example <code>ec2.us-east-1.amazonaws.com</code>. You don't type these yourself: the CLI and <code>boto3</code> build the address from the region you configured. That is why the region matters.
+          </p>
+
+          <h3>Your own domain in Route 53</h3>
+          <p>
+            Roboshop uses the domain <code>manojkumar.blog</code>, hosted in Route 53. The playbook creates one DNS record per instance, such as <code>mongodb.manojkumar.blog</code>, pointing to that instance's private IP address.
+          </p>
+          <p>
+            Every time an instance is recreated it gets a new IP address. With DNS names, the components find each other by name (catalogue connects to <code>mongodb.manojkumar.blog</code>), so nothing else needs to change.
+          </p>
+
+          <hr />
+
+          <h2>How Ansible talks to AWS</h2>
+          <p>
+            Ansible does <strong>not</strong> run <code>aws</code> CLI commands. The modules in the <code>amazon.aws</code> collection use <code>boto3</code>, the AWS SDK for Python. <code>boto3</code> and the AWS CLI read the same <code>~/.aws</code> files, so once <code>aws configure</code> works, Ansible works too.
+          </p>
+          <p>
+            What you need:
+          </p>
+          <pre><code>ansible-galaxy collection install amazon.aws
+pip install boto3 botocore</code></pre>
+          <p>
+            <code>boto3</code> must be installed for the Python that Ansible uses (<code>ansible --version</code> shows it). Ansible installed with Homebrew already includes it.
+          </p>
+          <p>
+            The playbook runs on your own machine (<code>hosts: local</code>, <code>connection: local</code>). There is no server to SSH into yet: Ansible's "target" is the AWS API.
+          </p>
+
+          <hr />
+
+          <h2>Creating the roboshop instances</h2>
+          <p>
+            This is the playbook that creates the whole roboshop infrastructure. These are its variables:
+          </p>
+          <pre><code>- name: roboshop-mongodb create ec2 instances
+  connection: local
+  hosts: local
+  vars:
+    ami_id: ami-0055977a6e828a4f4
+    instance_type: t3.micro
+    instances: ["mongodb", "redis", "mysql", "rabbitmq", "catalogue", "user", "cart", "shipping", "payment", "frontend"]
+    domain_name: manojkumar.blog
+    action: create</code></pre>
+          <ul>
+            <li><code>ami_id</code>: the machine image (operating system) to start each instance from.</li>
+            <li><code>instance_type</code>: the size of each instance.</li>
+            <li><code>instances</code>: the 10 roboshop components; one instance is created for each.</li>
+            <li><code>domain_name</code>: the Route 53 domain for the DNS records.</li>
+            <li><code>action</code>: <code>create</code> builds everything, <code>delete</code> removes it.</li>
+          </ul>
+
+          <h3>1. Create the EC2 instances</h3>
+          <pre><code>- name: create ec2 instances
+  amazon.aws.ec2_instance:
+    name: roboshop-{{item}}
+    image_id: "{{ ami_id }}"
+    instance_type: "{{instance_type}}"
+    security_groups: 
+    - "roboshop-{{item}}"
+    - "roboshop-common"
+    region: us-east-1
+  loop: "{{instances}}"
+  when: action == "create"
+  register: ec2_instance_creation_output</code></pre>
+          <ul>
+            <li>The loop runs once per component, so this one task creates all 10 instances, named <code>roboshop-mongodb</code>, <code>roboshop-redis</code> and so on.</li>
+            <li>Each instance gets two security groups: its own (<code>roboshop-&lt;component&gt;</code>) and one shared by all (<code>roboshop-common</code>).</li>
+            <li><code>ec2_instance</code> looks for an existing instance with the same name first, so running the playbook again doesn't create duplicates.</li>
+            <li><code>register</code> saves the result of every pass, including each new instance's IP address, for the next task.</li>
+          </ul>
+
+          <h3>2. Create the Route 53 records</h3>
+          <pre><code>- name: route 53 record creation
+  amazon.aws.route53:
+    state: present
+    zone: "{{domain_name}}"
+    record: "{{item.item}}.{{domain_name}}"
+    type: A
+    ttl: 1
+    value: "{{item.instances[0].private_ip_address}}"
+    overwrite: true
+  loop: "{{ec2_instance_creation_output.results}}"
+  when: action == "create"</code></pre>
+          <ul>
+            <li>This loops over the saved results from the previous task.</li>
+            <li><code>item.item</code> is the component name the instance was created for, so the record becomes <code>mongodb.manojkumar.blog</code>.</li>
+            <li><code>item.instances[0].private_ip_address</code> is the new instance's private IP. The roboshop components talk to each other inside AWS, so they use private IPs.</li>
+            <li><code>overwrite: true</code> updates the record if it already exists, for example after an instance was recreated.</li>
+          </ul>
+
+          <h3>3. Delete everything</h3>
+          <p>
+            With <code>-e action=delete</code>, the two create tasks are skipped and these run instead. The DNS records are removed first, then the instances.
+          </p>
+          <pre><code>- name: route 53 record deletion
+  amazon.aws.route53:
+    state: absent
+    zone: "{{domain_name}}"
+    record: "{{item}}.{{domain_name}}"
+    type: A
+    ttl: 1
+  loop: "{{instances}}"
+  when: action == "delete"
+
+- name: delete ec2 instances
+  amazon.aws.ec2_instance:
+    name: roboshop-{{item}}
+    state: absent
+    region: us-east-1
+    wait: false
+  loop: "{{instances}}"
+  when: action == "delete"</code></pre>
+
+          <hr />
+
+          <h2>Running the playbook</h2>
+          <pre><code>ansible-playbook -i inventory.ini roboshop_aws_infra.yaml                     # create
+ansible-playbook -i inventory.ini roboshop_aws_infra.yaml -e action=delete    # delete</code></pre>
+          <p>
+            To check the result from the AWS CLI:
+          </p>
+          <pre><code>aws ec2 describe-instances --filters "Name=tag:Name,Values=roboshop-*" --query "Reservations[].Instances[].[Tags[?Key=='Name']|[0].Value,PrivateIpAddress,State.Name]" --output table</code></pre>
+          <p>
+            Running instances cost money, so delete them when you have finished practising.
+          </p>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+
+      <!-- ===================== INVENTORY ===================== -->
+      <section class="concept" id="inventory">
+        <h1>Inventory (inventory.ini)</h1>
+
+        <article class="article">
+
+          <h2>What is the inventory?</h2>
+          <p>
+            The inventory is the list of servers Ansible manages. It holds the host names or IP addresses of all the target servers that a playbook pushes changes to, organised into groups.
+          </p>
+
+          <h3>Why it is required</h3>
+          <ul>
+            <li>A playbook only says <strong>what</strong> to do and names a group, like <code>hosts: mongodb</code>. The inventory says <strong>where</strong>: which actual server is in the <code>mongodb</code> group.</li>
+            <li>Ansible connects only to servers listed in the inventory. If a server isn't in it, Ansible can't reach it.</li>
+            <li>Because the "where" lives in a separate file, the same playbook can deploy to dev or prod just by using a different inventory.</li>
+          </ul>
+
+          <hr />
+
+          <h2>The roboshop inventory</h2>
+          <pre><code>[frontend:vars]
+appname=roboshop
+version=v1
+
+[local]
+localhost
+
+[mongodb]
+mongodb.manojkumar.blog
+
+[redis]
+redis.manojkumar.blog
+
+[mysql]
+mysql.manojkumar.blog
+
+[rabbitmq]
+rabbitmq.manojkumar.blog
+
+[catalogue]
+catalogue.manojkumar.blog
+
+[user]
+user.manojkumar.blog
+
+[cart]
+cart.manojkumar.blog
+
+[shipping]
+shipping.manojkumar.blog
+
+[payment]
+payment.manojkumar.blog
+
+[dispatch]
+dispatch.manojkumar.blog
+
+[frontend]
+frontend.manojkumar.blog
+
+[all:vars]
+ansible_user=ec2-user
+ansible_password=*****
+mysql_root_password=*****</code></pre>
+          <p>
+            Passwords are masked on this page.
+          </p>
+
+          <h3>How to read it</h3>
+          <ul>
+            <li><code>[mongodb]</code> is a <strong>group</strong>. The lines under it are the servers in that group. Roboshop has one group per component, with one server each.</li>
+            <li>Servers are listed by <strong>DNS name</strong> (<code>mongodb.manojkumar.blog</code>), not IP address. The next section explains why.</li>
+            <li><code>[local]</code> holds <code>localhost</code>, your own machine. Playbooks that call the AWS API, like the EC2 one, run here.</li>
+            <li><code>[frontend:vars]</code> sets variables for every server in the <code>frontend</code> group. Ansible loads them automatically when it reads the inventory, and playbooks can use them like any other variable, for example <code>{{ appname }}</code>.</li>
+            <li><code>[all:vars]</code> sets variables for <strong>every</strong> server. <code>all</code> is a built-in group that always contains every host.</li>
+          </ul>
+          <p>
+            Variables that start with <code>ansible_</code> are special: they tell Ansible <strong>how to connect</strong>. <code>ansible_user</code> is the SSH user name and <code>ansible_password</code> its password. Other variables, like <code>mysql_root_password</code>, are just values your playbooks use.
+          </p>
+
+          <hr />
+
+          <h2>How Ansible uses the inventory</h2>
+          <p>
+            Roboshop's <code>main.yaml</code> takes the group name from a variable, so one playbook can configure any component:
+          </p>
+          <pre><code>- name: configure "{{ component }}""
+  hosts: "{{ component }}"
+  become: yes
+  roles:
+    - "{{component}}"</code></pre>
+          <pre><code>ansible-playbook -i inventory.ini main.yaml -e component=mongodb</code></pre>
+          <p>
+            When you run this, Ansible:
+          </p>
+          <ol>
+            <li>Reads <code>inventory.ini</code> (the <code>-i</code> option), including its variables.</li>
+            <li>Finds the group named in <code>hosts:</code>, here <code>mongodb</code>, and the servers in it: <code>mongodb.manojkumar.blog</code>.</li>
+            <li>Looks up that name in DNS to get the server's IP address.</li>
+            <li>Connects to it over SSH as <code>ansible_user</code> with <code>ansible_password</code>.</li>
+            <li>Runs the tasks on that server and prints the result.</li>
+          </ol>
+          <p>
+            Useful commands to check an inventory before running anything:
+          </p>
+          <pre><code>ansible-inventory -i inventory.ini --graph                     # show groups and their servers
+ansible-inventory -i inventory.ini --host frontend.manojkumar.blog   # variables one server gets
+ansible -i inventory.ini mongodb --list-hosts                  # servers a group points to
+ansible -i inventory.ini mongodb -m ping                       # test the SSH connection</code></pre>
+          <p>
+            To avoid typing <code>-i inventory.ini</code> every time, set <code>inventory = inventory.ini</code> in <a href="#ansible-cfg">ansible.cfg</a>.
+          </p>
+
+          <hr />
+
+          <h2>How the names resolve to EC2 instances</h2>
+          <p>
+            The inventory never contains an IP address. The connection between a name like <code>mongodb.manojkumar.blog</code> and the real server is made by Route 53, using the output of the EC2 playbook:
+          </p>
+          <figure class="diagram">
+<svg viewBox="0 0 800 330" role="img" aria-labelledby="inv-dg-title">
+<title id="inv-dg-title">The EC2 playbook creates the instance and a Route 53 record; later, Ansible reads the name from inventory.ini, looks it up in DNS, gets the private IP and connects over SSH</title>
+<defs><marker id="dg-arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-arrowhead" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text class="dg-h" x="20" y="30">1. Create the server (once)</text>
+<rect class="dg-box" x="20" y="46" width="230" height="74" rx="10"/>
+<text class="dg-t" x="135.0" y="71.0" text-anchor="middle">roboshop_aws_infra.yaml</text>
+<text class="dg-s" x="135.0" y="87.0" text-anchor="middle">ec2_instance creates</text>
+<text class="dg-s" x="135.0" y="103.0" text-anchor="middle">roboshop-mongodb</text>
+<rect class="dg-box" x="285" y="46" width="230" height="74" rx="10"/>
+<text class="dg-t" x="400.0" y="71.0" text-anchor="middle">EC2 instance</text>
+<text class="dg-s" x="400.0" y="87.0" text-anchor="middle">roboshop-mongodb</text>
+<text class="dg-s" x="400.0" y="103.0" text-anchor="middle">private IP: 172.31.20.15</text>
+<rect class="dg-box" x="550" y="46" width="230" height="74" rx="10"/>
+<text class="dg-t" x="665.0" y="71.0" text-anchor="middle">Route 53 record</text>
+<text class="dg-s" x="665.0" y="87.0" text-anchor="middle">mongodb.manojkumar.blog</text>
+<text class="dg-s" x="665.0" y="103.0" text-anchor="middle">→ 172.31.20.15</text>
+<path class="dg-line" d="M250,83 H281" marker-end="url(#dg-arrow2)"/>
+<path class="dg-line" d="M515,83 H546" marker-end="url(#dg-arrow2)"/>
+<text class="dg-s" x="532" y="140" text-anchor="middle">register → route53 task</text>
+<text class="dg-h" x="20" y="196">2. Configure the server (every run)</text>
+<rect class="dg-box dg-key" x="20" y="212" width="172" height="80" rx="10"/>
+<text class="dg-t" x="106.0" y="240.0" text-anchor="middle">inventory.ini</text>
+<text class="dg-s" x="106.0" y="256.0" text-anchor="middle">[mongodb]</text>
+<text class="dg-s" x="106.0" y="272.0" text-anchor="middle">mongodb.manojkumar.blog</text>
+<rect class="dg-box" x="214" y="212" width="172" height="80" rx="10"/>
+<text class="dg-t" x="300.0" y="240.0" text-anchor="middle">ansible-playbook</text>
+<text class="dg-s" x="300.0" y="256.0" text-anchor="middle">-e component=mongodb</text>
+<text class="dg-s" x="300.0" y="272.0" text-anchor="middle">hosts: mongodb</text>
+<rect class="dg-box" x="408" y="212" width="172" height="80" rx="10"/>
+<text class="dg-t" x="494.0" y="240.0" text-anchor="middle">DNS lookup</text>
+<text class="dg-s" x="494.0" y="256.0" text-anchor="middle">mongodb.manojkumar.blog</text>
+<text class="dg-s" x="494.0" y="272.0" text-anchor="middle">= 172.31.20.15</text>
+<rect class="dg-box" x="602" y="212" width="178" height="80" rx="10"/>
+<text class="dg-t" x="691.0" y="240.0" text-anchor="middle">SSH to 172.31.20.15</text>
+<text class="dg-s" x="691.0" y="256.0" text-anchor="middle">as ec2-user</text>
+<text class="dg-s" x="691.0" y="272.0" text-anchor="middle">runs the tasks</text>
+<path class="dg-line" d="M192,252 H210" marker-end="url(#dg-arrow2)"/>
+<path class="dg-line" d="M386,252 H404" marker-end="url(#dg-arrow2)"/>
+<path class="dg-line" d="M580,252 H598" marker-end="url(#dg-arrow2)"/>
+<path class="dg-line dg-dash" d="M665,120 V165 H494 V208" marker-end="url(#dg-arrow2)"/>
+<text class="dg-s" x="676" y="160">Route 53 answers</text>
+</svg>
+          </figure>
+          <ol>
+            <li>The <a href="#aws-ec2">EC2 playbook</a> creates the <code>roboshop-mongodb</code> instance. AWS gives it a private IP, for example <code>172.31.20.15</code>.</li>
+            <li>The playbook <code>register</code>s the creation output. The Route 53 task reads the IP from it (<code>item.instances[0].private_ip_address</code>) and creates the record <code>mongodb.manojkumar.blog → 172.31.20.15</code>.</li>
+            <li>Later, Ansible reads <code>mongodb.manojkumar.blog</code> from the inventory and asks DNS for its address. Route 53 answers with <code>172.31.20.15</code>.</li>
+            <li>Ansible connects to that IP over SSH and runs the tasks.</li>
+          </ol>
+
+          <h3>Why names instead of IPs</h3>
+          <p>
+            Every time an instance is deleted and created again, it gets a <strong>new IP address</strong>. If the inventory held IPs, you would have to edit it after every rebuild. With names, the EC2 playbook updates the Route 53 record (<code>overwrite: true</code>, and a <code>ttl</code> of 1 second so the change shows up straight away), and the inventory never changes.
+          </p>
+
+          <h3>Private IPs need a machine inside AWS</h3>
+          <p>
+            The records point to <strong>private</strong> IP addresses, which can only be reached from inside the same AWS network (VPC). So the configuration playbooks have to run from a machine inside AWS, such as a workstation EC2 instance, not from your laptop over the internet.
+          </p>
+
+          <hr />
+
+          <h2>Keep passwords out of the inventory</h2>
+          <p>
+            Storing <code>ansible_password</code> and <code>mysql_root_password</code> in plain text is fine for practice, but not for real projects, because the inventory usually goes into Git. Better options:
+          </p>
+          <ul>
+            <li>Use <strong>SSH keys</strong> instead of a password (<code>ansible_ssh_private_key_file</code>, or <code>private_key_file</code> in ansible.cfg).</li>
+            <li>Encrypt secrets with <strong>Ansible Vault</strong>, for example <code>ansible-vault encrypt_string</code>, and keep them in an encrypted variable file.</li>
+          </ul>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+
+      <!-- ===================== ANSIBLE.CFG ===================== -->
+      <section class="concept" id="ansible-cfg">
+        <h1>ansible.cfg: The Ansible Configuration File</h1>
+
+        <article class="article">
+
+          <h2>What is ansible.cfg?</h2>
+          <p>
+            <code>ansible.cfg</code> is the settings file for Ansible. It holds the default behaviour for every run, like which inventory file to use, which user to log in as, and how the output looks.
+          </p>
+          <p>
+            Without it, you would have to type the same options on the command line every time. With it, you set them once and every <code>ansible</code> and <code>ansible-playbook</code> command picks them up.
+          </p>
+
+          <hr />
+
+          <h2>When is it used?</h2>
+          <p>
+            Ansible reads the file once, at the start of every <code>ansible</code> or <code>ansible-playbook</code> command, before it runs any task. If you change the file, the change applies from the next run.
+          </p>
+
+          <hr />
+
+          <h2>Where does Ansible look for it?</h2>
+          <p>
+            Ansible configuration can be loaded from 4 places. Ansible checks them in this order and uses the
+            <strong>first file it finds</strong>. It only ever uses one file; it does not combine them.
+          </p>
+
+          <h3>1. The <code>ANSIBLE_CONFIG</code> environment variable</h3>
+          <p>
+            If <code>ANSIBLE_CONFIG</code> is set, Ansible loads the file it points to, and the other three places are ignored.
+          </p>
+          <ul>
+            <li>If you set it in your shell profile, that one file applies to every project and every playbook you run.</li>
+            <li>If you don't want that, remove it:</li>
+          </ul>
+          <pre><code>export ANSIBLE_CONFIG=/path/to/ansible.cfg   # use this file for everything
+unset ANSIBLE_CONFIG                         # stop using it</code></pre>
+
+          <h3>2. <code>ansible.cfg</code> in the current folder</h3>
+          <p>
+            If the environment variable isn't set, Ansible looks for <code>ansible.cfg</code> in the folder you run the command
+            from, which is usually your project or repo folder.
+          </p>
+
+          <h3>3. <code>.ansible.cfg</code> in your home folder</h3>
+          <p>
+            Next, it checks for <code>~/.ansible.cfg</code>. Note the dot at the start of the name.
+          </p>
+
+          <h3>4. <code>/etc/ansible/ansible.cfg</code></h3>
+          <p>
+            Last, it checks <code>/etc/ansible/</code>, the standard system-wide location on Linux. If none of the four exist,
+            Ansible uses its built-in defaults.
+          </p>
+          <p>
+            On a Mac, Homebrew installs Ansible in its own location, <code>/opt/homebrew/opt/ansible/</code> (the
+            commands are in its <code>bin</code> folder), and doesn't create <code>/etc/ansible/</code>. So on a Mac you
+            normally rely on a project <code>ansible.cfg</code>.
+          </p>
+
+          <h3>Best practice</h3>
+          <p>
+            Always keep a config file specific to each project: put <code>ansible.cfg</code> in the project folder next to your
+            playbooks and <code>inventory.ini</code>, and commit it to Git. That way everyone running the project gets the same
+            settings, and one project's settings don't affect another's.
+          </p>
+          <p>
+            To see which file Ansible is actually using, run:
+          </p>
+          <pre><code>ansible --version          # the "config file =" line shows the file in use</code></pre>
+
+          <hr />
+
+          <h2>How is it written?</h2>
+          <p>
+            The file uses the INI format:
+          </p>
+          <ul>
+            <li>Settings are grouped under section names in square brackets, like <code>[defaults]</code>.</li>
+            <li>Each setting is one line: <code>name = value</code>.</li>
+            <li>A line starting with <code>#</code> is a comment, so Ansible ignores it. In the example file almost every setting starts with <code>#</code>, which means Ansible uses its built-in default. To change a setting, remove the <code>#</code> and set your value.</li>
+            <li>Put comments on their <strong>own line</strong>. Ansible does not strip a <code>#</code> comment written after a value, so it becomes part of the value, and the setting is broken or ignored.</li>
+          </ul>
+          <pre><code># right
+forks = 10
+
+# wrong: Ansible reads the value as "10   # work on 10 hosts" and stops with an error
+forks = 10   # work on 10 hosts</code></pre>
+          <p>
+            Almost every setting can also be overridden for a single run, from the playbook or with a command line flag.
+          </p>
+          <p>
+            Two handy commands:
+          </p>
+          <pre><code>ansible-config list                  # every setting Ansible supports, with its default
+ansible-config dump --only-changed   # only the settings you have changed</code></pre>
+
+          <hr />
+
+          <h2>My ansible.cfg</h2>
+          <p>
+            My file is based on the example config. The one setting I turned on makes the playbook output easier to read:
+          </p>
+          <pre><code>stdout_callback = ansible.builtin.default
+callback_result_format = yaml</code></pre>
+          <p>
+            By default Ansible prints task results as one long JSON line. <code>callback_result_format = yaml</code> prints them as YAML instead, spread over several lines, which is much easier to read. The older way, <code>stdout_callback = yaml</code>, has been removed, so that line stays commented out in my file:
+          </p>
+          <pre><code>#stdout_callback = yaml          # removed in community.general 12.0.0</code></pre>
+
+          <hr />
+
+          <h2>Sample ansible.cfg</h2>
+          <p>
+            Here is a sample <code>ansible.cfg</code> for a project, with the settings that are used the most. Copy it into your
+            project folder and change the values (user, key, paths) to match your setup.
+          </p>
+          <pre><code>[defaults]
+# inventory file, so you don't need -i every time
+inventory = inventory.ini
+# user to log in to the servers as, and its SSH key
+remote_user = ec2-user
+private_key_file = ~/.ssh/roboshop.pem
+# don't stop to ask "do you trust this host?" on the first connection
+host_key_checking = False
+# work on 10 hosts at the same time (default is 5)
+forks = 10
+# seconds to wait for an SSH connection
+timeout = 30
+# collect facts once and reuse them
+gathering = smart
+# where to find roles
+roles_path = ./roles
+# save the output of every run to a log file
+log_path = ./ansible.log
+# don't create .retry files when a playbook fails
+retry_files_enabled = False
+# find Python on the host automatically, without a warning
+interpreter_python = auto_silent
+# readable YAML output instead of one long JSON line
+stdout_callback = ansible.builtin.default
+callback_result_format = yaml
+
+[privilege_escalation]
+# run tasks as root (sudo) by default
+become = True
+become_method = sudo
+become_user = root
+# don't ask for the sudo password
+become_ask_pass = False
+
+[ssh_connection]
+# fewer SSH round trips per task, so playbooks run faster
+pipelining = True
+# reuse one SSH connection for 60 seconds instead of opening a new one per task
+ssh_args = -o ControlMaster=auto -o ControlPersist=60s
+# retry an unreachable host 3 times
+retries = 3</code></pre>
+          <p>A few things to keep in mind:</p>
+          <ul>
+            <li><code>host_key_checking = False</code> is convenient for labs and short-lived cloud servers. In production, leave it on, so you notice if a server's identity changes.</li>
+            <li><code>become = True</code> makes every task run as root. If only a few tasks need root, leave it off here and add <code>become: true</code> to those tasks instead.</li>
+            <li>Never put passwords in this file. It usually goes into Git with the project.</li>
+          </ul>
+          <p>To check that Ansible picked up your values, run this from the project folder:</p>
+          <pre><code>ansible-config dump --only-changed</code></pre>
+
+          <hr />
+
+          <h2>Settings worth knowing</h2>
+          <p>
+            The example file has hundreds of settings, but you will only ever change a few. These are the useful ones, as they appear in my file, grouped by section.
+          </p>
+
+          <h3>[defaults]: general behaviour</h3>
+          <pre><code>[defaults]
+#inventory       = /etc/ansible/hosts
+#forks           = 5
+#remote_user = root
+#private_key_file = /path/to/file
+#host_key_checking = True
+#timeout = 10
+#log_path = /var/log/ansible.log
+#roles_path = ~/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles
+#vault_password_file = /path/to/vault_password_file</code></pre>
+          <ul>
+            <li><code>inventory</code>: the inventory file to use, so you don't need <code>-i inventory.ini</code> every time.</li>
+            <li><code>forks</code>: how many hosts Ansible works on at the same time. The default is 5; raise it for many servers.</li>
+            <li><code>remote_user</code>: the user Ansible logs in to the servers as.</li>
+            <li><code>private_key_file</code>: the SSH key used to log in.</li>
+            <li><code>host_key_checking</code>: when <code>True</code>, Ansible stops at a server it hasn't seen before and asks to trust it. Setting it to <code>False</code> skips that question (handy for labs, less safe in production).</li>
+            <li><code>timeout</code>: how many seconds to wait when connecting to a server.</li>
+            <li><code>log_path</code>: save the output of every run to a log file. Logging is off unless you set this.</li>
+            <li><code>roles_path</code>: the folders Ansible searches for roles.</li>
+            <li><code>vault_password_file</code>: a file holding the Ansible Vault password, so you don't have to type it.</li>
+          </ul>
+
+          <h3>Gathering facts</h3>
+          <p>
+            Facts are the details Ansible collects about each host (OS, IP, memory) at the start of a play. These settings control that step:
+          </p>
+          <pre><code># smart - gather by default, but don't regather if already gathered
+# implicit - gather by default, turn off with gather_facts: False
+# explicit - do not gather by default, must say gather_facts: True
+#gathering = implicit
+
+#gather_timeout = 10</code></pre>
+          <p>
+            Collecting facts takes time, so <code>smart</code> is a common choice to avoid collecting them twice.
+          </p>
+
+          <h3>Output</h3>
+          <pre><code>#display_skipped_hosts = True
+#nocolor = 1</code></pre>
+          <ul>
+            <li><code>display_skipped_hosts</code>: set to <code>False</code> to hide the "Skipping" lines for tasks whose <code>when</code> was false.</li>
+            <li><code>nocolor</code>: set to 1 to turn off coloured output.</li>
+          </ul>
+
+          <h3>[privilege_escalation]: running as root</h3>
+          <pre><code>[privilege_escalation]
+#become = False
+#become_method = sudo
+#become_ask_pass = False</code></pre>
+          <ul>
+            <li><code>become</code>: when <code>True</code>, tasks run as root (with sudo) by default. Most installs need this.</li>
+            <li><code>become_method</code>: how to switch user, normally <code>sudo</code>.</li>
+            <li><code>become_ask_pass</code>: when <code>True</code>, Ansible asks for the sudo password.</li>
+          </ul>
+
+          <h3>[ssh_connection]: speed and reliability</h3>
+          <pre><code>[ssh_connection]
+#pipelining = False
+#retries = 3</code></pre>
+          <ul>
+            <li><code>pipelining</code>: when <code>True</code>, Ansible needs fewer SSH round trips per task, so playbooks run noticeably faster.</li>
+            <li><code>retries</code>: how many times to retry a server that can't be reached.</li>
+          </ul>
+
+          <h3>[colors] and [diff]</h3>
+          <pre><code>[colors]
+#ok = green
+#changed = yellow
+#error = red
+
+[diff]
+# Always print diff when running ( same as always running with -D/--diff )
+#always = False</code></pre>
+          <ul>
+            <li><code>[colors]</code>: change the colour used for each result, such as ok, changed and error.</li>
+            <li><code>[diff] always</code>: when <code>True</code>, Ansible shows what changed inside files on every run.</li>
+          </ul>
+          <p>
+            The other sections in the file (<code>[inventory]</code>, <code>[paramiko_connection]</code>, <code>[persistent_connection]</code>, <code>[sudo_become_plugin]</code>, <code>[selinux]</code>) are for special setups. You can leave them as they are.
+          </p>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      // Shows one concept at a time. The address uses #links:
+      //   ansible.html#variables, ...
+      function showConcept(id) {
+        const sections = document.querySelectorAll('.concept');
+        const target = document.getElementById(id) || sections[0];
+
+        sections.forEach((s) => s.classList.toggle('active', s === target));
+        document.querySelectorAll('.concept-link').forEach((link) => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + target.id);
+        });
+        window.scrollTo(0, 0);
+        return target.id;
+      }
+
+      // Sidebar clicks and back/forward buttons change the #hash; show that concept.
+      window.addEventListener('hashchange', () => showConcept(location.hash.slice(1)));
+
+      // First load: show the concept named in the address (or the first one).
+      showConcept(location.hash.slice(1));
+    </script>
+    <script>
+      // Light/dark theme toggle. The choice is saved, so every page uses it.
+      (function () {
+        const root = document.documentElement;
+        const btn = document.querySelector('.theme-toggle');
+        if (!btn) return;
+        const icon = btn.querySelector('.theme-icon');
+
+        function apply(theme) {
+          if (theme === 'light') {
+            root.setAttribute('data-theme', 'light');
+          } else {
+            root.removeAttribute('data-theme');
+          }
+          const isLight = theme === 'light';
+          icon.textContent = isLight ? '☾' : '☀';
+          btn.setAttribute('aria-label', isLight ? 'Switch to dark theme' : 'Switch to light theme');
+        }
+
+        apply(root.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+
+        btn.addEventListener('click', function () {
+          const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+          apply(next);
+          try { localStorage.setItem('theme', next); } catch (e) {}
+        });
+      })();
+    </script>
+  </body>
+</html>
