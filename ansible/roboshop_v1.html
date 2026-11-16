@@ -1,0 +1,2618 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>roboshop_ansible_v1 | Manoj Kumar Madireddy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <script>
+      // Apply the saved theme before the page draws, so it doesn't flash dark first.
+      try {
+        if (localStorage.getItem('theme') === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch (e) {}
+    </script>
+    <style>
+      /* Same colour tokens as ../index.html */
+      :root {
+        --bg: #101417;
+        --bg-soft: #181f24;
+        --panel: rgba(18, 24, 28, 0.78);
+        --panel-strong: rgba(22, 28, 33, 0.84);
+        --text: #f4f5f7;
+        --muted: #bcc8cf;
+        --primary: #ffffff;
+        --secondary: #9aa8b1;
+        --accent: #ffd166;
+        --accent-soft: rgba(255, 209, 102, 0.12);
+        --brand: #ffb454;
+        --line: rgba(255, 255, 255, 0.08);
+        --shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      * { box-sizing: border-box; }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at center, rgba(255, 209, 102, 0.07), transparent 30%),
+          linear-gradient(180deg, #0a0f12 0%, #10161b 35%, #121b20 100%);
+        color: var(--text);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.7;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      /* Background image, same as the home page */
+      .computer-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(180deg, rgba(8, 12, 16, 0.72), rgba(8, 12, 16, 0.84)),
+          url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+        filter: saturate(1.1) contrast(1.02) brightness(0.42);
+      }
+
+      a { color: inherit; text-decoration: none; }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        width: 84%;
+        max-width: 1380px;
+        margin: 0 auto;
+        padding: 0 28px 80px;
+        background: rgba(15, 20, 24, 0.34);
+        min-height: 100vh;
+      }
+
+      /* ---------- Top bar (matches home page) ---------- */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        padding: 18px 20px 20px;
+        background: rgba(17, 22, 25, 0.82);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(10px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        width: min(1380px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.38rem;
+        font-size: clamp(1.12rem, 1vw + 0.78rem, 1.92rem);
+        font-style: italic;
+        font-family: Georgia, "Times New Roman", serif;
+        line-height: 1;
+      }
+
+      .brand-name { color: var(--brand); letter-spacing: -0.05em; }
+      .brand-last { color: #f4f7fb; letter-spacing: 0.01em; }
+
+      .top-nav {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .top-nav a {
+        color: rgba(244, 245, 247, 0.8);
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-style: italic;
+        font-family: Georgia, "Times New Roman", serif;
+        transition: color 0.2s ease;
+      }
+
+      .top-nav a:hover { color: var(--brand); }
+
+      /* ---------- Concepts layout: sidebar + content ---------- */
+      .concepts-layout {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        gap: 28px;
+        align-items: start;
+        padding-top: 40px;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 100px;
+        background: var(--panel-strong);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 22px 16px;
+        backdrop-filter: blur(8px);
+      }
+
+      .sidebar h2 {
+        margin: 0 0 12px 10px;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--secondary);
+      }
+
+      .concept-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .concept-link {
+        display: block;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-weight: 600;
+        color: var(--muted);
+        transition: background 0.2s ease, color 0.2s ease;
+      }
+
+      /* Same highlight as the Ansible drop-down on the home page */
+      .concept-link:hover,
+      .concept-link.active {
+        background: rgba(255, 180, 84, 0.14);
+        color: var(--brand);
+      }
+
+      .concept { display: none; }
+      .concept.active { display: block; }
+
+      .concept h1 {
+        margin: 0 0 18px;
+        font-size: clamp(1.6rem, 1.2vw + 1.1rem, 2.1rem);
+        line-height: 1.25;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+
+      .lead {
+        color: #d5e7f0;
+        font-size: 1rem;
+        margin: 0 0 22px;
+      }
+
+      .placeholder {
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      /* ---------- Article content ---------- */
+      .article {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 28px 28px 36px;
+        backdrop-filter: blur(8px);
+      }
+
+      .article h2 {
+        margin-top: 28px;
+        margin-bottom: 10px;
+        font-size: 1.3rem;
+        line-height: 1.35;
+        letter-spacing: -0.01em;
+        color: var(--accent);
+      }
+
+      .article h3 {
+        margin-top: 24px;
+        margin-bottom: 8px;
+        font-size: 1.05rem;
+      }
+
+      .article p,
+      .article li {
+        color: var(--text);
+        font-size: 1.01rem;
+      }
+
+      .article strong { color: inherit; }  /* bold only, no colour: only headings are highlighted */
+
+      .article ul,
+      .article ol { padding-left: 22px; }
+
+      code, pre {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      }
+
+      pre {
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 18px 16px;
+        overflow-x: auto;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #d5e7f0;
+      }
+
+      /* Inline code (e.g. vars_files, inventory.ini): monospace only, no highlight */
+      code {
+        background: none;
+        color: inherit;
+        padding: 0;
+        font-size: 0.95em;
+      }
+
+      pre code {
+        background: none;
+        color: inherit;
+        padding: 0;
+      }
+
+      .article hr {
+        border: 0;
+        border-top: 1px solid var(--line);
+        margin: 26px 0;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-top: 18px;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .back-link:hover { color: var(--brand); }
+
+      @media (max-width: 900px) {
+        .page { width: 100%; }
+        /* minmax(0, 1fr), not 1fr: a plain 1fr column grows to fit the longest
+           code line and pushes the whole page wider than the phone screen. */
+        .concepts-layout { grid-template-columns: minmax(0, 1fr); }
+        .sidebar { position: static; }
+        .concept-list { flex-direction: row; flex-wrap: wrap; }
+      }
+
+      @media (max-width: 680px) {
+        .page { width: 100%; padding-inline: 16px; }
+        .topbar-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .top-nav { gap: 14px; }
+        .article { padding: 20px 18px 24px; }
+      }
+
+      /* ---------- Theme toggle button ---------- */
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--text);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: color 0.2s ease, border-color 0.2s ease;
+      }
+
+      .theme-toggle:hover { color: var(--brand); border-color: var(--brand); }
+      .theme-toggle:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+      /* ---------- Light (white) theme ---------- */
+      :root[data-theme="light"] {
+        --bg: #dfeaf3;
+        --bg-soft: #edf3f8;
+        --panel: rgba(255, 255, 255, 0.72);
+        --panel-strong: rgba(255, 255, 255, 0.85);
+        --text: #1c2d38;
+        --muted: #5d7382;
+        --primary: #1c2d38;
+        --secondary: #647f8f;
+        --accent: #a86500;
+        --accent-soft: rgba(168, 101, 0, 0.1);
+        --brand: #c46a00;
+        --line: rgba(28, 45, 56, 0.12);
+        --shadow: 0 18px 38px rgba(32, 52, 64, 0.08);
+      }
+
+      :root[data-theme="light"] body {
+        background:
+          radial-gradient(circle at top left, rgba(108, 166, 182, 0.18), transparent 24%),
+          radial-gradient(circle at bottom right, rgba(147, 183, 201, 0.16), transparent 28%),
+          linear-gradient(135deg, #dfeaf3 0%, #d7e3ee 34%, #c9dfe9 100%);
+      }
+
+      :root[data-theme="light"] .computer-bg { display: none; }
+      :root[data-theme="light"] .page { background: transparent; }
+      :root[data-theme="light"] .topbar {
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 0 0 1px var(--line);
+      }
+      :root[data-theme="light"] .brand-name { color: var(--brand); }
+      :root[data-theme="light"] .brand-last { color: var(--text); }
+      :root[data-theme="light"] .top-nav a { color: var(--muted); }
+      :root[data-theme="light"] .top-nav a:hover { color: var(--brand); }
+
+      /* Light theme: concept page content */
+      :root[data-theme="light"] .concept-link:hover,
+      :root[data-theme="light"] .concept-link.active {
+        background: var(--accent-soft);
+        color: var(--brand);
+      }
+      :root[data-theme="light"] .lead { color: var(--muted); }
+      :root[data-theme="light"] pre {
+        background: rgba(28, 45, 56, 0.05);
+        color: var(--text);
+      }
+      :root[data-theme="light"] pre code {
+        background: none;
+        color: inherit;
+      }
+
+      /* ================= Premium polish: shared header ================= */
+      :root {
+        --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+        --font-body: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        --gold-1: #f7dc9c;
+        --gold-2: #d29a3c;
+        --ivory: #f5f1ec;
+        --hairline: rgba(255, 209, 102, 0.28);
+        --glass: rgba(16, 21, 26, 0.55);
+      }
+
+      :root[data-theme="light"] {
+        --gold-1: #b8862f;
+        --gold-2: #7d500e;
+        --ivory: #1c2d38;
+        --hairline: rgba(168, 101, 0, 0.25);
+        --glass: rgba(255, 255, 255, 0.6);
+      }
+
+      body {
+        font-family: var(--font-body);
+        font-weight: 400;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      ::selection { background: rgba(255, 209, 102, 0.3); }
+
+      .topbar { position: sticky; }
+
+      /* fine gold hairline under the top bar */
+      .topbar::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--hairline) 20%, var(--hairline) 80%, transparent);
+      }
+
+      .brand {
+        font-family: var(--font-display);
+        font-size: clamp(1.35rem, 1vw + 1rem, 2.1rem);
+        font-weight: 600;
+        gap: 0.32rem;
+      }
+
+      .brand-name,
+      .brand-last {
+        font-family: var(--font-display);
+        font-weight: 600;
+        letter-spacing: 0.01em;
+      }
+
+      .brand-name {
+        background: linear-gradient(120deg, var(--gold-1), var(--gold-2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      :root[data-theme="light"] .brand-name { color: transparent; }
+
+      .top-nav { gap: 30px; }
+
+      .top-nav a {
+        position: relative;
+        font-family: var(--font-body);
+        font-style: normal;
+        font-weight: 500;
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+        padding: 4px 0;
+      }
+
+      /* gold underline that draws in on hover */
+      .top-nav a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+      }
+
+      .top-nav a:hover::after { transform: scaleX(1); }
+
+      .theme-toggle {
+        border-color: var(--hairline);
+        color: var(--gold-1);
+        backdrop-filter: blur(6px);
+      }
+
+      .theme-toggle:hover {
+        color: var(--gold-2);
+        border-color: var(--gold-2);
+      }
+
+      /* ================= Premium polish: concepts page ================= */
+      .page { background: transparent; }  /* one even background edge to edge */
+      .concept h1 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; font-size: clamp(1.9rem, 1.4vw + 1.3rem, 2.5rem); }
+      .article h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.55rem; letter-spacing: 0; }
+      .article p, .article li { font-weight: 400; }
+      .lead { font-weight: 300; }
+      .sidebar, .article { background: var(--glass); backdrop-filter: blur(12px); }
+      .sidebar h2 { font-family: var(--font-body); font-weight: 600; letter-spacing: 0.24em; font-size: 0.7rem; color: var(--gold-1); }
+      :root[data-theme="light"] .sidebar h2 { color: var(--gold-2); }
+      .concept-link { font-family: var(--font-body); font-weight: 500; font-size: 0.92rem; }
+
+      /* ================= Flat charcoal background (dark theme only) ================= */
+      :root:not([data-theme="light"]) {
+        --charcoal: #1e1e20;
+        --charcoal-raised: #252528;
+        --divider: rgba(255, 255, 255, 0.14);   /* thin light line, as in the reference */
+      }
+      :root:not([data-theme="light"]) body { background: var(--charcoal); }
+      :root:not([data-theme="light"]) .computer-bg { display: none; }   /* drop the photo */
+      :root:not([data-theme="light"]) .topbar {
+        background: rgba(30, 30, 32, 0.92);
+        box-shadow: none;
+      }
+      :root:not([data-theme="light"]) .topbar::after { background: var(--divider); }
+      :root:not([data-theme="light"]) .sidebar,
+      :root:not([data-theme="light"]) .article {
+        background: var(--charcoal-raised);
+        backdrop-filter: none;
+        border: 1px solid var(--divider);
+        box-shadow: none;
+      }
+
+      /* ================= Light theme: quiet background, content stands out ================= */
+      /* Mirrors the dark theme: muted page behind, solid raised cards for the content. */
+      :root[data-theme="light"] {
+        --paper-bg: #eceef1;          /* soft neutral grey, no blue gradient */
+        --paper-card: #ffffff;        /* solid white content cards */
+        --paper-line: rgba(28, 45, 56, 0.10);
+        --paper-shadow: 0 1px 2px rgba(20, 30, 40, 0.04), 0 8px 24px rgba(20, 30, 40, 0.06);
+      }
+      :root[data-theme="light"] body { background: var(--paper-bg); }
+      :root[data-theme="light"] .topbar {
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: none;
+      }
+      :root[data-theme="light"] .topbar::after { background: var(--paper-line); }
+      :root[data-theme="light"] .sidebar,
+      :root[data-theme="light"] .article {
+        background: var(--paper-card);
+        backdrop-filter: none;
+        border: 1px solid var(--paper-line);
+        box-shadow: var(--paper-shadow);
+      }
+      :root[data-theme="light"] .concept h1 { color: #14212b; }
+      :root[data-theme="light"] .article p,
+      :root[data-theme="light"] .article li { color: #24323c; }
+      :root[data-theme="light"] pre {
+        background: #f5f6f8;
+        border: 1px solid var(--paper-line);
+        color: #1c2d38;
+      }
+
+      /* ================= Indent content under headings (one "tab") ================= */
+      .concept { --tab: 2em; }
+      .concept > .lead,                                   /* intro line under the page title */
+      .article > :not(h1):not(h2):not(h3):not(hr) {        /* paragraphs, lists, code under each heading */
+        margin-left: var(--tab);
+      }
+      @media (max-width: 680px) {
+        .concept { --tab: 1em; }                          /* smaller indent on phones */
+      }
+
+      /* ================= Tablet + phone layout ================= */
+      body { overflow-x: clip; }   /* nothing can push the page sideways; "clip" keeps the sticky top bar working */
+
+      /* Long words like global_variables.yaml wrap instead of running off-screen */
+      .concept h1,
+      .lead,
+      .article p,
+      .article li { overflow-wrap: anywhere; }
+
+      @media (max-width: 900px) {
+        /* Top bar: name on the first line, menu + theme button on the second (same as home) */
+        .topbar { padding: 12px 16px; }
+        .topbar-inner { width: 100%; flex-direction: column; align-items: center; gap: 10px; }
+        .brand { white-space: nowrap; }
+        .topbar-actions { width: 100%; justify-content: center; gap: 14px; }
+        .top-nav { gap: 22px; flex-wrap: wrap; justify-content: center; }
+      }
+
+      @media (max-width: 680px) {
+        .page { padding: 0 12px 48px; }
+        .brand { font-size: 1.25rem; }
+        .topbar-actions { gap: 10px; }
+        .top-nav { gap: 12px; }   /* 5 links here vs 4 on home, so keep them on one line */
+        .top-nav a { font-size: 0.64rem; letter-spacing: 0.08em; }
+        .theme-toggle { width: 32px; height: 32px; flex: none; }
+
+        /* Concept list: compact pills, wrapping onto two lines if needed */
+        .concepts-layout { padding-top: 16px; gap: 14px; }
+        .sidebar { padding: 12px; border-radius: 16px; }
+        .sidebar h2 { margin: 0 0 8px 4px; }
+        .concept-list { gap: 6px; }
+        .concept-link { padding: 7px 12px; font-size: 0.85rem; }
+
+        .concept h1 { font-size: 1.55rem; margin-bottom: 10px; }
+        .lead { font-size: 0.95rem; margin-bottom: 14px; }
+        .article { padding: 18px 14px 22px; border-radius: 16px; }
+        .article h2 { font-size: 1.3rem; margin-top: 22px; }
+        .article p,
+        .article li { font-size: 0.95rem; line-height: 1.65; }
+        .article ul,
+        .article ol { padding-left: 20px; }
+        .article hr { margin: 20px 0; }
+        pre { font-size: 0.78rem; padding: 12px; border-radius: 10px; }   /* long code lines scroll inside the box */
+      }
+
+      @media (max-width: 680px) {
+        .concept { --tab: 0px; }   /* no extra indent on phones; every pixel of width counts */
+        .concept > .lead { margin-left: 0; }
+      }
+      /* ================= Architecture diagrams (inline SVG) ================= */
+      .diagram {
+        margin-top: 18px;
+        margin-bottom: 18px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.22);
+        overflow-x: auto;                 /* phones: the diagram scrolls inside its box */
+        --dg-fill: rgba(255, 255, 255, 0.04);
+        --dg-stroke: rgba(255, 255, 255, 0.22);
+      }
+      .diagram svg { display: block; width: 100%; min-width: 560px; height: auto; }
+      .diagram .dg-outer { fill: none; stroke: var(--gold-2); stroke-width: 1.5; }
+      .diagram .dg-box { fill: var(--dg-fill); stroke: var(--dg-stroke); stroke-width: 1; }
+      .diagram .dg-key { stroke: var(--gold-2); stroke-dasharray: 5 4; }
+      .diagram .dg-chip { fill: var(--accent-soft); stroke: var(--hairline); }
+      .diagram .dg-h { fill: var(--gold-1); font: 600 14px var(--font-body); }
+      .diagram .dg-t { fill: var(--text); font: 500 13px var(--font-body); }
+      .diagram .dg-s { fill: var(--muted); font: 400 11.5px var(--font-body); }
+      .diagram .dg-line { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+      .diagram .dg-dash { stroke-dasharray: 4 4; }
+      .diagram .dg-arrowhead { fill: var(--muted); }
+      :root[data-theme="light"] .diagram {
+        background: #f5f6f8;
+        --dg-fill: #ffffff;
+        --dg-stroke: rgba(28, 45, 56, 0.22);
+      }
+      :root[data-theme="light"] .diagram .dg-h { fill: var(--gold-2); }
+      /* Links inside article text (Overview page) */
+      .article p a:not(.back-link),
+      .article li a { color: var(--brand); text-decoration: underline; text-underline-offset: 3px; }
+      .article p a:not(.back-link):hover,
+      .article li a:hover { color: var(--gold-1); }
+      .source-link { overflow-wrap: anywhere; }
+      /* ---- roboshop_v1: one sidebar link per file ---- */
+      /* file names stay on one line */
+      .concept-list .concept-link { padding: 7px 12px; font-size: 0.86rem; white-space: nowrap; }
+      @media (min-width: 901px) {
+        /* sidebar is as wide as the longest file name; the content panel takes the rest */
+        .concepts-layout { grid-template-columns: max-content minmax(0, 1fr); }
+        .sidebar { max-height: calc(100vh - 120px); overflow-y: auto; }
+      }
+      /* ---- roboshop_v1: code colors (dark theme) ---- */
+      .concept pre {
+        --hl-com: #7f8c95;
+        --hl-key: #7cc4f5;
+        --hl-str: #a8d8a0;
+        --hl-var: #ffb454;
+        --hl-const: #f39c8b;
+        --hl-sec: #c9a7f5;
+        --hl-task: #ffffff;
+        --hl-cmd: #7ee0c3;
+      }
+      :root[data-theme="light"] .concept pre {
+        --hl-com: #6b7c87;
+        --hl-key: #0b62a3;
+        --hl-str: #2e7d32;
+        --hl-var: #b35c00;
+        --hl-const: #c2410c;
+        --hl-sec: #7b3fbf;
+        --hl-task: #1c2d38;
+        --hl-cmd: #0f766e;
+      }
+      .hl-com   { color: var(--hl-com); font-style: italic; }
+      .hl-key   { color: var(--hl-key); }
+      .hl-str   { color: var(--hl-str); }
+      .hl-var   { color: var(--hl-var); }
+      .hl-const { color: var(--hl-const); }
+      .hl-sec   { color: var(--hl-sec); font-weight: 600; }
+      .hl-task  { color: var(--hl-task); font-weight: 600; }
+      .hl-cmd   { color: var(--hl-cmd); font-weight: 600; }
+      .hl-dash  { color: var(--hl-com); }
+    </style>
+  </head>
+  <body>
+    <div class="computer-bg" aria-hidden="true"></div>
+
+    <div class="page">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <a href="../index.html" class="brand">
+            <span class="brand-name">Manoj Kumar</span>
+            <span class="brand-last">Madireddy</span>
+          </a>
+
+          <div class="topbar-actions">
+            <nav class="top-nav" aria-label="Main navigation">
+              <a href="../index.html">Home</a>
+              <a href="../index.html#about">About</a>
+              <a href="../index.html#resume">Resume</a>
+              <a href="../index.html#projects">Projects</a>
+              <a href="mailto:Manoj.sde2@gmail.com?subject=Hello%20Manoj%20%E2%80%94%20from%20your%20website">Contact</a>
+            </nav>
+            <button type="button" class="theme-toggle" aria-label="Switch to light theme">
+              <span class="theme-icon" aria-hidden="true">☀</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div class="concepts-layout">
+        <!-- Left side: list of sections. To add a section:
+             1. add a link here,
+             2. add a matching <section class="concept" id="..."> below. -->
+
+        <aside class="sidebar" aria-label="roboshop_ansible_v1 sections">
+          <h2>roboshop_ansible_v1</h2>
+          <ul class="concept-list">
+            <li><a href="#overview" class="concept-link">roboshop_v1 Overview</a></li>
+            <li><a href="#ec2-instances" class="concept-link">roboshop_ec2_instances.yaml</a></li>
+            <li><a href="#ec2-output" class="concept-link">ec2_instance_creation_output.yaml</a></li>
+            <li><a href="#mongodb" class="concept-link">ms-roboshop-mongodb.yaml</a></li>
+            <li><a href="#redis" class="concept-link">ms-roboshop-redis.yaml</a></li>
+            <li><a href="#mysql" class="concept-link">ms-roboshop-mysql.yaml</a></li>
+            <li><a href="#rabbitmq" class="concept-link">ms-roboshop-rabbitmq.yaml</a></li>
+            <li><a href="#catalogue" class="concept-link">ms-roboshop-catalogue.yaml</a></li>
+            <li><a href="#user" class="concept-link">ms-roboshop-user.yaml</a></li>
+            <li><a href="#cart" class="concept-link">ms-roboshop-cart.yaml</a></li>
+            <li><a href="#shipping" class="concept-link">ms-roboshop-shipping.yaml</a></li>
+            <li><a href="#payment" class="concept-link">ms-roboshop-payment.yaml</a></li>
+            <li><a href="#dispatch" class="concept-link">ms-roboshop-dispatch.yaml</a></li>
+            <li><a href="#frontend" class="concept-link">ms-roboshop-frontend.yaml</a></li>
+            <li><a href="#catalogue-service" class="concept-link">catalogue.service.j2</a></li>
+            <li><a href="#user-service" class="concept-link">user.service.j2</a></li>
+            <li><a href="#cart-service" class="concept-link">cart.service.j2</a></li>
+            <li><a href="#shipping-service" class="concept-link">shipping.service.j2</a></li>
+            <li><a href="#payment-service" class="concept-link">payment.service.j2</a></li>
+            <li><a href="#dispatch-service" class="concept-link">dispatch.service.j2</a></li>
+            <li><a href="#roboshop-conf" class="concept-link">roboshop.conf.j2</a></li>
+            <li><a href="#mongo-repo" class="concept-link">mongo.repo</a></li>
+            <li><a href="#rabbitmq-repo" class="concept-link">rabbitmq.repo</a></li>
+            <li><a href="#inventory" class="concept-link">inventory.ini</a></li>
+            <li><a href="#ansible-cfg" class="concept-link">ansible.cfg</a></li>
+          </ul>
+        </aside>
+
+        <main class="content-area">
+      <!-- ===================== OVERVIEW ===================== -->
+      <section class="concept" id="overview">
+        <h1>roboshop_v1 Overview</h1>
+
+        <article class="article">
+          <p>
+            <strong>roboshop_v1</strong> is my first version of deploying roboshop with Ansible. Every component has
+            its own playbook, and I run the playbooks one by one. It doesn't use roles yet; that comes in
+            <a href="https://github.com/MadireddyManojKumar/roboshop_ansible_v2" target="_blank" rel="noopener noreferrer">roboshop_ansible_v2</a>.
+          </p>
+          <p>
+            The project is built in two steps:
+          </p>
+          <ul>
+            <li><strong>v1: make it work.</strong> The aim is to get working deployment scripts for every component, so the whole shop runs end to end.</li>
+            <li><strong>v2: make it best.</strong> Once everything works, the same deployment is rewritten using Ansible best practices: roles, reusable code, cleaner variables and secured credentials.</li>
+          </ul>
+          <p>
+            The Ansible features used here (variables, conditions, loops, inventory, ansible.cfg) are explained on the
+            <a href="ansible.html">Ansible Concepts</a> page.
+          </p>
+          <p>
+            <strong>Source code:</strong>
+            <a class="source-link" href="https://github.com/MadireddyManojKumar/ansible_roboshop/tree/master/roboshop_v1" target="_blank" rel="noopener noreferrer">github.com/MadireddyManojKumar/ansible_roboshop/roboshop_v1</a>
+          </p>
+
+          <hr />
+
+          <h2>Architecture</h2>
+          <p>
+            roboshop is a small online shop split into separate components. Each component runs on its own EC2
+            instance, and every instance has a DNS name like <code>catalogue.manojkumar.blog</code>, so the
+            components find each other by name instead of by IP address.
+          </p>
+          <figure class="diagram">
+<svg viewBox="0 0 800 400" role="img" aria-labelledby="v1-arch-title">
+<title id="v1-arch-title">The browser calls the frontend (nginx), which forwards API calls to catalogue, user, cart, shipping and payment. catalogue and user use mongodb, user and cart use redis, shipping uses mysql, and payment and dispatch use rabbitmq.</title>
+<defs><marker id="v1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-arrowhead" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text class="dg-h" x="25" y="28">Web</text>
+<rect class="dg-box" x="25" y="44" width="180" height="56" rx="10"/>
+<text class="dg-t" x="115" y="68" text-anchor="middle">Browser</text>
+<text class="dg-s" x="115" y="85" text-anchor="middle">customer</text>
+<rect class="dg-box dg-key" x="300" y="44" width="200" height="56" rx="10"/>
+<text class="dg-t" x="400" y="68" text-anchor="middle">frontend (nginx)</text>
+<text class="dg-s" x="400" y="85" text-anchor="middle">frontend.manojkumar.blog</text>
+<path class="dg-line" d="M205,72 H296" marker-end="url(#v1-arrow)"/>
+<path class="dg-line" d="M400,100 V140 M82.5,140 H590.5"/>
+<path class="dg-line" d="M82.5,140 V172" marker-end="url(#v1-arrow)"/>
+<path class="dg-line" d="M209.5,140 V172" marker-end="url(#v1-arrow)"/>
+<path class="dg-line" d="M336.5,140 V172" marker-end="url(#v1-arrow)"/>
+<path class="dg-line" d="M463.5,140 V172" marker-end="url(#v1-arrow)"/>
+<path class="dg-line" d="M590.5,140 V172" marker-end="url(#v1-arrow)"/>
+<text class="dg-s" x="600" y="144">/api/&lt;service&gt;</text>
+<text class="dg-h" x="25" y="128">Services</text>
+<rect class="dg-box" x="25" y="176" width="115" height="56" rx="10"/>
+<text class="dg-t" x="82.5" y="200" text-anchor="middle">catalogue</text>
+<text class="dg-s" x="82.5" y="217" text-anchor="middle">nodejs</text>
+<rect class="dg-box" x="152" y="176" width="115" height="56" rx="10"/>
+<text class="dg-t" x="209.5" y="200" text-anchor="middle">user</text>
+<text class="dg-s" x="209.5" y="217" text-anchor="middle">nodejs</text>
+<rect class="dg-box" x="279" y="176" width="115" height="56" rx="10"/>
+<text class="dg-t" x="336.5" y="200" text-anchor="middle">cart</text>
+<text class="dg-s" x="336.5" y="217" text-anchor="middle">nodejs</text>
+<rect class="dg-box" x="406" y="176" width="115" height="56" rx="10"/>
+<text class="dg-t" x="463.5" y="200" text-anchor="middle">shipping</text>
+<text class="dg-s" x="463.5" y="217" text-anchor="middle">java</text>
+<rect class="dg-box" x="533" y="176" width="115" height="56" rx="10"/>
+<text class="dg-t" x="590.5" y="200" text-anchor="middle">payment</text>
+<text class="dg-s" x="590.5" y="217" text-anchor="middle">python</text>
+<rect class="dg-box" x="660" y="176" width="115" height="56" rx="10"/>
+<text class="dg-t" x="717.5" y="200" text-anchor="middle">dispatch</text>
+<text class="dg-s" x="717.5" y="217" text-anchor="middle">golang</text>
+<path class="dg-line" d="M82.5,232 V296" marker-end="url(#v1-arrow)"/>
+<path class="dg-line" d="M185,232 V296" marker-end="url(#v1-arrow)"/>
+<path class="dg-line" d="M235,232 V296" marker-end="url(#v1-arrow)"/>
+<path class="dg-line" d="M336.5,232 V296" marker-end="url(#v1-arrow)"/>
+<path class="dg-line" d="M463.5,232 V296" marker-end="url(#v1-arrow)"/>
+<path class="dg-line" d="M590.5,232 V296" marker-end="url(#v1-arrow)"/>
+<path class="dg-line" d="M717.5,232 V296" marker-end="url(#v1-arrow)"/>
+<text class="dg-h" x="25" y="272">Data</text>
+<rect class="dg-box" x="25" y="300" width="180" height="56" rx="10"/>
+<text class="dg-t" x="115" y="324" text-anchor="middle">mongodb</text>
+<text class="dg-s" x="115" y="341" text-anchor="middle">products, users</text>
+<rect class="dg-box" x="220" y="300" width="174" height="56" rx="10"/>
+<text class="dg-t" x="307" y="324" text-anchor="middle">redis</text>
+<text class="dg-s" x="307" y="341" text-anchor="middle">carts, sessions</text>
+<rect class="dg-box" x="406" y="300" width="115" height="56" rx="10"/>
+<text class="dg-t" x="463.5" y="324" text-anchor="middle">mysql</text>
+<text class="dg-s" x="463.5" y="341" text-anchor="middle">shipping cities</text>
+<rect class="dg-box" x="533" y="300" width="242" height="56" rx="10"/>
+<text class="dg-t" x="654" y="324" text-anchor="middle">rabbitmq</text>
+<text class="dg-s" x="654" y="341" text-anchor="middle">order queue</text>
+<text class="dg-s" x="400" y="386" text-anchor="middle">Every box is one EC2 instance, reached by its name: &lt;component&gt;.manojkumar.blog</text>
+</svg>
+          </figure>
+          <ul>
+            <li><strong>frontend</strong> runs nginx. It serves the website and forwards <code>/api/&lt;service&gt;</code> calls to the right service.</li>
+            <li><strong>catalogue</strong> lists products from mongodb. <strong>user</strong> handles logins with mongodb and redis.</li>
+            <li><strong>cart</strong> keeps carts in redis and asks catalogue for product details.</li>
+            <li><strong>shipping</strong> reads cities from mysql and talks to cart. <strong>payment</strong> talks to cart and user, then puts the order on rabbitmq.</li>
+            <li><strong>dispatch</strong> picks orders up from rabbitmq.</li>
+          </ul>
+
+          <hr />
+
+          <h2>What's in the repository</h2>
+          <p>
+            Every file has its own section in the sidebar, cleaned up for reading, with a comment on each task. Passwords and download URLs are masked.
+          </p>
+          <ul>
+            <li><a href="#ec2-instances"><code>roboshop_ec2_instances.yaml</code></a>: creates the EC2 instances and their Route 53 DNS records, or deletes them with <code>action=delete</code>.</li>
+            <li><a href="#inventory"><code>inventory.ini</code></a>: one group per component, using the DNS names, plus the SSH user.</li>
+            <li><a href="#ansible-cfg"><code>ansible.cfg</code></a>: Ansible settings for this folder, such as YAML-formatted output.</li>
+            <li><code>ms-roboshop-&lt;component&gt;.yaml</code>: one playbook per component, 11 in total, for example <a href="#mongodb"><code>ms-roboshop-mongodb.yaml</code></a>.</li>
+            <li><code>&lt;service&gt;.service.j2</code>: systemd service templates. Ansible fills in the host names, for example <code>{{ mongo_host }}</code> in <a href="#catalogue-service"><code>catalogue.service.j2</code></a>.</li>
+            <li><a href="#roboshop-conf"><code>roboshop.conf.j2</code></a>: the nginx config template for frontend.</li>
+            <li><a href="#mongo-repo"><code>mongo.repo</code></a>, <a href="#rabbitmq-repo"><code>rabbitmq.repo</code></a>: package repository files copied to the servers.</li>
+            <li><a href="#ec2-output"><code>ec2_instance_creation_output.yaml</code></a>: a saved copy of the EC2 creation output, which I used to find where the IP address sits in the result.</li>
+          </ul>
+
+          <hr />
+
+          <h2>How a deployment runs</h2>
+          <ol>
+            <li><strong>Create the servers.</strong> Run the EC2 playbook once. It creates an instance per component and points <code>&lt;component&gt;.manojkumar.blog</code> to it.</li>
+            <li><strong>Databases first:</strong> mongodb, redis, mysql, rabbitmq. The services connect to them when they start, and catalogue loads its products into mongodb.</li>
+            <li><strong>Then the services:</strong> catalogue, user, cart, shipping, payment, dispatch.</li>
+            <li><strong>frontend last</strong>, once everything it forwards to is running.</li>
+          </ol>
+          <pre><code>ansible-playbook -i inventory.ini roboshop_ec2_instances.yaml
+
+ansible-playbook -i inventory.ini ms-roboshop-mongodb.yaml
+ansible-playbook -i inventory.ini ms-roboshop-redis.yaml
+ansible-playbook -i inventory.ini ms-roboshop-mysql.yaml
+ansible-playbook -i inventory.ini ms-roboshop-rabbitmq.yaml
+
+ansible-playbook -i inventory.ini ms-roboshop-catalogue.yaml
+ansible-playbook -i inventory.ini ms-roboshop-user.yaml
+ansible-playbook -i inventory.ini ms-roboshop-cart.yaml
+ansible-playbook -i inventory.ini ms-roboshop-shipping.yaml
+ansible-playbook -i inventory.ini ms-roboshop-payment.yaml
+ansible-playbook -i inventory.ini ms-roboshop-dispatch.yaml
+
+ansible-playbook -i inventory.ini ms-roboshop-frontend.yaml</code></pre>
+          <p>
+            To remove everything, run the EC2 playbook again with <code>action</code> set to <code>delete</code>.
+            A value passed with <code>-e</code> overrides the one in the playbook:
+          </p>
+          <pre><code>ansible-playbook -i inventory.ini roboshop_ec2_instances.yaml -e action=delete</code></pre>
+
+          <hr />
+
+          <h2>Inside one playbook: catalogue</h2>
+          <p>
+            Each service playbook follows the same pattern. For catalogue, the steps are: install Node.js 24, create
+            the roboshop system user, download the code into <code>/app</code>, install its dependencies, copy the
+            systemd service file, load the products into mongodb and start the service.
+          </p>
+          <p>
+            The service file is a template. The <code>mongo_host</code> variable from the playbook is filled in when
+            Ansible copies it:
+          </p>
+          <pre><code>  - name: copy systemd service file
+    template:
+      src: catalogue.service.j2
+      dest: /etc/systemd/system/catalogue.service</code></pre>
+          <pre><code>Environment=MONGO_URL="mongodb://{{ mongo_host }}:27017/catalogue"</code></pre>
+          <p>
+            Loading products should happen only once. The playbook counts the products already in mongodb and
+            loads the data only when the count is <code>0</code>, so running it again doesn't add duplicates:
+          </p>
+          <pre><code>  - name: check products loaded in mongodb
+    command: mongosh --host "{{ mongo_host }}" --quiet --eval 'db.getSiblingDB("catalogue").products.countDocuments()'
+    register: products_count
+
+  - name: print product_count
+    debug:
+      msg: "{{ products_count }}"
+
+
+  - name:  load schema for catalogue microservice
+    shell: "mongosh --host {{ mongo_host }} &lt; /app/db/master-data.js"
+    when: products_count.stdout|int == 0</code></pre>
+
+          <hr />
+
+          <h2>From working (v1) to best (v2)</h2>
+          <p>
+            v1 met its aim: every component deploys and the shop works. Getting there also showed what makes the
+            scripts hard to maintain, and that is what v2 improves:
+          </p>
+          <ul>
+            <li><strong>Repeated code.</strong> The service playbooks repeat the same steps: create the roboshop user, prepare <code>/app</code>, download the code and set up systemd.</li>
+            <li><strong>Host names in every playbook.</strong> Names like <code>mongodb.manojkumar.blog</code> are written in each playbook's <code>vars</code>, so a domain change means editing many files.</li>
+            <li><strong>Many commands in the right order.</strong> Deploying means running 11 playbooks by hand, in order.</li>
+            <li><strong>Plain-text passwords.</strong> Passwords sit in the inventory, playbooks and templates, where anyone who can read the repository can see them.</li>
+          </ul>
+          <p>
+            <a href="https://github.com/MadireddyManojKumar/roboshop_ansible_v2" target="_blank" rel="noopener noreferrer">roboshop_ansible_v2</a>
+            fixes this in two ways:
+          </p>
+          <ul>
+            <li><strong>Roles.</strong> The shared steps are written once, and a single <code>main.yaml</code> deploys any component by its name.</li>
+            <li><strong>Secured credentials, in two ways.</strong> Secrets are encrypted with <strong>Ansible Vault</strong>, so the repository only holds the encrypted text. Secrets are also kept in an <strong>AWS secret store</strong>, so they live in AWS, not in the code, and the playbook fetches them only when it runs.</li>
+          </ul>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== roboshop_ec2_instances.yaml ===================== -->
+      <section class="concept" id="ec2-instances">
+        <h1>roboshop_ec2_instances.yaml</h1>
+
+        <article class="article">
+          <p>
+            Creates the roboshop EC2 instances and a Route 53 DNS record for each one, like <code>mongodb.manojkumar.blog</code>. Run it with <code>action=delete</code> to remove everything. Runs on the control node itself (<code>hosts: local</code>).
+          </p>
+          <p><strong>Run it:</strong></p>
+          <pre><code>ansible-playbook -i inventory.ini roboshop_ec2_instances.yaml
+ansible-playbook -i inventory.ini roboshop_ec2_instances.yaml -e action=delete</code></pre>
+          <pre><code>- name: roboshop-mongodb create ec2 instances
+  connection: local
+  hosts: local
+  vars:
+    ami_id: ami-0055977a6e828a4f4
+    instance_type: t3.micro
+    instances: [&quot;mongodb&quot;, &quot;redis&quot;, &quot;mysql&quot;, &quot;rabbitmq&quot;, &quot;catalogue&quot;, &quot;user&quot;, &quot;cart&quot;, &quot;shipping&quot;, &quot;payment&quot;, &quot;frontend&quot;]
+    domain_name: manojkumar.blog
+    action: create
+  tasks:
+    # create one EC2 instance per component (when action is create)
+    - name: create ec2 instances
+      amazon.aws.ec2_instance:
+        name: roboshop-{{item}}
+        image_id: &quot;{{ ami_id }}&quot;
+        instance_type: &quot;{{instance_type}}&quot;
+        security_groups:
+          - &quot;roboshop-{{item}}&quot;
+          - &quot;roboshop-common&quot;
+        region: us-east-1
+      loop: &quot;{{instances}}&quot;
+      when: action == &quot;create&quot;
+      register: ec2_instance_creation_output
+
+    # point &lt;component&gt;.manojkumar.blog to the new instance&#x27;s IP
+    - name: route 53 record creation
+      amazon.aws.route53:
+        state: present
+        zone: &quot;{{domain_name}}&quot;
+        record: &quot;{{item.item}}.{{domain_name}}&quot;
+        type: A
+        ttl: 1
+        value: &quot;{{item.instances[0].public_ip_address}}&quot;
+        overwrite: true
+      loop: &quot;{{ec2_instance_creation_output.results}}&quot;
+      when: action == &quot;create&quot;
+
+    # delete the DNS records (when action is delete)
+    - name: route 53 record deletion
+      amazon.aws.route53:
+        state: absent
+        zone: &quot;{{domain_name}}&quot;
+        record: &quot;{{item}}.{{domain_name}}&quot;
+        type: A
+        ttl: 1
+      loop: &quot;{{instances}}&quot;
+      when: action == &quot;delete&quot;
+
+    # terminate the EC2 instances (when action is delete)
+    - name: delete ec2 instances
+      amazon.aws.ec2_instance:
+        name: roboshop-{{item}}
+        state: absent
+        region: us-east-1
+        wait: false
+      loop: &quot;{{instances}}&quot;
+      when: action == &quot;delete&quot;</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== ec2_instance_creation_output.yaml ===================== -->
+      <section class="concept" id="ec2-output">
+        <h1>ec2_instance_creation_output.yaml</h1>
+
+        <article class="article">
+          <p>
+            A saved copy of what the create task registers. I used it to find the path to the IP address: <code>results</code> → <code>instances[0]</code> → <code>public_ip_address</code>. This is a short excerpt of the real file (744 lines), with IDs and IPs masked.
+          </p>
+          
+          <pre><code>results:
+-   ansible_loop_var: item
+    changed: false
+    failed: false
+    instance_ids:
+    - i-*****
+    instances:
+    -   image_id: ami-0055977a6e828a4f4
+        instance_id: i-*****
+        instance_type: t3.micro
+        platform_details: Red Hat Enterprise Linux
+        private_ip_address: *****
+        public_ip_address: *****
+        ...
+    item: mongodb
+-   ansible_loop_var: item
+    ...
+    item: redis
+...</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== inventory.ini ===================== -->
+      <section class="concept" id="inventory">
+        <h1>inventory.ini</h1>
+
+        <article class="article">
+          <p>
+            The list of servers. Each component has its own group, and servers are listed by DNS name, so the file doesn't change when an instance gets a new IP.
+          </p>
+          
+          <pre><code># variables for the frontend group
+[frontend:vars]
+appname=roboshop
+version=v1
+
+# the control node itself, used by the EC2 playbook
+[local]
+localhost
+
+# one group per component, each pointing to its DNS name
+[mongodb]
+mongodb.manojkumar.blog
+
+[redis]
+redis.manojkumar.blog
+
+[mysql]
+mysql.manojkumar.blog
+
+[rabbitmq]
+rabbitmq.manojkumar.blog
+
+[catalogue]
+catalogue.manojkumar.blog
+
+[user]
+user.manojkumar.blog
+
+[cart]
+cart.manojkumar.blog
+
+[shipping]
+shipping.manojkumar.blog
+
+[payment]
+payment.manojkumar.blog
+
+[dispatch]
+dispatch.manojkumar.blog
+
+[frontend]
+frontend.manojkumar.blog
+
+# login details used for every server
+[all:vars]
+ansible_user=ec2-user
+ansible_password=*****
+mysql_root_password=*****</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== ansible.cfg ===================== -->
+      <section class="concept" id="ansible-cfg">
+        <h1>ansible.cfg</h1>
+
+        <article class="article">
+          <p>
+            My ansible.cfg is the full sample config, with almost every line commented out. These are the only settings that are switched on:
+          </p>
+          
+          <pre><code>[defaults]
+# print task results with the standard Ansible output
+stdout_callback = ansible.builtin.default
+# show results as YAML, which is easier to read than JSON
+callback_result_format = yaml</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== ms-roboshop-mongodb.yaml ===================== -->
+      <section class="concept" id="mongodb">
+        <h1>ms-roboshop-mongodb.yaml</h1>
+
+        <article class="article">
+          <p>
+            Installs MongoDB and lets the other servers connect to it. catalogue and user store their data here.
+          </p>
+          <p><strong>Run it:</strong></p>
+          <pre><code>ansible-playbook -i inventory.ini ms-roboshop-mongodb.yaml</code></pre>
+          <pre><code>- name: Roboshop MongoDB deployment script using ansible
+  hosts: mongodb
+  become: true
+  tasks:
+    # add the MongoDB repo so dnf can find the packages
+    - name: setup mongodb repo file
+      copy:
+        src: mongo.repo
+        dest: /etc/yum.repos.d/mongo.repo
+
+    # install the MongoDB server
+    - name: install mongodb
+      ansible.builtin.package:
+        name: mongodb-org
+        state: present
+
+    # start mongod and start it on every boot
+    - name: start mongodb
+      ansible.builtin.service:
+        name: mongod
+        state: started
+        enabled: yes
+
+    # check that the service is running
+    - name: verify mongodb status
+      ansible.builtin.command: systemctl is-active mongod
+      register: mongodb_status
+
+    # print the status (active / inactive)
+    - name: display mongodb status
+      debug:
+        var: mongodb_status.stdout
+
+    # listen on all addresses so other servers can connect
+    - name: configure mongodb bind_ip
+      replace:
+        path: /etc/mongod.conf
+        regexp: &quot;127.0.0.1&quot;
+        replace: &quot;0.0.0.0&quot;
+
+    # restart so the new bind_ip takes effect
+    - name: restart mongodb
+      ansible.builtin.service:
+        name: mongod
+        state: restarted
+
+    # check the service again after the restart
+    - name: verify mongodb status after restart
+      ansible.builtin.command: systemctl is-active mongod
+      register: mongodb_status_after_restart
+
+    # print the status after the restart
+    - name: display mongodb status after restart
+      debug:
+        var: mongodb_status_after_restart.stdout
+
+    # check that MongoDB is listening on port 27017
+    - name: verify mongodb listening port
+      shell: netstat -tulnp | grep 27017
+      register: mongodb_port_status
+
+    # print the port check result
+    - name: display mongodb listening port status
+      debug:
+        var: mongodb_port_status.stdout
+
+    # done
+    - name: success message
+      debug:
+        msg: &quot;MongoDB deployment completed successfully.&quot;</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== mongo.repo ===================== -->
+      <section class="concept" id="mongo-repo">
+        <h1>mongo.repo</h1>
+
+        <article class="article">
+          <p>
+            Tells dnf where to download MongoDB 7.0. Copied to the mongodb server, and to catalogue for the mongosh client.
+          </p>
+          
+          <pre><code>[mongodb-org-7.0]
+name=MongoDB Repository
+baseurl=https://*****
+enabled=1
+gpgcheck=0</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== ms-roboshop-redis.yaml ===================== -->
+      <section class="concept" id="redis">
+        <h1>ms-roboshop-redis.yaml</h1>
+
+        <article class="article">
+          <p>
+            Installs Redis 7 and lets user and cart connect to it.
+          </p>
+          <p><strong>Run it:</strong></p>
+          <pre><code>ansible-playbook -i inventory.ini ms-roboshop-redis.yaml</code></pre>
+          <pre><code>- name: configure redis server
+  hosts: redis
+  become: yes
+  tasks:
+    # choose Redis 7 from the dnf modules
+    - name: enable redis 7
+      command: dnf module enable redis:7 -y
+
+    # install Redis
+    - name: install redis
+      package:
+        name: redis
+        state: present
+
+    # listen on all addresses so other servers can connect
+    - name: allow remote connections
+      replace:
+        path: /etc/redis/redis.conf
+        regexp: &#x27;127.0.0.1&#x27;
+        replace: &#x27;0.0.0.0&#x27;
+
+    # turn off protected mode, which blocks remote clients
+    - name: disable protected mode
+      lineinfile:
+        path: /etc/redis/redis.conf
+        regexp: &#x27;^#?protected-mode yes&#x27;
+        line: &#x27;protected-mode no&#x27;
+
+    # restart Redis with the new config and start it on every boot
+    - name: enable and start redis
+      service:
+        name: redis
+        state: restarted
+        enabled: yes</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== ms-roboshop-mysql.yaml ===================== -->
+      <section class="concept" id="mysql">
+        <h1>ms-roboshop-mysql.yaml</h1>
+
+        <article class="article">
+          <p>
+            Installs MySQL 8.4 and sets the root password. shipping loads its data here.
+          </p>
+          <p><strong>Run it:</strong></p>
+          <pre><code>ansible-playbook -i inventory.ini ms-roboshop-mysql.yaml</code></pre>
+          <pre><code>- name: configure mysql server
+  hosts: mysql
+  become: yes
+  vars:
+    mysql_root_password: &quot;*****&quot;
+  tasks:
+    # choose MySQL 8.4 from the dnf modules
+    - name: enable mysql 8.4
+      command: dnf module enable mysql:8.4 -y
+
+    # install the MySQL server
+    - name: install mysql server
+      package:
+        name: mysql-server
+        state: present
+
+    # start mysqld and start it on every boot
+    - name: enable and start mysql
+      service:
+        name: mysqld
+        state: started
+        enabled: yes
+
+    # set the MySQL root password
+    - name: setup mysql root password
+      command: mysql_secure_installation --set-root-pass &quot;{{ mysql_root_password }}&quot;</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== ms-roboshop-rabbitmq.yaml ===================== -->
+      <section class="concept" id="rabbitmq">
+        <h1>ms-roboshop-rabbitmq.yaml</h1>
+
+        <article class="article">
+          <p>
+            Installs RabbitMQ and creates the <code>roboshop</code> user that payment and dispatch log in with.
+          </p>
+          <p><strong>Run it:</strong></p>
+          <pre><code>ansible-playbook -i inventory.ini ms-roboshop-rabbitmq.yaml</code></pre>
+          <pre><code>- name: configure rabbitmq server
+  hosts: rabbitmq
+  become: yes
+  tasks:
+    # add the RabbitMQ and Erlang repos
+    - name: copy rabbitmq repo
+      copy:
+        src: rabbitmq.repo
+        dest: /etc/yum.repos.d/rabbitmq.repo
+
+    # install Erlang (needed by RabbitMQ) and the RabbitMQ server
+    - name: install rabbitmq server
+      dnf:
+        name:
+          - erlang
+          - rabbitmq-server
+        state: present
+
+    # start RabbitMQ and start it on every boot
+    - name: start and enable rabbitmq server
+      service:
+        name: rabbitmq-server
+        state: started
+        enabled: yes
+
+    # create the roboshop user that payment and dispatch log in with
+    - name: create rabbitmq user
+      community.rabbitmq.rabbitmq_user:
+        user: roboshop
+        password: &quot;*****&quot;
+        vhost: /
+        configure_priv: .*
+        read_priv: .*
+        write_priv: .*
+        state: present</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== rabbitmq.repo ===================== -->
+      <section class="concept" id="rabbitmq-repo">
+        <h1>rabbitmq.repo</h1>
+
+        <article class="article">
+          <p>
+            Tells dnf where to download Erlang and RabbitMQ.
+          </p>
+          
+          <pre><code>[modern-erlang]
+name=modern-erlang-el9
+baseurl=https://*****
+        https://*****
+repo_gpgcheck=1
+enabled=1
+gpgkey=https://*****
+gpgcheck=1
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+metadata_expire=300
+pkg_gpgcheck=1
+autorefresh=1
+type=rpm-md
+
+[modern-erlang-noarch]
+name=modern-erlang-el9-noarch
+baseurl=https://*****
+        https://*****
+repo_gpgcheck=1
+enabled=1
+gpgkey=https://*****
+       https://*****
+gpgcheck=1
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+metadata_expire=300
+pkg_gpgcheck=1
+autorefresh=1
+type=rpm-md
+
+[rabbitmq-el9]
+name=rabbitmq-el9
+baseurl=https://*****
+        https://*****
+repo_gpgcheck=1
+enabled=1
+gpgkey=https://*****
+       https://*****
+gpgcheck=1
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+metadata_expire=300
+pkg_gpgcheck=1
+autorefresh=1
+type=rpm-md
+
+[rabbitmq-el9-noarch]
+name=rabbitmq-el9-noarch
+baseurl=https://*****
+        https://*****
+repo_gpgcheck=1
+enabled=1
+gpgkey=https://*****
+       https://*****
+gpgcheck=1
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+metadata_expire=300
+pkg_gpgcheck=1
+autorefresh=1
+type=rpm-md</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== ms-roboshop-catalogue.yaml ===================== -->
+      <section class="concept" id="catalogue">
+        <h1>ms-roboshop-catalogue.yaml</h1>
+
+        <article class="article">
+          <p>
+            Installs Node.js, deploys the catalogue app, loads the products into MongoDB (only once) and starts the service.
+          </p>
+          <p><strong>Run it:</strong></p>
+          <pre><code>ansible-playbook -i inventory.ini ms-roboshop-catalogue.yaml</code></pre>
+          <pre><code>- name: configure catalogue microservice
+  hosts: catalogue
+  become: yes
+  vars:
+    catalogue_app_user: roboshop
+    mongo_host: mongodb.manojkumar.blog
+  tasks:
+    # turn off the default Node.js version
+    - name: disable default nodejs
+      command: dnf module disable nodejs -y
+
+    # choose Node.js 24
+    - name: enable nodejs version 24
+      command: dnf module enable nodejs:24 -y
+
+    # install Node.js
+    - name: install nodejs
+      package:
+        name: nodejs
+        state: present
+
+    # read the installed Node.js version
+    - name: verify nodejs version
+      command: node -v
+      register: nodejs_version
+
+    # print the Node.js version
+    - name: print nodejs version
+      debug:
+        msg: &quot;Nodejs version is {{ nodejs_version.stdout }}&quot;
+
+    # create the roboshop system user that runs the app
+    - name: create roboshop user
+      user:
+        name: roboshop
+        create_home: no
+        system: yes
+        home: /app
+        comment: &quot;roboshop system user&quot;
+        shell: /sbin/nologin
+
+    # remove any old copy of the app
+    - name: remove default application directory
+      file:
+        path: /app
+        state: absent
+
+    # create an empty /app folder
+    - name: create application directory
+      file:
+        path: /app
+        state: directory
+
+    # download the catalogue code
+    - name: download catalogue microservice
+      get_url:
+        url: https://*****
+        dest: /tmp/catalogue.zip
+
+    # unzip the code into /app
+    - name: unzip catalogue microservice
+      unarchive:
+        src: /tmp/catalogue.zip
+        dest: /app
+        remote_src: yes
+
+    # install the app&#x27;s Node.js packages
+    - name: install nodejs dependencies
+      community.general.npm:
+        path: /app
+
+    # create the systemd service file from the template
+    - name: copy systemd service file
+      template:
+        src: catalogue.service.j2
+        dest: /etc/systemd/system/catalogue.service
+
+    # add the MongoDB repo, needed for the mongosh client
+    - name: copy mongo repo to destination folder
+      copy:
+        src: mongo.repo
+        dest: /etc/yum.repos.d/mongo.repo
+
+    # install mongosh to talk to MongoDB
+    - name: install mongodb client
+      package:
+        name: mongodb-mongosh
+        state: present
+
+    # count the products already in MongoDB
+    - name: check products loaded in mongodb
+      command: mongosh --host &quot;{{ mongo_host }}&quot; --quiet --eval &#x27;db.getSiblingDB(&quot;catalogue&quot;).products.countDocuments()&#x27;
+      register: products_count
+
+    # print the product count
+    - name: print product_count
+      debug:
+        msg: &quot;{{ products_count }}&quot;
+
+    # load the products only if there are none yet
+    - name: load schema for catalogue microservice
+      shell: &quot;mongosh --host {{ mongo_host }} &lt; /app/db/master-data.js&quot;
+      when: products_count.stdout|int == 0
+
+    # make systemd read the new service file
+    - name: daemon reload systemd
+      systemd_service:
+        daemon_reload: true
+
+    # start catalogue and start it on every boot
+    - name: Ensure the application is enabled and running
+      ansible.builtin.service:
+        name: catalogue
+        state: started
+        enabled: true</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== catalogue.service.j2 ===================== -->
+      <section class="concept" id="catalogue-service">
+        <h1>catalogue.service.j2</h1>
+
+        <article class="article">
+          <p>
+            The catalogue systemd service. Ansible fills in <code>{{ mongo_host }}</code>.
+          </p>
+          
+          <pre><code>[Unit]
+Description=Catalogue Service
+After=network-online.target
+
+[Service]
+User=roboshop
+Environment=MONGO_URL=&quot;mongodb://{{ mongo_host }}:27017/catalogue&quot;
+ExecStart=/bin/node /app/server.js
+SyslogIdentifier=catalogue
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== ms-roboshop-user.yaml ===================== -->
+      <section class="concept" id="user">
+        <h1>ms-roboshop-user.yaml</h1>
+
+        <article class="article">
+          <p>
+            Installs Node.js, deploys the user app and starts the service.
+          </p>
+          <p><strong>Run it:</strong></p>
+          <pre><code>ansible-playbook -i inventory.ini ms-roboshop-user.yaml</code></pre>
+          <pre><code>- name: User microservice
+  hosts: user
+  become: yes
+  vars:
+    user_app_user: roboshop
+    mysql_host: mysql.manojkumar.blog
+    mongo_host: mongodb.manojkumar.blog
+    redis_host: redis.manojkumar.blog
+  tasks:
+    # turn off the default Node.js version
+    - name: disable default nodejs
+      command: dnf module disable nodejs -y
+
+    # choose Node.js 24
+    - name: enable nodejs version 24
+      command: dnf module enable nodejs:24 -y
+
+    # install Node.js
+    - name: install nodejs
+      package:
+        name: nodejs
+        state: present
+
+    # read the installed Node.js version
+    - name: verify nodejs version
+      command: node -v
+      register: nodejs_version
+
+    # print the Node.js version
+    - name: print nodejs version
+      debug:
+        msg: &quot;Nodejs version is {{ nodejs_version.stdout }}&quot;
+
+    # create the roboshop system user that runs the app
+    - name: create roboshop user
+      user:
+        name: roboshop
+        create_home: no
+        system: yes
+        home: /app
+        comment: &quot;roboshop system user&quot;
+        shell: /sbin/nologin
+
+    # remove any old copy of the app
+    - name: remove default application directory
+      file:
+        path: /app
+        state: absent
+
+    # create an empty /app folder
+    - name: create application directory
+      file:
+        path: /app
+        state: directory
+
+    # download the user code
+    - name: download user microservice
+      get_url:
+        url: https://*****
+        dest: /tmp/user.zip
+
+    # unzip the code into /app
+    - name: unzip user microservice
+      unarchive:
+        src: /tmp/user.zip
+        dest: /app
+        remote_src: yes
+
+    # install the app&#x27;s Node.js packages
+    - name: install nodejs dependencies
+      community.general.npm:
+        path: /app
+
+    # create the systemd service file from the template
+    - name: copy user service
+      template:
+        src: user.service.j2
+        dest: /etc/systemd/system/user.service
+
+    # make systemd read the new service file
+    - name: daemon reload
+      systemd_service:
+        daemon_reload: true
+
+    # restart user and start it on every boot
+    - name: start and enable user
+      service:
+        name: user
+        state: restarted
+        enabled: yes</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== user.service.j2 ===================== -->
+      <section class="concept" id="user-service">
+        <h1>user.service.j2</h1>
+
+        <article class="article">
+          <p>
+            The user systemd service. Ansible fills in <code>{{ redis_host }}</code> and <code>{{mongo_host}}</code>.
+          </p>
+          
+          <pre><code>[Unit]
+Description=User Service
+After=network-online.target
+
+[Service]
+User=roboshop
+Environment=REDIS_URL=&quot;redis://{{ redis_host }}:6379&quot;
+Environment=MONGO_URL=&quot;mongodb://{{mongo_host}}:27017/users&quot;
+ExecStart=/bin/node /app/server.js
+SyslogIdentifier=user
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== ms-roboshop-cart.yaml ===================== -->
+      <section class="concept" id="cart">
+        <h1>ms-roboshop-cart.yaml</h1>
+
+        <article class="article">
+          <p>
+            Installs Node.js, deploys the cart app and starts the service.
+          </p>
+          <p><strong>Run it:</strong></p>
+          <pre><code>ansible-playbook -i inventory.ini ms-roboshop-cart.yaml</code></pre>
+          <pre><code>- name: cart microservice
+  hosts: cart
+  become: yes
+  vars:
+    cart_app_user: roboshop
+    mysql_host: mysql.manojkumar.blog
+    mongo_host: mongodb.manojkumar.blog
+    cart_host: cart.manojkumar.blog
+    catalogue_host: catalogue.manojkumar.blog
+    redis_host: redis.manojkumar.blog
+  tasks:
+    # turn off the default Node.js version
+    - name: disable default nodejs
+      command: dnf module disable nodejs -y
+
+    # choose Node.js 24
+    - name: enable nodejs version 24
+      command: dnf module enable nodejs:24 -y
+
+    # install Node.js
+    - name: install nodejs
+      package:
+        name: nodejs
+        state: present
+
+    # read the installed Node.js version
+    - name: verify nodejs version
+      command: node -v
+      register: nodejs_version
+
+    # print the Node.js version
+    - name: print nodejs version
+      debug:
+        msg: &quot;Nodejs version is {{ nodejs_version.stdout }}&quot;
+
+    # create the roboshop system user that runs the app
+    - name: create roboshop user
+      user:
+        name: roboshop
+        create_home: no
+        system: yes
+        home: /app
+        comment: &quot;roboshop system user&quot;
+        shell: /sbin/nologin
+
+    # remove any old copy of the app
+    - name: remove default application directory
+      file:
+        path: /app
+        state: absent
+
+    # remove an old download
+    - name: remove cart.zip
+      file:
+        path: /tmp/cart.zip
+        state: absent
+
+    # create an empty /app folder
+    - name: create application directory
+      file:
+        path: /app
+        state: directory
+
+    # download the cart code
+    - name: download cart microservice
+      get_url:
+        url: https://*****
+        dest: /tmp/cart.zip
+
+    # unzip the code into /app
+    - name: unzip cart microservice
+      unarchive:
+        src: /tmp/cart.zip
+        dest: /app
+        remote_src: yes
+
+    # install the app&#x27;s Node.js packages
+    - name: install nodejs dependencies
+      community.general.npm:
+        path: /app
+
+    # create the systemd service file from the template
+    - name: update systemd service file
+      template:
+        src: cart.service.j2
+        dest: /etc/systemd/system/cart.service
+
+    # make systemd read the new service file
+    - name: reload daemon
+      systemd_service:
+        daemon_reload: true
+
+    # restart cart and start it on every boot
+    - name: start cart service
+      service:
+        name: cart
+        state: restarted
+        enabled: yes</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== cart.service.j2 ===================== -->
+      <section class="concept" id="cart-service">
+        <h1>cart.service.j2</h1>
+
+        <article class="article">
+          <p>
+            The cart systemd service. Ansible fills in <code>{{redis_host}}</code> and <code>{{catalogue_host}}</code>.
+          </p>
+          
+          <pre><code>[Unit]
+Description=Cart Service
+After=network-online.target
+
+[Service]
+User=roboshop
+Environment=REDIS_HOST={{redis_host}}
+Environment=CATALOGUE_HOST={{catalogue_host}}
+Environment=CATALOGUE_PORT=8080
+ExecStart=/bin/node /app/server.js
+SyslogIdentifier=cart
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== ms-roboshop-shipping.yaml ===================== -->
+      <section class="concept" id="shipping">
+        <h1>ms-roboshop-shipping.yaml</h1>
+
+        <article class="article">
+          <p>
+            Installs Java and Maven, builds the shipping app, loads the cities into MySQL (only once) and starts the service. Tasks tagged <code>mysql</code> can be run on their own with <code>--tags mysql</code>.
+          </p>
+          <p><strong>Run it:</strong></p>
+          <pre><code>ansible-playbook -i inventory.ini ms-roboshop-shipping.yaml</code></pre>
+          <pre><code>- name: configure shipping server
+  hosts: shipping
+  become: yes
+  vars:
+    shipping_app_user: roboshop
+    mysql_host: mysql.manojkumar.blog
+    cart_host: cart.manojkumar.blog
+  tasks:
+    # choose Maven 3.9 from the dnf modules
+    - name: enable maven 3.9
+      command: dnf module enable maven:3.9 -y
+
+    # install Maven, Java 25 and the MySQL client
+    - name: install maven and java25
+      dnf:
+        name:
+          - maven
+          - java-25-openjdk-devel
+          - maven-openjdk25 # installing this so that we no need to set JAVA_HOME again
+          - mysql
+        state: present
+
+    # create the roboshop system user that runs the app
+    - name: create roboshop system user
+      user:
+        name: roboshop
+        create_home: false
+        home: /app
+        system: true
+        shell: /sbin/nologin
+        comment: &quot;roboshop system user&quot;
+
+    # remove any old copy of the app
+    - name: remove existing app directory
+      file:
+        path: /app
+        state: absent
+
+    # remove an old download
+    - name: remove shipping.zip
+      file:
+        path: /tmp/shipping.zip
+        state: absent
+
+    # create an empty /app folder
+    - name: create app directory
+      file:
+        path: /app
+        state: directory
+
+    # download the shipping code
+    - name: download shipping application
+      get_url:
+        url: https://*****
+        dest: /tmp/shipping.zip
+
+    # unzip the code into /app
+    - name: unzip shipping
+      unarchive:
+        src: /tmp/shipping.zip
+        dest: /app
+        remote_src: yes
+
+    # check which Java version Maven uses
+    - name: mvn version without JAVA_HOME
+      command: mvn --version
+      args:
+        chdir: /app
+      register: mvn_default
+
+    # print the Maven and Java versions
+    - name: print mvn version without JAVA_HOME
+      debug:
+        msg: &quot;{{ mvn_default.stdout_lines }}&quot;
+
+    # build the app into a .jar file
+    - name: build shipping
+      command: mvn clean package
+      args:
+        chdir: /app
+
+    # move the .jar to /app/shipping.jar
+    - name: move shipping jar file
+      command: mv target/shipping.jar shipping.jar
+      args:
+        chdir: /app
+
+    # count the cities already in MySQL
+    - name: check cities data exist or not
+      command: mysql -h &quot;{{ mysql_host }}&quot; -u root -p{{ mysql_root_password }} -N -B -e &quot;SELECT COUNT(*) FROM cities.cities;&quot;
+      register: cities_count
+      ignore_errors: true
+      tags:
+        - mysql
+
+    # print the cities count
+    - name: print cities_count
+      debug:
+        msg: &quot;{{ cities_count }}&quot;
+      tags:
+        - mysql
+
+    # load the cities only if they aren&#x27;t there yet
+    - name: load cities data into mysql
+      shell: mysql -h &quot;{{ mysql_host }}&quot; -u root -p{{ mysql_root_password }} &lt; /app/db/master-data.sql
+      when: cities_count.rc != 0 or cities_count.stdout | int == 0
+      tags:
+        - mysql
+
+    # create the MySQL user the app logs in with
+    - name: create app user in mysql
+      shell: mysql -h &quot;{{ mysql_host }}&quot; -u root -p{{ mysql_root_password }} &lt; /app/db/app-user.sql
+      tags:
+        - mysql
+
+    # create the systemd service file from the template
+    - name: copy shipping service
+      template:
+        src: shipping.service.j2
+        dest: /etc/systemd/system/shipping.service
+
+    # make systemd read the new service file
+    - name: daemon reload
+      systemd_service:
+        daemon_reload: true
+
+    # restart shipping and start it on every boot
+    - name: start and enable shipping
+      service:
+        name: shipping
+        state: restarted
+        enabled: yes</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== shipping.service.j2 ===================== -->
+      <section class="concept" id="shipping-service">
+        <h1>shipping.service.j2</h1>
+
+        <article class="article">
+          <p>
+            The shipping systemd service. Ansible fills in <code>{{ cart_host }}</code> and <code>{{ mysql_host }}</code>. Password masked.
+          </p>
+          
+          <pre><code>[Unit]
+Description=Shipping Service
+After=network-online.target
+
+[Service]
+User=roboshop
+Environment=CART_ENDPOINT={{ cart_host }}:8080
+Environment=DB_HOST={{ mysql_host }}
+Environment=DB_USER=shipping
+Environment=DB_PASSWORD=*****
+ExecStart=/bin/java -jar /app/shipping.jar
+SyslogIdentifier=shipping
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== ms-roboshop-payment.yaml ===================== -->
+      <section class="concept" id="payment">
+        <h1>ms-roboshop-payment.yaml</h1>
+
+        <article class="article">
+          <p>
+            Installs Python 3.14, deploys the payment app into a virtual environment and starts it with gunicorn.
+          </p>
+          <p><strong>Run it:</strong></p>
+          <pre><code>ansible-playbook -i inventory.ini ms-roboshop-payment.yaml</code></pre>
+          <pre><code>- name: Payment service deployment using ansible script.
+  hosts: payment
+  become: true
+  vars:
+    rabbitmq_host: rabbitmq.manojkumar.blog
+    cart_host: cart.manojkumar.blog
+    user_host: user.manojkumar.blog
+  tasks:
+    # install Python 3.14 and pip
+    - name: Install Python version
+      package:
+        name: &quot;{{item}}&quot;
+        state: present
+      loop:
+        - python3.14
+        - python3.14-pip
+
+    # create the roboshop system user that runs the app
+    - name: add system user for payment service
+      user:
+        name: roboshop
+        system: true
+        shell: /sbin/nologin
+        create_home: no
+        home: /app
+        comment: &quot;roboshop system user&quot;
+
+    # remove any old copy of the app
+    - name: Remove app directory if exist
+      file:
+        path: /app
+        state: absent
+
+    # remove an old download
+    - name: remove zip file if exist
+      file:
+        path: /tmp/payment.zip
+        state: absent
+
+    # create an empty /app folder
+    - name: create app directory
+      file:
+        path: /app
+        state: directory
+
+    # download the payment code
+    - name: download source code
+      get_url:
+        url: https://*****
+        dest: /tmp/payment.zip
+
+    # unzip the code into /app
+    - name: unzip the source file
+      unarchive:
+        src: /tmp/payment.zip
+        dest: /app
+        remote_src: yes
+
+    # install the Python packages into a virtual environment in /app/.venv
+    - name: install dependencies in virtual environment
+      ansible.builtin.pip:
+        requirements: /app/requirements.txt
+        virtualenv: /app/.venv
+        virtualenv_command: python3.14 -m venv
+
+    # create the systemd service file from the template
+    - name: copy payment service
+      template:
+        src: payment.service.j2
+        dest: /etc/systemd/system/payment.service
+
+    # make systemd read the new service file
+    - name: daemon reload
+      systemd_service:
+        daemon_reload: true
+
+    # restart payment and start it on every boot
+    - name: start and enable payment
+      service:
+        name: payment
+        state: restarted
+        enabled: yes</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== payment.service.j2 ===================== -->
+      <section class="concept" id="payment-service">
+        <h1>payment.service.j2</h1>
+
+        <article class="article">
+          <p>
+            The payment systemd service. Ansible fills in the cart, user and rabbitmq host names. Password masked.
+          </p>
+          
+          <pre><code>[Unit]
+Description=Payment Service
+After=network-online.target
+
+[Service]
+User=roboshop
+WorkingDirectory=/app
+Environment=CART_HOST={{cart_host}}
+Environment=CART_PORT=8080
+Environment=USER_HOST={{user_host}}
+Environment=USER_PORT=8080
+Environment=AMQP_HOST={{rabbitmq_host}}
+Environment=AMQP_USER=roboshop
+Environment=AMQP_PASS=*****
+ExecStart=/app/.venv/bin/gunicorn --config gunicorn.conf.py --no-control-socket payment:app
+SyslogIdentifier=payment
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== ms-roboshop-dispatch.yaml ===================== -->
+      <section class="concept" id="dispatch">
+        <h1>ms-roboshop-dispatch.yaml</h1>
+
+        <article class="article">
+          <p>
+            Installs Go, builds the dispatch program and starts the service.
+          </p>
+          <p><strong>Run it:</strong></p>
+          <pre><code>ansible-playbook -i inventory.ini ms-roboshop-dispatch.yaml</code></pre>
+          <pre><code>- name: dispatch microservice deployment script using ansible
+  hosts: dispatch
+  become: yes
+  vars:
+    rabbitmq_host: rabbitmq.manojkumar.blog
+  tasks:
+    # install Go
+    - name: install go lang
+      package:
+        name: golang
+        state: present
+
+    # read the installed Go version
+    - name: golang version
+      command: go version
+      register: go_version
+
+    # print the Go version
+    - name: print go version
+      debug:
+        msg: &quot;{{go_version}}&quot;
+
+    # create the roboshop system user that runs the app
+    - name: create go system user
+      user:
+        name: roboshop
+        home: /app
+        system: true
+        shell: /sbin/nologin
+        comment: &quot;roboshop system user&quot;
+        create_home: no
+
+    # remove any old copy of the app
+    - name: remove app directory if exist
+      file:
+        path: /app
+        state: absent
+
+    # remove an old download
+    - name: remove zip file if exist
+      file:
+        path: /tmp/dispatch.zip
+        state: absent
+
+    # create an empty /app folder
+    - name: add application home directory
+      file:
+        path: /app
+        state: directory
+
+    # download the dispatch code
+    - name: download source code
+      get_url:
+        url: https://*****
+        dest: /tmp/dispatch.zip
+
+    # unzip the code into /app
+    - name: unarchive source code to app directory
+      unarchive:
+        src: /tmp/dispatch.zip
+        dest: /app
+        remote_src: yes
+
+    # build the Go code into the /app/dispatch program
+    - name: build dispatch project
+      command: go build -o dispatch
+      args:
+        chdir: /app
+
+    # create the systemd service file from the template
+    - name: copy dispatch service
+      template:
+        src: dispatch.service.j2
+        dest: /etc/systemd/system/dispatch.service
+
+    # make systemd read the new service file
+    - name: daemon reload
+      systemd_service:
+        daemon_reload: true
+
+    # restart dispatch and start it on every boot
+    - name: start service
+      service:
+        name: dispatch
+        state: restarted
+        enabled: true</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== dispatch.service.j2 ===================== -->
+      <section class="concept" id="dispatch-service">
+        <h1>dispatch.service.j2</h1>
+
+        <article class="article">
+          <p>
+            The dispatch systemd service. Ansible fills in <code>{{rabbitmq_host}}</code>. Password masked.
+          </p>
+          
+          <pre><code>[Unit]
+Description=Dispatch Service
+After=network-online.target
+
+[Service]
+User=roboshop
+Environment=AMQP_HOST={{rabbitmq_host}}
+Environment=AMQP_USER=roboshop
+Environment=AMQP_PASS=*****
+ExecStart=/app/dispatch
+SyslogIdentifier=dispatch
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== ms-roboshop-frontend.yaml ===================== -->
+      <section class="concept" id="frontend">
+        <h1>ms-roboshop-frontend.yaml</h1>
+
+        <article class="article">
+          <p>
+            Installs nginx, replaces the default web page with the roboshop website and adds the API routing config.
+          </p>
+          <p><strong>Run it:</strong></p>
+          <pre><code>ansible-playbook -i inventory.ini ms-roboshop-frontend.yaml</code></pre>
+          <pre><code>- name: Deploying frontend application using ansible script
+  hosts: frontend
+  become: yes
+  vars:
+    cart_host: cart.manojkumar.blog
+    catalogue_host: catalogue.manojkumar.blog
+    shipping_host: shipping.manojkumar.blog
+    user_host: user.manojkumar.blog
+    payment_host: payment.manojkumar.blog
+  tasks:
+    # turn off the default nginx version
+    - name: disable nginx default version
+      command: dnf module disable nginx -y
+
+    # choose nginx 1.26
+    - name: enable nginx 1.26 version
+      command: dnf module enable nginx:1.26 -y
+
+    # install nginx
+    - name: install nginx 1.26 version
+      package:
+        name: nginx
+        state: present
+
+    # list everything in the default web folder
+    - name: Find all contents inside the directory
+      ansible.builtin.find:
+        paths: /usr/share/nginx/html/
+        recurse: true
+        hidden: true
+        file_type: any
+      register: directory_contents
+
+    # print what was found
+    - name: print directory content
+      debug:
+        msg: &quot;{{ directory_contents }}&quot;
+
+    # delete the default nginx web page files
+    - name: Delete the discovered contents
+      ansible.builtin.file:
+        path: &quot;{{ item.path }}&quot;
+        state: absent
+      loop: &quot;{{ directory_contents.files }}&quot;
+
+    # download the frontend code
+    - name: download the source code
+      get_url:
+        url: https://*****
+        dest: /tmp/frontend.zip
+
+    # unzip the website into the nginx web folder
+    - name: unzip frontend
+      unarchive:
+        src: /tmp/frontend.zip
+        dest: /usr/share/nginx/html/
+        remote_src: yes
+
+    # create the nginx config from the template
+    - name: copy roboshop config
+      template:
+        src: roboshop.conf.j2
+        dest: /etc/nginx/default.d/roboshop.conf
+
+    # restart nginx so it loads the new site and config
+    - name: restart frontend
+      service:
+        name: nginx
+        state: restarted</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== roboshop.conf.j2 ===================== -->
+      <section class="concept" id="roboshop-conf">
+        <h1>roboshop.conf.j2</h1>
+
+        <article class="article">
+          <p>
+            The nginx config for frontend. It sends each <code>/api/&lt;service&gt;</code> call to the right server and serves the website.
+          </p>
+          
+          <pre><code>server_tokens off;
+
+# nginx gives every request a unique id ($request_id). It is sent to the
+# services and back to the browser, so one click can be traced on all servers
+add_header X-Request-Id $request_id always;
+add_header X-Content-Type-Options nosniff always;
+add_header X-Frame-Options SAMEORIGIN always;
+add_header Referrer-Policy strict-origin-when-cross-origin always;
+
+gzip on;
+gzip_types text/css application/javascript application/json image/svg+xml;
+gzip_min_length 1024;
+
+# common settings for all backend calls
+proxy_http_version 1.1;
+proxy_set_header Host              $host;
+proxy_set_header X-Real-IP         $remote_addr;
+proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto $scheme;
+proxy_set_header X-Request-Id      $request_id;
+# the services send the id back too, nginx already adds it, so hide theirs
+proxy_hide_header X-Request-Id;
+proxy_connect_timeout 5s;
+proxy_read_timeout    30s;   # 504 if a service takes longer than this
+
+# the trailing / removes the /api/&lt;service&gt; part:
+# /api/catalogue/products -&gt; https://*****
+location /api/catalogue/ { proxy_pass http://{{catalogue_host}}:8080/; }
+location /api/user/      { proxy_pass http://{{user_host}}:8080/; }
+location /api/cart/      { proxy_pass http://{{cart_host}}:8080/; }
+location /api/shipping/  { proxy_pass http://{{shipping_host}}:8080/; }
+location /api/payment/   { proxy_pass http://{{payment_host}}:8080/; }
+
+# when nginx itself cannot reach a service, answer in JSON like the services do.
+# errors a service returns on its own (its 404, 503...) pass through untouched
+error_page 502 = @bad_gateway;
+error_page 504 = @gateway_timeout;
+location @bad_gateway {
+    default_type application/json;
+    return 502 &#x27;{&quot;message&quot;:&quot;service not reachable (502 Bad Gateway from nginx)&quot;}&#x27;;
+}
+location @gateway_timeout {
+    default_type application/json;
+    return 504 &#x27;{&quot;message&quot;:&quot;service did not answer in time (504 Gateway Timeout from nginx)&quot;}&#x27;;
+}
+
+# nginx&#x27;s own connection counters
+location = /health {
+    stub_status on;
+    access_log off;
+}
+
+# product images, missing ones fall back to the placeholder
+location /images/ {
+    expires 1h;
+    try_files $uri /images/placeholder.jpg;
+}
+
+# file names in /assets contain a hash of their content, so they can be cached forever
+location /assets/ {
+    expires max;
+    try_files $uri =404;
+}
+
+# React handles all other paths (/product/RMC, /cart ...) in the browser,
+# so every unknown path returns index.html
+location / {
+    expires -1;
+    try_files $uri $uri/ /index.html;
+}</code></pre>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      // Shows one concept at a time. The address uses #links:
+      //   roboshop_v1.html#overview, ...
+      function showConcept(id) {
+        const sections = document.querySelectorAll('.concept');
+        const target = document.getElementById(id) || sections[0];
+
+        sections.forEach((s) => s.classList.toggle('active', s === target));
+        document.querySelectorAll('.concept-link').forEach((link) => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + target.id);
+        });
+        window.scrollTo(0, 0);
+        return target.id;
+      }
+
+      // Sidebar clicks and back/forward buttons change the #hash; show that concept.
+      window.addEventListener('hashchange', () => showConcept(location.hash.slice(1)));
+
+      // First load: show the concept named in the address (or the first one).
+      showConcept(location.hash.slice(1));
+    </script>
+    <script>
+      // Light/dark theme toggle. The choice is saved, so every page uses it.
+      (function () {
+        const root = document.documentElement;
+        const btn = document.querySelector('.theme-toggle');
+        if (!btn) return;
+        const icon = btn.querySelector('.theme-icon');
+
+        function apply(theme) {
+          if (theme === 'light') {
+            root.setAttribute('data-theme', 'light');
+          } else {
+            root.removeAttribute('data-theme');
+          }
+          const isLight = theme === 'light';
+          icon.textContent = isLight ? '☾' : '☀';
+          btn.setAttribute('aria-label', isLight ? 'Switch to dark theme' : 'Switch to light theme');
+        }
+
+        apply(root.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+
+        btn.addEventListener('click', function () {
+          const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+          apply(next);
+          try { localStorage.setItem('theme', next); } catch (e) {}
+        });
+      })();
+    </script>
+    <script>
+      // Code colors for this page. Each code block is colored by its file type:
+      // YAML playbooks, INI-style files (inventory, cfg, repo, systemd), nginx config and shell commands.
+      (function () {
+        function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+        function span(c, s) { return s ? '<span class="hl-' + c + '">' + esc(s) + '</span>' : ''; }
+
+        // A quoted string, with any {{ variables }} inside it colored as variables
+        function str(s) {
+          return s.split(/(\{\{.*?\}\})/).map(function (p, i) { return i % 2 ? span('var', p) : span('str', p); }).join('');
+        }
+
+        // Values: {{ jinja }}, {% jinja %}, "strings", *****, $nginx_vars, booleans and numbers
+        function value(s) {
+          var re = /(\{\{.*?\}\}|\{%.*?%\})|("(?:[^"\\]|\\.)*"|'[^']*')|(\*{5}|\$\w+)|(?<![\w.\-:\/])(yes|no|true|false|True|False|null|absent|present|started|restarted|directory)(?![\w.\-:\/])|(?<![\w.\-:\/])(\d+(?:\.\d+)?)(?![\w.\-:\/])/g;
+          var out = '', last = 0, m;
+          while ((m = re.exec(s))) {
+            out += esc(s.slice(last, m.index));
+            if (m[1]) out += span('var', m[1]);
+            else if (m[2]) out += str(m[2]);
+            else if (m[3]) out += span('var', m[3]);
+            else out += span('const', m[4] || m[5]);
+            last = re.lastIndex;
+          }
+          return out + esc(s.slice(last));
+        }
+
+        // Split off an end-of-line "# comment"
+        function endComment(l, re) {
+          var i = l.search(re);
+          return i < 0 ? [l, ''] : [l.slice(0, i), span('com', l.slice(i))];
+        }
+
+        function yaml(l) {
+          if (/^\s*#/.test(l)) return span('com', l);
+          var parts = endComment(l, /\s#\s/), body = parts[0], m;
+          m = body.match(/^(\s*)(-\s+)?([\w.\/-]+)(:)(\s.*|$)/);
+          if (m) {
+            var isTask = m[2] && m[3] === 'name';
+            return esc(m[1]) + span('dash', m[2]) + span('key', m[3]) + esc(m[4]) +
+              (isTask ? span('task', m[5]) : value(m[5])) + parts[1];
+          }
+          m = body.match(/^(\s*)(-\s+)(.*)$/);
+          if (m) return esc(m[1]) + span('dash', m[2]) + value(m[3]) + parts[1];
+          return value(body) + parts[1];
+        }
+
+        function ini(l) {
+          var m;
+          if (/^\s*[#;]/.test(l)) return span('com', l);
+          if ((m = l.match(/^(\s*)(\[[^\]]+\])\s*$/))) return esc(m[1]) + span('sec', m[2]);
+          if ((m = l.match(/^(\s*)([\w.-]+)(\s*=\s*)(.*)$/))) return esc(m[1]) + span('key', m[2]) + esc(m[3]) + value(m[4]);
+          return value(l);
+        }
+
+        function nginx(l) {
+          if (/^\s*#/.test(l)) return span('com', l);
+          var parts = endComment(l, /\s#\s/), m = parts[0].match(/^(\s*)([a-z_]+)(.*)$/);
+          if (!m) return value(parts[0]) + parts[1];
+          var rest = value(m[3]).replace(/\{(\s*)([a-z_]+)(?=\s)/g, '{$1<span class="hl-key">$2</span>');
+          return esc(m[1]) + span('key', m[2]) + rest + parts[1];
+        }
+
+        function sh(l) {
+          var m = l.match(/^(\s*)(\S+)(.*)$/);
+          if (!m) return esc(l);
+          return esc(m[1]) + span('cmd', m[2]) +
+            m[3].split(/(\s+)/).map(function (t) { return /^-/.test(t) ? span('key', t) : value(t); }).join('');
+        }
+
+        function langFor(pre, text) {
+          if (/^ansible-playbook\b/.test(text)) return sh;
+          var h1 = pre.closest('.concept').querySelector('h1').textContent.trim();
+          if (/\.ya?ml$/.test(h1)) return yaml;
+          if (/\.conf\.j2$/.test(h1)) return nginx;
+          if (/\.(ini|cfg|repo)$|\.service\.j2$/.test(h1)) return ini;
+          if (/^Environment=/.test(text)) return ini;
+          if (/^\s*(-\s+name:|vars:)/.test(text)) return yaml;
+          return null;
+        }
+
+        document.querySelectorAll('.concept pre > code').forEach(function (code) {
+          var text = code.textContent, fn = langFor(code.parentElement, text);
+          if (fn) code.innerHTML = text.split('\n').map(fn).join('\n');
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -684,6 +684,7 @@
             <li><a href="#aws-ec2" class="concept-link">Launching AWS EC2</a></li>
             <li><a href="#inventory" class="concept-link">inventory.ini</a></li>
             <li><a href="#ansible-cfg" class="concept-link">ansible.cfg</a></li>
+            <li><a href="#templates" class="concept-link">*.j2</a></li>
           </ul>
         </aside>
 
@@ -2678,9 +2679,6 @@ frontend.manojkumar.blog
 ansible_user=ec2-user
 ansible_password=*****
 mysql_root_password=*****</code></pre>
-          <p>
-            Passwords are masked on this page.
-          </p>
 
           <h3>How to read it</h3>
           <ul>
@@ -3066,6 +3064,206 @@ retries = 3</code></pre>
           <p>
             The other sections in the file (<code>[inventory]</code>, <code>[paramiko_connection]</code>, <code>[persistent_connection]</code>, <code>[sudo_become_plugin]</code>, <code>[selinux]</code>) are for special setups. You can leave them as they are.
           </p>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+      <!-- ===================== J2 TEMPLATES ===================== -->
+      <section class="concept" id="templates">
+        <h1>*.j2: Jinja2 Templates</h1>
+
+        <article class="article">
+          <h2>What is a .j2 file?</h2>
+          <p>
+            A <code>.j2</code> file is a <strong>template</strong>: a normal file, like a config or a service file, with
+            placeholders in it. A placeholder is a variable name in double curly braces, like
+            <code>{{ mongo_host }}</code>.
+          </p>
+          <p>
+            When Ansible copies the template to a server, it replaces every placeholder with the variable's value.
+            The engine that does this is called <strong>Jinja2</strong>, which is where the <code>.j2</code> extension
+            comes from. It is the same <code>{{ }}</code> syntax you already use inside playbooks.
+          </p>
+
+          <h3>Why use templates</h3>
+          <ul>
+            <li><strong>One file, many values.</strong> The same template works for dev and prod, or for any server, because only the variables change.</li>
+            <li><strong>Values live in one place.</strong> Host names and ports are set in the playbook (or inventory), not typed inside every config file.</li>
+            <li><strong>Services need to find each other.</strong> In roboshop, each service file must contain the address of the database it uses. A template fills that in.</li>
+          </ul>
+
+          <hr />
+
+          <h2>copy vs template</h2>
+          <ul>
+            <li><code>copy</code> sends a file exactly as it is. roboshop uses it for <code>mongo.repo</code>, which has nothing to fill in.</li>
+            <li><code>template</code> fills in the placeholders first, then sends the result. roboshop uses it for every <code>.service.j2</code> file and for the nginx config.</li>
+          </ul>
+          <p>
+            Both use <code>src</code> (the file on your machine) and <code>dest</code> (where it goes on the server).
+          </p>
+          <figure class="diagram">
+<svg viewBox="0 0 800 200" role="img" aria-labelledby="j2-dg-title" style="min-width: 560px">
+<title id="j2-dg-title">The template module takes catalogue.service.j2 and the playbook variable mongo_host, fills in the placeholder, and writes catalogue.service on the catalogue server</title>
+<defs><marker id="j2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-arrowhead" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text class="dg-h" x="20" y="26">On your machine</text>
+<rect class="dg-box dg-key" x="20" y="40" width="220" height="56" rx="10"/>
+<text class="dg-t" x="130" y="64" text-anchor="middle">catalogue.service.j2</text>
+<text class="dg-s" x="130" y="81" text-anchor="middle">mongodb://{{ mongo_host }}:27017</text>
+<rect class="dg-box" x="20" y="116" width="220" height="70" rx="10"/>
+<text class="dg-t" x="130" y="138" text-anchor="middle">playbook vars</text>
+<text class="dg-s" x="130" y="155" text-anchor="middle">mongo_host:</text><text class="dg-s" x="130" y="171" text-anchor="middle">mongodb.manojkumar.blog</text>
+<rect class="dg-box" x="300" y="78" width="200" height="56" rx="10"/>
+<text class="dg-t" x="400" y="102" text-anchor="middle">template module</text>
+<text class="dg-s" x="400" y="119" text-anchor="middle">Jinja2 fills the placeholders</text>
+<text class="dg-h" x="560" y="26">On the catalogue server</text>
+<rect class="dg-box" x="560" y="78" width="220" height="56" rx="10"/>
+<text class="dg-t" x="670" y="102" text-anchor="middle">catalogue.service</text>
+<text class="dg-s" x="670" y="119" text-anchor="middle">mongodb.manojkumar.blog:27017</text>
+<path class="dg-line" d="M240,68 H270 V96 H296" marker-end="url(#j2-arrow)"/>
+<path class="dg-line" d="M240,151 H270 V116 H296" marker-end="url(#j2-arrow)"/>
+<path class="dg-line" d="M500,106 H556" marker-end="url(#j2-arrow)"/>
+</svg>
+          </figure>
+
+          <hr />
+
+          <h2>Example 1: the catalogue service file</h2>
+          <p>
+            catalogue needs to know where mongodb is. The service file is a template with one placeholder,
+            <code>{{ mongo_host }}</code>:
+          </p>
+          <pre><code>[Unit]
+Description=Catalogue Service
+After=network-online.target
+
+[Service]
+User=roboshop
+Environment=MONGO_URL="mongodb://{{ mongo_host }}:27017/catalogue"
+ExecStart=/bin/node /app/server.js
+SyslogIdentifier=catalogue
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+          <p>
+            The value comes from the playbook's <code>vars</code>:
+          </p>
+          <pre><code>  vars:
+    catalogue_app_user: roboshop
+    mongo_host: mongodb.manojkumar.blog</code></pre>
+          <p>
+            And the <code>template</code> task renders it to the server:
+          </p>
+          <pre><code>  - name: copy systemd service file
+    template:
+      src: catalogue.service.j2
+      dest: /etc/systemd/system/catalogue.service</code></pre>
+          <p>
+            On the catalogue server, the line becomes:
+          </p>
+          <pre><code>Environment=MONGO_URL="mongodb://mongodb.manojkumar.blog:27017/catalogue"</code></pre>
+          <p>
+            <strong>Takeaway:</strong> the template holds the shape of the file; the playbook holds the values.
+          </p>
+
+          <hr />
+
+          <h2>Example 2: more than one placeholder</h2>
+          <p>
+            user talks to both redis and mongodb, so its template has two placeholders. You can write them with or
+            without spaces inside the braces; <code>{{ redis_host }}</code> and <code>{{mongo_host}}</code> both work.
+          </p>
+          <pre><code>[Service]
+User=roboshop
+Environment=REDIS_URL="redis://{{ redis_host }}:6379"
+Environment=MONGO_URL="mongodb://{{mongo_host}}:27017/users"
+ExecStart=/bin/node /app/server.js</code></pre>
+          <p>
+            Both values are set in the user playbook:
+          </p>
+          <pre><code>  vars:
+    user_app_user: roboshop
+    mysql_host: mysql.manojkumar.blog
+    mongo_host: mongodb.manojkumar.blog
+    redis_host: redis.manojkumar.blog</code></pre>
+          <p>
+            After copying a new service file, systemd has to re-read it before the service starts with the new
+            values. That is why the playbook runs a daemon reload right after the template task:
+          </p>
+          <pre><code>  - name: daemon reload
+    systemd_service:
+      daemon_reload: true</code></pre>
+
+          <hr />
+
+          <h2>Example 3: the frontend nginx config</h2>
+          <p>
+            Templates aren't only for service files. frontend's nginx config, <code>roboshop.conf.j2</code>, sends each
+            <code>/api/&lt;service&gt;</code> request to the right server. Each address is a placeholder:
+          </p>
+          <pre><code>location /api/catalogue/ { proxy_pass http://{{catalogue_host}}:8080/; }
+location /api/user/      { proxy_pass http://{{user_host}}:8080/; }
+location /api/cart/      { proxy_pass http://{{cart_host}}:8080/; }
+location /api/shipping/  { proxy_pass http://{{shipping_host}}:8080/; }
+location /api/payment/   { proxy_pass http://{{payment_host}}:8080/; }</code></pre>
+          <p>
+            The frontend playbook sets all five:
+          </p>
+          <pre><code>  vars:
+    cart_host: cart.manojkumar.blog
+    catalogue_host: catalogue.manojkumar.blog
+    shipping_host: shipping.manojkumar.blog
+    user_host: user.manojkumar.blog
+    payment_host: payment.manojkumar.blog</code></pre>
+          <pre><code>  - name: copy roboshop config
+    template:
+      src: roboshop.conf.j2
+      dest: /etc/nginx/default.d/roboshop.conf</code></pre>
+          <p>
+            Lines without placeholders, like <code>gzip on;</code>, are copied unchanged. Only the <code>{{ }}</code>
+            parts are replaced.
+          </p>
+
+          <hr />
+
+          <h2>More than placeholders</h2>
+          <p>
+            Jinja2 can also loop, check conditions and use <a href="#functions">filters</a> inside a template. For
+            example, the five <code>location</code> lines above can come from one loop over a list of services:
+          </p>
+          <pre><code>{% for service in api_services %}
+location /api/{{ service }}/ { proxy_pass http://{{ service }}.{{ domain_name }}:8080/; }
+{% endfor %}
+proxy_read_timeout {{ read_timeout | default(30) }}s;</code></pre>
+          <pre><code>  vars:
+    domain_name: manojkumar.blog
+    api_services: ["catalogue", "user", "cart", "shipping", "payment"]</code></pre>
+          <p>
+            Rendered result:
+          </p>
+          <pre><code>location /api/catalogue/ { proxy_pass http://catalogue.manojkumar.blog:8080/; }
+location /api/user/ { proxy_pass http://user.manojkumar.blog:8080/; }
+location /api/cart/ { proxy_pass http://cart.manojkumar.blog:8080/; }
+location /api/shipping/ { proxy_pass http://shipping.manojkumar.blog:8080/; }
+location /api/payment/ { proxy_pass http://payment.manojkumar.blog:8080/; }
+proxy_read_timeout 30s;</code></pre>
+          <ul>
+            <li><code>{{ }}</code> prints a value.</li>
+            <li><code>{% %}</code> runs logic, like <code>for</code> and <code>if</code>, and prints nothing itself.</li>
+            <li><code>| default(30)</code> uses 30 when <code>read_timeout</code> isn't set.</li>
+          </ul>
+
+          <hr />
+
+          <h2>Tips</h2>
+          <ul>
+            <li>Name templates <code>&lt;file&gt;.j2</code>, so it's clear which files have placeholders.</li>
+            <li>If a placeholder's variable isn't defined, the task fails with an "undefined variable" error, so you notice straight away.</li>
+            <li>Anything outside <code>{{ }}</code> is copied as it is. A typo like an extra <code>&lt;</code> before a placeholder ends up in the file on the server.</li>
+            <li>Don't put passwords directly in a template. Use a variable and keep its value in <strong>Ansible Vault</strong>.</li>
+          </ul>
 
           <a href="../index.html" class="back-link">← Back to portfolio</a>
         </article>
