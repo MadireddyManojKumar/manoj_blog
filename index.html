@@ -448,6 +448,11 @@
         gap: 4px;
       }
 
+      /* Last chip on the banner: open its menu toward the left so it stays on screen */
+      @media (min-width: 861px) {
+        .tag-row-inner > .chip-wrap:last-child .chip-menu { left: auto; right: 0; }
+      }
+
       .chip-menu a {
         display: block;
         padding: 10px 12px;
@@ -1923,9 +1928,9 @@
             </div>
           </div>
           <div class="chip-wrap">
-            <a href="#" class="chip chip-trigger" aria-expanded="false">Monitoring &amp; Observability</a>
+            <a href="#" class="chip chip-trigger" aria-expanded="false">Monitoring &amp; Observability<span class="chip-caret" aria-hidden="true"></span></a>
             <div class="chip-menu" aria-label="Monitoring and Observability related topics">
-              <a class="chip-menu-note" aria-disabled="true">Building content, please wait…</a>
+              <a href="#">Prometheus</a>
             </div>
           </div>
         </div>
