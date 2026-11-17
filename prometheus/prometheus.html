@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prometheus | Manoj Kumar Madireddy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <script>
+      // Apply the saved theme before the page draws, so it doesn't flash dark first.
+      try {
+        if (localStorage.getItem('theme') === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch (e) {}
+    </script>
+    <style>
+      /* Same colour tokens as ../index.html */
+      :root {
+        --bg: #101417;
+        --bg-soft: #181f24;
+        --panel: rgba(18, 24, 28, 0.78);
+        --panel-strong: rgba(22, 28, 33, 0.84);
+        --text: #f4f5f7;
+        --muted: #bcc8cf;
+        --primary: #ffffff;
+        --secondary: #9aa8b1;
+        --accent: #ffd166;
+        --accent-soft: rgba(255, 209, 102, 0.12);
+        --brand: #ffb454;
+        --line: rgba(255, 255, 255, 0.08);
+        --shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      * { box-sizing: border-box; }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at center, rgba(255, 209, 102, 0.07), transparent 30%),
+          linear-gradient(180deg, #0a0f12 0%, #10161b 35%, #121b20 100%);
+        color: var(--text);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.7;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      /* Background image, same as the home page */
+      .computer-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(180deg, rgba(8, 12, 16, 0.72), rgba(8, 12, 16, 0.84)),
+          url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+        filter: saturate(1.1) contrast(1.02) brightness(0.42);
+      }
+
+      a { color: inherit; text-decoration: none; }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        width: 84%;
+        max-width: 1380px;
+        margin: 0 auto;
+        padding: 0 28px 80px;
+        background: rgba(15, 20, 24, 0.34);
+        min-height: 100vh;
+      }
+
+      /* ---------- Top bar (matches home page) ---------- */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        padding: 18px 20px 20px;
+        background: rgba(17, 22, 25, 0.82);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(10px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        width: min(1380px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.38rem;
+        font-size: clamp(1.12rem, 1vw + 0.78rem, 1.92rem);
+        font-style: italic;
+        font-family: Georgia, "Times New Roman", serif;
+        line-height: 1;
+      }
+
+      .brand-name { color: var(--brand); letter-spacing: -0.05em; }
+      .brand-last { color: #f4f7fb; letter-spacing: 0.01em; }
+
+      .top-nav {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .top-nav a {
+        color: rgba(244, 245, 247, 0.8);
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-style: italic;
+        font-family: Georgia, "Times New Roman", serif;
+        transition: color 0.2s ease;
+      }
+
+      .top-nav a:hover { color: var(--brand); }
+
+      /* ---------- Concepts layout: sidebar + content ---------- */
+      .concepts-layout {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        gap: 28px;
+        align-items: start;
+        padding-top: 40px;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 100px;
+        background: var(--panel-strong);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 22px 16px;
+        backdrop-filter: blur(8px);
+      }
+
+      .sidebar h2 {
+        margin: 0 0 12px 10px;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--secondary);
+      }
+
+      .concept-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .concept-link {
+        display: block;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-weight: 600;
+        color: var(--muted);
+        transition: background 0.2s ease, color 0.2s ease;
+      }
+
+      /* Same highlight as the Ansible drop-down on the home page */
+      .concept-link:hover,
+      .concept-link.active {
+        background: rgba(255, 180, 84, 0.14);
+        color: var(--brand);
+      }
+
+      .concept { display: none; }
+      .concept.active { display: block; }
+
+      .concept h1 {
+        margin: 0 0 18px;
+        font-size: clamp(1.6rem, 1.2vw + 1.1rem, 2.1rem);
+        line-height: 1.25;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+
+      .lead {
+        color: #d5e7f0;
+        font-size: 1rem;
+        margin: 0 0 22px;
+      }
+
+      .placeholder {
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      /* ---------- Article content ---------- */
+      .article {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 28px 28px 36px;
+        backdrop-filter: blur(8px);
+      }
+
+      .article h2 {
+        margin-top: 28px;
+        margin-bottom: 10px;
+        font-size: 1.3rem;
+        line-height: 1.35;
+        letter-spacing: -0.01em;
+        color: var(--accent);
+      }
+
+      .article h3 {
+        margin-top: 24px;
+        margin-bottom: 8px;
+        font-size: 1.05rem;
+      }
+
+      .article p,
+      .article li {
+        color: var(--text);
+        font-size: 1.01rem;
+      }
+
+      .article strong { color: inherit; }  /* bold only, no colour: only headings are highlighted */
+
+      .article ul,
+      .article ol { padding-left: 22px; }
+
+      code, pre {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      }
+
+      pre {
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 18px 16px;
+        overflow-x: auto;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #d5e7f0;
+      }
+
+      /* Inline code (e.g. vars_files, inventory.ini): monospace only, no highlight */
+      code {
+        background: none;
+        color: inherit;
+        padding: 0;
+        font-size: 0.95em;
+      }
+
+      pre code {
+        background: none;
+        color: inherit;
+        padding: 0;
+      }
+
+      .article hr {
+        border: 0;
+        border-top: 1px solid var(--line);
+        margin: 26px 0;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-top: 18px;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .back-link:hover { color: var(--brand); }
+
+      @media (max-width: 900px) {
+        .page { width: 100%; }
+        /* minmax(0, 1fr), not 1fr: a plain 1fr column grows to fit the longest
+           code line and pushes the whole page wider than the phone screen. */
+        .concepts-layout { grid-template-columns: minmax(0, 1fr); }
+        .sidebar { position: static; }
+        .concept-list { flex-direction: row; flex-wrap: wrap; }
+      }
+
+      @media (max-width: 680px) {
+        .page { width: 100%; padding-inline: 16px; }
+        .topbar-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .top-nav { gap: 14px; }
+        .article { padding: 20px 18px 24px; }
+      }
+
+      /* ---------- Theme toggle button ---------- */
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--text);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: color 0.2s ease, border-color 0.2s ease;
+      }
+
+      .theme-toggle:hover { color: var(--brand); border-color: var(--brand); }
+      .theme-toggle:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+      /* ---------- Light (white) theme ---------- */
+      :root[data-theme="light"] {
+        --bg: #dfeaf3;
+        --bg-soft: #edf3f8;
+        --panel: rgba(255, 255, 255, 0.72);
+        --panel-strong: rgba(255, 255, 255, 0.85);
+        --text: #1c2d38;
+        --muted: #5d7382;
+        --primary: #1c2d38;
+        --secondary: #647f8f;
+        --accent: #a86500;
+        --accent-soft: rgba(168, 101, 0, 0.1);
+        --brand: #c46a00;
+        --line: rgba(28, 45, 56, 0.12);
+        --shadow: 0 18px 38px rgba(32, 52, 64, 0.08);
+      }
+
+      :root[data-theme="light"] body {
+        background:
+          radial-gradient(circle at top left, rgba(108, 166, 182, 0.18), transparent 24%),
+          radial-gradient(circle at bottom right, rgba(147, 183, 201, 0.16), transparent 28%),
+          linear-gradient(135deg, #dfeaf3 0%, #d7e3ee 34%, #c9dfe9 100%);
+      }
+
+      :root[data-theme="light"] .computer-bg { display: none; }
+      :root[data-theme="light"] .page { background: transparent; }
+      :root[data-theme="light"] .topbar {
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 0 0 1px var(--line);
+      }
+      :root[data-theme="light"] .brand-name { color: var(--brand); }
+      :root[data-theme="light"] .brand-last { color: var(--text); }
+      :root[data-theme="light"] .top-nav a { color: var(--muted); }
+      :root[data-theme="light"] .top-nav a:hover { color: var(--brand); }
+
+      /* Light theme: concept page content */
+      :root[data-theme="light"] .concept-link:hover,
+      :root[data-theme="light"] .concept-link.active {
+        background: var(--accent-soft);
+        color: var(--brand);
+      }
+      :root[data-theme="light"] .lead { color: var(--muted); }
+      :root[data-theme="light"] pre {
+        background: rgba(28, 45, 56, 0.05);
+        color: var(--text);
+      }
+      :root[data-theme="light"] pre code {
+        background: none;
+        color: inherit;
+      }
+
+      /* ================= Premium polish: shared header ================= */
+      :root {
+        --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+        --font-body: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        --gold-1: #f7dc9c;
+        --gold-2: #d29a3c;
+        --ivory: #f5f1ec;
+        --hairline: rgba(255, 209, 102, 0.28);
+        --glass: rgba(16, 21, 26, 0.55);
+      }
+
+      :root[data-theme="light"] {
+        --gold-1: #b8862f;
+        --gold-2: #7d500e;
+        --ivory: #1c2d38;
+        --hairline: rgba(168, 101, 0, 0.25);
+        --glass: rgba(255, 255, 255, 0.6);
+      }
+
+      body {
+        font-family: var(--font-body);
+        font-weight: 400;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      ::selection { background: rgba(255, 209, 102, 0.3); }
+
+      .topbar { position: sticky; }
+
+      /* fine gold hairline under the top bar */
+      .topbar::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--hairline) 20%, var(--hairline) 80%, transparent);
+      }
+
+      .brand {
+        font-family: var(--font-display);
+        font-size: clamp(1.35rem, 1vw + 1rem, 2.1rem);
+        font-weight: 600;
+        gap: 0.32rem;
+      }
+
+      .brand-name,
+      .brand-last {
+        font-family: var(--font-display);
+        font-weight: 600;
+        letter-spacing: 0.01em;
+      }
+
+      .brand-name {
+        background: linear-gradient(120deg, var(--gold-1), var(--gold-2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      :root[data-theme="light"] .brand-name { color: transparent; }
+
+      .top-nav { gap: 30px; }
+
+      .top-nav a {
+        position: relative;
+        font-family: var(--font-body);
+        font-style: normal;
+        font-weight: 500;
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+        padding: 4px 0;
+      }
+
+      /* gold underline that draws in on hover */
+      .top-nav a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+      }
+
+      .top-nav a:hover::after { transform: scaleX(1); }
+
+      .theme-toggle {
+        border-color: var(--hairline);
+        color: var(--gold-1);
+        backdrop-filter: blur(6px);
+      }
+
+      .theme-toggle:hover {
+        color: var(--gold-2);
+        border-color: var(--gold-2);
+      }
+
+      /* ================= Premium polish: concepts page ================= */
+      .page { background: transparent; }  /* one even background edge to edge */
+      .concept h1 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; font-size: clamp(1.9rem, 1.4vw + 1.3rem, 2.5rem); }
+      .article h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.55rem; letter-spacing: 0; }
+      .article p, .article li { font-weight: 400; }
+      .lead { font-weight: 300; }
+      .sidebar, .article { background: var(--glass); backdrop-filter: blur(12px); }
+      .sidebar h2 { font-family: var(--font-body); font-weight: 600; letter-spacing: 0.24em; font-size: 0.7rem; color: var(--gold-1); }
+      :root[data-theme="light"] .sidebar h2 { color: var(--gold-2); }
+      .concept-link { font-family: var(--font-body); font-weight: 500; font-size: 0.92rem; }
+
+      /* ================= Flat charcoal background (dark theme only) ================= */
+      :root:not([data-theme="light"]) {
+        --charcoal: #1e1e20;
+        --charcoal-raised: #252528;
+        --divider: rgba(255, 255, 255, 0.14);   /* thin light line, as in the reference */
+      }
+      :root:not([data-theme="light"]) body { background: var(--charcoal); }
+      :root:not([data-theme="light"]) .computer-bg { display: none; }   /* drop the photo */
+      :root:not([data-theme="light"]) .topbar {
+        background: rgba(30, 30, 32, 0.92);
+        box-shadow: none;
+      }
+      :root:not([data-theme="light"]) .topbar::after { background: var(--divider); }
+      :root:not([data-theme="light"]) .sidebar,
+      :root:not([data-theme="light"]) .article {
+        background: var(--charcoal-raised);
+        backdrop-filter: none;
+        border: 1px solid var(--divider);
+        box-shadow: none;
+      }
+
+      /* ================= Light theme: quiet background, content stands out ================= */
+      /* Mirrors the dark theme: muted page behind, solid raised cards for the content. */
+      :root[data-theme="light"] {
+        --paper-bg: #eceef1;          /* soft neutral grey, no blue gradient */
+        --paper-card: #ffffff;        /* solid white content cards */
+        --paper-line: rgba(28, 45, 56, 0.10);
+        --paper-shadow: 0 1px 2px rgba(20, 30, 40, 0.04), 0 8px 24px rgba(20, 30, 40, 0.06);
+      }
+      :root[data-theme="light"] body { background: var(--paper-bg); }
+      :root[data-theme="light"] .topbar {
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: none;
+      }
+      :root[data-theme="light"] .topbar::after { background: var(--paper-line); }
+      :root[data-theme="light"] .sidebar,
+      :root[data-theme="light"] .article {
+        background: var(--paper-card);
+        backdrop-filter: none;
+        border: 1px solid var(--paper-line);
+        box-shadow: var(--paper-shadow);
+      }
+      :root[data-theme="light"] .concept h1 { color: #14212b; }
+      :root[data-theme="light"] .article p,
+      :root[data-theme="light"] .article li { color: #24323c; }
+      :root[data-theme="light"] pre {
+        background: #f5f6f8;
+        border: 1px solid var(--paper-line);
+        color: #1c2d38;
+      }
+
+      /* ================= Indent content under headings (one "tab") ================= */
+      .concept { --tab: 2em; }
+      .concept > .lead,                                   /* intro line under the page title */
+      .article > :not(h1):not(h2):not(h3):not(hr) {        /* paragraphs, lists, code under each heading */
+        margin-left: var(--tab);
+      }
+      @media (max-width: 680px) {
+        .concept { --tab: 1em; }                          /* smaller indent on phones */
+      }
+
+      /* ================= Tablet + phone layout ================= */
+      body { overflow-x: clip; }   /* nothing can push the page sideways; "clip" keeps the sticky top bar working */
+
+      /* Long words like global_variables.yaml wrap instead of running off-screen */
+      .concept h1,
+      .lead,
+      .article p,
+      .article li { overflow-wrap: anywhere; }
+
+      @media (max-width: 900px) {
+        /* Top bar: name on the first line, menu + theme button on the second (same as home) */
+        .topbar { padding: 12px 16px; }
+        .topbar-inner { width: 100%; flex-direction: column; align-items: center; gap: 10px; }
+        .brand { white-space: nowrap; }
+        .topbar-actions { width: 100%; justify-content: center; gap: 14px; }
+        .top-nav { gap: 22px; flex-wrap: wrap; justify-content: center; }
+      }
+
+      @media (max-width: 680px) {
+        .page { padding: 0 12px 48px; }
+        .brand { font-size: 1.25rem; }
+        .topbar-actions { gap: 10px; }
+        .top-nav { gap: 12px; }   /* 5 links here vs 4 on home, so keep them on one line */
+        .top-nav a { font-size: 0.64rem; letter-spacing: 0.08em; }
+        .theme-toggle { width: 32px; height: 32px; flex: none; }
+
+        /* Concept list: compact pills, wrapping onto two lines if needed */
+        .concepts-layout { padding-top: 16px; gap: 14px; }
+        .sidebar { padding: 12px; border-radius: 16px; }
+        .sidebar h2 { margin: 0 0 8px 4px; }
+        .concept-list { gap: 6px; }
+        .concept-link { padding: 7px 12px; font-size: 0.85rem; }
+
+        .concept h1 { font-size: 1.55rem; margin-bottom: 10px; }
+        .lead { font-size: 0.95rem; margin-bottom: 14px; }
+        .article { padding: 18px 14px 22px; border-radius: 16px; }
+        .article h2 { font-size: 1.3rem; margin-top: 22px; }
+        .article p,
+        .article li { font-size: 0.95rem; line-height: 1.65; }
+        .article ul,
+        .article ol { padding-left: 20px; }
+        .article hr { margin: 20px 0; }
+        pre { font-size: 0.78rem; padding: 12px; border-radius: 10px; }   /* long code lines scroll inside the box */
+      }
+
+      @media (max-width: 680px) {
+        .concept { --tab: 0px; }   /* no extra indent on phones; every pixel of width counts */
+        .concept > .lead { margin-left: 0; }
+      }
+      /* ================= Architecture diagrams (inline SVG) ================= */
+      .diagram {
+        margin-top: 18px;
+        margin-bottom: 18px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.22);
+        overflow-x: auto;                 /* phones: the diagram scrolls inside its box */
+        --dg-fill: rgba(255, 255, 255, 0.04);
+        --dg-stroke: rgba(255, 255, 255, 0.22);
+      }
+      .diagram svg { display: block; width: 100%; min-width: 640px; height: auto; }
+      .diagram .dg-outer { fill: none; stroke: var(--gold-2); stroke-width: 1.5; }
+      .diagram .dg-box { fill: var(--dg-fill); stroke: var(--dg-stroke); stroke-width: 1; }
+      .diagram .dg-key { stroke: var(--gold-2); stroke-dasharray: 5 4; }
+      .diagram .dg-chip { fill: var(--accent-soft); stroke: var(--hairline); }
+      .diagram .dg-h { fill: var(--gold-1); font: 600 14px var(--font-body); }
+      .diagram .dg-t { fill: var(--text); font: 500 13px var(--font-body); }
+      .diagram .dg-s { fill: var(--muted); font: 400 11.5px var(--font-body); }
+      .diagram .dg-line { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+      .diagram .dg-dash { stroke-dasharray: 4 4; }
+      .diagram .dg-arrowhead { fill: var(--muted); }
+      :root[data-theme="light"] .diagram {
+        background: #f5f6f8;
+        --dg-fill: #ffffff;
+        --dg-stroke: rgba(28, 45, 56, 0.22);
+      }
+      :root[data-theme="light"] .diagram .dg-h { fill: var(--gold-2); }
+      /* Links inside article text (Overview page) */
+      .article p a:not(.back-link),
+      .article li a { color: var(--brand); text-decoration: underline; text-underline-offset: 3px; }
+      .article p a:not(.back-link):hover,
+      .article li a:hover { color: var(--gold-1); }
+      .source-link { overflow-wrap: anywhere; }
+      /* ---- Prometheus page ---- */
+      .table-wrap { overflow-x: auto; margin-top: 14px; margin-bottom: 18px; }
+      .article table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+      .article th, .article td { border-bottom: 1px solid var(--line); padding: 9px 12px; text-align: left; vertical-align: top; }
+      .article th { color: var(--gold-1); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }
+      :root[data-theme="light"] .article th { color: var(--gold-2); }
+      .concept-list .concept-link { white-space: nowrap; }
+      .article td a { color: var(--brand); text-decoration: underline; text-underline-offset: 3px; }
+    </style>
+  </head>
+  <body>
+    <div class="computer-bg" aria-hidden="true"></div>
+
+    <div class="page">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <a href="../index.html" class="brand">
+            <span class="brand-name">Manoj Kumar</span>
+            <span class="brand-last">Madireddy</span>
+          </a>
+
+          <div class="topbar-actions">
+            <nav class="top-nav" aria-label="Main navigation">
+              <a href="../index.html">Home</a>
+              <a href="../index.html#about">About</a>
+              <a href="../index.html#resume">Resume</a>
+              <a href="../index.html#projects">Projects</a>
+              <a href="mailto:Manoj.sde2@gmail.com?subject=Hello%20Manoj%20%E2%80%94%20from%20your%20website">Contact</a>
+            </nav>
+            <button type="button" class="theme-toggle" aria-label="Switch to light theme">
+              <span class="theme-icon" aria-hidden="true">☀</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div class="concepts-layout">
+        <!-- Left side: list of sections. To add a section:
+             1. add a link here,
+             2. add a matching <section class="concept" id="..."> below. -->
+        <aside class="sidebar" aria-label="Prometheus topics">
+          <h2>Prometheus</h2>
+          <ul class="concept-list">
+            <li><a href="#installation" class="concept-link">Installation &amp; Setup</a></li>
+          </ul>
+        </aside>
+
+        <main class="content-area">
+      <!-- ===================== INSTALLATION & SETUP ===================== -->
+      <section class="concept" id="installation">
+        <h1>Prometheus Installation and Setup</h1>
+
+        <article class="article">
+          <h2>What is Prometheus?</h2>
+          <p><strong>Prometheus</strong> is a monitoring tool. Every few seconds it visits each server, reads its numbers (CPU, memory, disk, requests…) and saves them with a timestamp. You can then search those numbers, draw graphs and get alerts when something looks wrong.</p>
+          <ul><li><strong>Scraping.</strong> Prometheus <em>pulls</em> the numbers itself, by reading a web page on each target.</li><li><strong>Exporters.</strong> Small programs that put a system's numbers on that web page: <strong>node_exporter</strong> for the VM, <strong>mysqld_exporter</strong> for MySQL, the <strong>nginx exporter</strong> for nginx.</li><li><strong>PromQL.</strong> The query language you use to ask questions, like "is every target up?".</li></ul>
+          <h2>The lab</h2>
+          <p>The <strong>expense</strong> app runs on three VMs (frontend, backend and MySQL) behind an ALB. A separate <strong>monitoring VM</strong> runs Prometheus and watches all of them.</p>
+          <figure class="diagram">
+<svg viewBox="0 0 800 300" role="img" aria-labelledby="prom-dg-title" style="min-width: 560px">
+<title id="prom-dg-title">You open the Prometheus UI on port 9090 of the monitoring VM. Prometheus pulls metrics every 15 seconds from node_exporter (9100) on the frontend, backend and MySQL VMs, from the nginx exporter (9113) on frontend, and from mysqld_exporter (9104) on MySQL.</title>
+<defs><marker id="prom-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-arrowhead" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="dg-box" x="20" y="122" width="150" height="56" rx="10"/>
+<text class="dg-t" x="95" y="146" text-anchor="middle">Browser (you)</text>
+<text class="dg-s" x="95" y="163" text-anchor="middle">your IP only</text>
+<path class="dg-line" d="M170,150 H226" marker-end="url(#prom-arrow)"/>
+<text class="dg-s" x="198" y="139" text-anchor="middle">:9090</text>
+<rect class="dg-box dg-key" x="230" y="95" width="200" height="110" rx="10"/>
+<text class="dg-t" x="330" y="123" text-anchor="middle">monitoring VM</text>
+<text class="dg-s" x="330" y="143" text-anchor="middle">Prometheus 3.16.0</text>
+<text class="dg-s" x="330" y="161" text-anchor="middle">port 9090</text>
+<text class="dg-s" x="330" y="179" text-anchor="middle">scrapes every 15s</text>
+<path class="dg-line" d="M430,150 H470 V58 H506" marker-end="url(#prom-arrow)"/>
+<path class="dg-line" d="M470,150 H506" marker-end="url(#prom-arrow)"/>
+<path class="dg-line" d="M470,150 V242 H506" marker-end="url(#prom-arrow)"/>
+<text class="dg-s" x="450" y="139" text-anchor="middle">GET</text>
+<rect class="dg-box" x="510" y="20" width="270" height="76" rx="10"/>
+<text class="dg-t" x="645" y="44" text-anchor="middle">frontend VM (nginx)</text>
+<text class="dg-s" x="645" y="63" text-anchor="middle">node_exporter :9100</text>
+<text class="dg-s" x="645" y="80" text-anchor="middle">nginx exporter :9113</text>
+<rect class="dg-box" x="510" y="118" width="270" height="64" rx="10"/>
+<text class="dg-t" x="645" y="143" text-anchor="middle">backend VM</text>
+<text class="dg-s" x="645" y="162" text-anchor="middle">node_exporter :9100</text>
+<rect class="dg-box" x="510" y="204" width="270" height="76" rx="10"/>
+<text class="dg-t" x="645" y="228" text-anchor="middle">MySQL VM</text>
+<text class="dg-s" x="645" y="247" text-anchor="middle">node_exporter :9100</text>
+<text class="dg-s" x="645" y="264" text-anchor="middle">mysqld_exporter :9104</text>
+</svg>
+</figure>
+          <p>The plan: install everything <strong>by hand first</strong> so you understand every file, then automate it in the next version.</p>
+          <p><strong>Order of work:</strong></p>
+          <ol><li>Install Prometheus with its default config. It watches only itself (this page, sections 1–3).</li><li>Install the exporters: node_exporter, mysqld_exporter and the nginx exporter.</li><li>Come back and add the exporters as targets (section 4).</li></ol>
+          <div class="table-wrap"><table><thead><tr><th>Install on</th><th>Port</th><th>Version</th><th>Download source</th><th>Runs as user</th></tr></thead><tbody><tr><td>monitoring VM</td><td>9090</td><td>3.16.0</td><td><a href="https://prometheus.io/download/#prometheus" target="_blank" rel="noopener noreferrer">prometheus.io/download</a></td><td><code>prometheus</code></td></tr></tbody></table></div>
+          <h3>Where the files go</h3>
+          <ul><li><strong>Program:</strong> a versioned folder like <code>/opt/prometheus-3.16.0/</code>.</li><li><strong>Symlink:</strong> <code>/opt/prometheus</code> always points to the current version. systemd uses this path.</li><li><strong>Config:</strong> <code>/etc/prometheus/</code>.</li><li><strong>Service file:</strong> <code>/etc/systemd/system/</code>.</li></ul>
+          <p>To upgrade, you unpack the new version, point the symlink at it and restart. Before you start, check the download page: if there is a newer version, change only the <code>VERSION=</code> line.</p>
+          <hr />
+          <h2>1. Before you start</h2>
+          <h3>1.1 Check the CPU type</h3>
+          <p>Prometheus is built separately for each kind of CPU, so first check which one your VM has:</p>
+          <pre><code>uname -m</code></pre>
+          <div class="table-wrap"><table><thead><tr><th>Output</th><th>Download the file with</th></tr></thead><tbody><tr><td><code>x86_64</code> (t3.micro)</td><td><code>linux-amd64</code></td></tr><tr><td><code>aarch64</code> (t4g / Graviton)</td><td><code>linux-arm64</code></td></tr></tbody></table></div>
+          <p>Never download <code>darwin</code>: that is the macOS build. If you do, systemd fails with <code>Exec format error</code>.</p>
+          <h3>1.2 Become root and work in /opt</h3>
+          <pre><code>sudo -i
+cd /opt</code></pre>
+          <p>Everything is downloaded and unpacked straight into <code>/opt</code>. The download file is deleted afterwards, so <code>/opt</code> only keeps the versioned folders and the symlinks.</p>
+          <hr />
+          <h2>2. Install Prometheus (monitoring VM only)</h2>
+          <p>Prometheus starts with its <strong>default config</strong>, which only watches itself. The exporters are added later, in section 4.</p>
+          <h3>2.1 Download and unpack</h3>
+          <pre><code>cd /opt
+VERSION=3.16.0
+curl -fLO https://github.com/prometheus/prometheus/releases/download/v${VERSION}/prometheus-${VERSION}.linux-amd64.tar.gz
+tar -xzf prometheus-${VERSION}.linux-amd64.tar.gz</code></pre>
+          <p>Check that the file name says <code>linux-amd64</code>. A <code>darwin</code> file is the macOS build and fails with <code>Exec format error</code>.</p>
+          <h3>2.2 Rename, symlink and clean up</h3>
+          <p>Give the folder a simple versioned name, point <code>/opt/prometheus</code> at it, and delete the download:</p>
+          <pre><code>mv /opt/prometheus-${VERSION}.linux-amd64 /opt/prometheus-${VERSION}
+rm -f /opt/prometheus-${VERSION}.linux-amd64.tar.gz
+ln -sfn /opt/prometheus-${VERSION} /opt/prometheus
+ls /opt/prometheus/
+/opt/prometheus/prometheus --version</code></pre>
+          <p>The folder holds <code>prometheus</code> (the server), <code>promtool</code> (checks config files for mistakes) and a sample <code>prometheus.yml</code>.</p>
+          <h3>2.3 Create the user and folders</h3>
+          <p>Prometheus runs as its own system user, with no login shell. The first line only creates the user if it doesn't exist yet.</p>
+          <pre><code>id prometheus || useradd --system --no-create-home --shell /sbin/nologin prometheus
+mkdir -p /etc/prometheus /var/lib/prometheus
+cp /opt/prometheus/prometheus.yml /etc/prometheus/prometheus.yml
+chown -R prometheus:prometheus /opt/prometheus-${VERSION} /etc/prometheus /var/lib/prometheus</code></pre>
+          <div class="table-wrap"><table><thead><tr><th>Path</th><th>Holds</th></tr></thead><tbody><tr><td><code>/opt/prometheus</code></td><td>Only the programs (replaced on upgrade)</td></tr><tr><td><code>/etc/prometheus/prometheus.yml</code></td><td><strong>The live config</strong>: the only file you edit</td></tr><tr><td><code>/var/lib/prometheus</code></td><td>The collected metrics (kept during upgrades)</td></tr></tbody></table></div>
+          <p><strong>Why copy the config to /etc?</strong> An upgrade replaces the <code>/opt/prometheus-&lt;version&gt;</code> folder, so any edits there would be left behind in the old folder. And the service only reads <code>/etc/prometheus/prometheus.yml</code>, so editing <code>/opt/prometheus/prometheus.yml</code> changes nothing.</p>
+          <h3>2.4 Look at the default config</h3>
+          <pre><code>cat /etc/prometheus/prometheus.yml</code></pre>
+          <p>It has one job, <code>prometheus</code>, which scrapes <code>localhost:9090</code> (Prometheus itself). Leave it as it is for now.</p>
+          <h3>2.5 Create the systemd service</h3>
+          <p>The service file makes Prometheus start on boot and restart if it crashes. Note that <code>ExecStart</code> uses the symlink, so it never changes when you upgrade.</p>
+          <pre><code>cat &gt; /etc/systemd/system/prometheus.service &lt;&lt;&#x27;UNIT&#x27;
+[Unit]
+Description=Prometheus Server
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/opt/prometheus/prometheus \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/var/lib/prometheus \
+  --storage.tsdb.retention.time=15d \
+  --web.listen-address=:9090 \
+  --web.enable-lifecycle
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+UNIT</code></pre>
+          <div class="table-wrap"><table><thead><tr><th>Flag</th><th>Meaning</th></tr></thead><tbody><tr><td><code>--config.file</code></td><td>Which config file is live</td></tr><tr><td><code>--storage.tsdb.path</code></td><td>Where metrics are stored on disk</td></tr><tr><td><code>--storage.tsdb.retention.time=15d</code></td><td>Delete data older than 15 days</td></tr><tr><td><code>--web.listen-address=:9090</code></td><td>The port for the web UI and API</td></tr><tr><td><code>--web.enable-lifecycle</code></td><td>Lets <code>curl -X POST .../-/reload</code> reload the config without a restart</td></tr></tbody></table></div>
+          <h3>2.6 Check the config, then start</h3>
+          <pre><code>/opt/prometheus/promtool check config /etc/prometheus/prometheus.yml
+systemctl daemon-reload
+systemctl enable --now prometheus
+systemctl status prometheus --no-pager</code></pre>
+          <p>If the status isn't <code>active (running)</code>, read the error before changing anything:</p>
+          <pre><code>journalctl -u prometheus -n 50 --no-pager</code></pre>
+          <h3>2.7 Verify</h3>
+          <pre><code>ss -tlnp | grep 9090
+curl -s http://localhost:9090/-/healthy
+curl -s &#x27;http://localhost:9090/api/v1/query?query=up&#x27;</code></pre>
+          <ul><li><code>ss</code> shows Prometheus listening on port 9090.</li><li><code>/-/healthy</code> answers when the server is healthy.</li><li>The last command runs the query <code>up</code> through the API.</li></ul>
+          <hr />
+          <h2>3. Open the port in AWS</h2>
+          <p>To reach the web UI from your browser, allow port 9090 in the monitoring VM's security group, but only from your IP:</p>
+          <div class="table-wrap"><table><thead><tr><th>Security group</th><th>Inbound port</th><th>Source</th></tr></thead><tbody><tr><td>monitoring SG</td><td>9090 (Prometheus UI)</td><td>your IP only</td></tr></tbody></table></div>
+          <p>Open <code>http://&lt;monitoring-public-ip&gt;:9090</code>. <strong>Status → Target health</strong> shows exactly one target: <code>prometheus</code>, <strong>UP</strong>.</p>
+          <p><strong>Stop here and install the exporters</strong> (node_exporter, mysqld_exporter, nginx exporter). Come back to section 4 once all of them are running.</p>
+          <hr />
+          <h2>4. Add the exporters as targets</h2>
+          <p>Do this only when every exporter answers <code>curl</code> from the monitoring VM. Until now, Prometheus has only watched itself.</p>
+          <h3>4.1 Back up the default config</h3>
+          <pre><code>cp /etc/prometheus/prometheus.yml /etc/prometheus/prometheus.yml.default</code></pre>
+          <h3>4.2 Write the new config</h3>
+          <p>The config is written with a heredoc instead of pasting into vim, because pasting can break YAML indentation.</p>
+          <pre><code>cat &gt; /etc/prometheus/prometheus.yml &lt;&lt;&#x27;YAML&#x27;
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: &quot;prometheus&quot;
+    static_configs:
+      - targets: [&quot;localhost:9090&quot;]
+
+  - job_name: &quot;node&quot;
+    static_configs:
+      - targets: [&quot;frontend.daws90s.shop:9100&quot;]
+        labels:
+          tier: &quot;frontend&quot;
+      - targets: [&quot;backend.daws90s.shop:9100&quot;]
+        labels:
+          tier: &quot;backend&quot;
+      - targets: [&quot;mysql.daws90s.shop:9100&quot;]
+        labels:
+          tier: &quot;mysql&quot;
+
+  - job_name: &quot;nginx&quot;
+    static_configs:
+      - targets: [&quot;frontend.daws90s.shop:9113&quot;]
+        labels:
+          tier: &quot;frontend&quot;
+
+  - job_name: &quot;mysql&quot;
+    static_configs:
+      - targets: [&quot;mysql.daws90s.shop:9104&quot;]
+        labels:
+          tier: &quot;mysql&quot;
+YAML
+chown prometheus:prometheus /etc/prometheus/prometheus.yml</code></pre>
+          <div class="table-wrap"><table><thead><tr><th>Job</th><th>Targets</th><th>What it scrapes</th></tr></thead><tbody><tr><td>prometheus</td><td>localhost:9090</td><td>Prometheus itself (the default job)</td></tr><tr><td>node</td><td>3 VMs on 9100</td><td>node_exporter, with a <code>tier</code> label per VM</td></tr><tr><td>nginx</td><td>frontend:9113</td><td>nginx-prometheus-exporter</td></tr><tr><td>mysql</td><td>mysql:9104</td><td>mysqld_exporter</td></tr></tbody></table></div>
+          <p>The <code>tier</code> label is added to every metric from that target, so you can filter by it later, like <code>up{tier=&quot;mysql&quot;}</code>.</p>
+          <h3>4.3 Check and reload</h3>
+          <pre><code>/opt/prometheus/promtool check config /etc/prometheus/prometheus.yml
+curl -X POST http://localhost:9090/-/reload</code></pre>
+          <ul><li>The reload works because Prometheus runs with <code>--web.enable-lifecycle</code>. Without it, use <code>systemctl reload prometheus</code> or <code>systemctl restart prometheus</code>.</li><li>If <code>promtool</code> reports an error, fix it first. A reload with a broken config is rejected and Prometheus keeps the old one. Check <code>journalctl -u prometheus -n 20</code>.</li></ul>
+          <hr />
+          <h2>5. Verify end to end</h2>
+          <p>In the UI (<code>http://&lt;monitoring-ip&gt;:9090</code>):</p>
+          <ol><li><strong>Status → Target health</strong>: every target shows <strong>UP</strong>.</li><li>Run these queries in the <strong>Query</strong> tab:</li></ol>
+          <div class="table-wrap"><table><thead><tr><th>Query</th><th>Expected</th></tr></thead><tbody><tr><td><code>up</code></td><td>1 for every target</td></tr><tr><td><code>up{job=&quot;node&quot;}</code></td><td>3 series, one per tier</td></tr><tr><td><code>mysql_up</code></td><td>1</td></tr><tr><td><code>nginx_up</code></td><td>1</td></tr><tr><td><code>node_load1</code></td><td>a small number per VM</td></tr><tr><td><code>rate(nginx_http_requests_total[5m])</code></td><td>more than 0 after you open the app in a browser</td></tr></tbody></table></div>
+          <hr />
+          <h2>6. Troubleshooting</h2>
+          <div class="table-wrap"><table><thead><tr><th>Symptom</th><th>Likely cause</th><th>Check</th></tr></thead><tbody><tr><td><code>Exec format error</code> in journalctl</td><td>Wrong build (darwin or arm64)</td><td>The file name must contain <code>linux-amd64</code>; download again</td></tr><tr><td><code>status=203/EXEC</code></td><td>Wrong path in <code>ExecStart</code>, or the program isn't executable</td><td><code>ls -l /opt/&lt;tool&gt;/</code>, check the symlink</td></tr><tr><td><code>status=217/USER</code></td><td>The service user doesn't exist</td><td><code>id &lt;user&gt;</code></td></tr><tr><td><code>bind: address already in use</code></td><td>Another program is using the port</td><td><code>ss -tlnp | grep &lt;port&gt;</code></td></tr><tr><td>Target DOWN, <code>context deadline exceeded</code></td><td>Security group or VPC blocks the port</td><td><code>curl</code> from the monitoring VM hangs</td></tr><tr><td>Target DOWN, <code>connection refused</code></td><td>Exporter not running on that VM</td><td><code>systemctl status &lt;service&gt;</code> on that VM</td></tr><tr><td>Reload rejected</td><td>YAML error in the config</td><td><code>/opt/prometheus/promtool check config /etc/prometheus/prometheus.yml</code></td></tr><tr><td>Config change has no effect</td><td>Edited the wrong file</td><td><code>systemctl cat prometheus | grep config.file</code></td></tr></tbody></table></div>
+          <p><strong>Rule:</strong> read the error first. Don't add <code>-q</code> or <code>-s</code> to commands while debugging, because they hide the messages you need.</p>
+          <hr />
+          <h2>7. Upgrading later</h2>
+          <p>This is where the symlink pays off. Unpack the new version next to the old one, point the symlink at it and restart:</p>
+          <pre><code>cd /opt
+VERSION=&lt;new-version&gt;
+# download + extract + rename to /opt/prometheus-${VERSION}, delete tarball (as in 2.1–2.2)
+chown -R prometheus:prometheus /opt/prometheus-${VERSION}
+ln -sfn /opt/prometheus-${VERSION} /opt/prometheus
+systemctl restart prometheus</code></pre>
+          <ul><li><strong>Rollback:</strong> point the symlink back to the old folder and restart. No changes to the service file.</li><li>The config in <code>/etc/prometheus</code> and the data in <code>/var/lib/prometheus</code> are not touched by an upgrade.</li></ul>
+
+          <a href="../index.html" class="back-link">← Back to portfolio</a>
+        </article>
+      </section>
+
+        </main>
+      </div>
+    </div>
+
+    <script>
+      // Shows one concept at a time. The address uses #links:
+      //   prometheus.html#installation, ...
+      function showConcept(id) {
+        const sections = document.querySelectorAll('.concept');
+        const target = document.getElementById(id) || sections[0];
+
+        sections.forEach((s) => s.classList.toggle('active', s === target));
+        document.querySelectorAll('.concept-link').forEach((link) => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + target.id);
+        });
+        window.scrollTo(0, 0);
+        return target.id;
+      }
+
+      // Sidebar clicks and back/forward buttons change the #hash; show that concept.
+      window.addEventListener('hashchange', () => showConcept(location.hash.slice(1)));
+
+      // First load: show the concept named in the address (or the first one).
+      showConcept(location.hash.slice(1));
+    </script>
+    <script>
+      // Light/dark theme toggle. The choice is saved, so every page uses it.
+      (function () {
+        const root = document.documentElement;
+        const btn = document.querySelector('.theme-toggle');
+        if (!btn) return;
+        const icon = btn.querySelector('.theme-icon');
+
+        function apply(theme) {
+          if (theme === 'light') {
+            root.setAttribute('data-theme', 'light');
+          } else {
+            root.removeAttribute('data-theme');
+          }
+          const isLight = theme === 'light';
+          icon.textContent = isLight ? '☾' : '☀';
+          btn.setAttribute('aria-label', isLight ? 'Switch to dark theme' : 'Switch to light theme');
+        }
+
+        apply(root.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+
+        btn.addEventListener('click', function () {
+          const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+          apply(next);
+          try { localStorage.setItem('theme', next); } catch (e) {}
+        });
+      })();
+    </script>
+  </body>
+</html>
