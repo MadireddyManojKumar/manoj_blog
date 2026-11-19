@@ -980,7 +980,6 @@
         font-weight: 600;
         letter-spacing: 0.01em;
       }
-
       .brand-name {
         background: linear-gradient(120deg, var(--gold-1), var(--gold-2));
         -webkit-background-clip: text;
@@ -1132,6 +1131,43 @@
         letter-spacing: -0.03em;
         line-height: 0.95;
         color: var(--ivory);
+      }
+
+      /* Headline and square profile photo side by side */
+      /* The headline stays centred like the lines above and below it;
+         the photo hangs to its right without pushing it off centre. */
+      .hello-row {
+        position: relative;
+      }
+      .hero-photo {
+        position: absolute;
+        left: calc(100% + clamp(28px, 4vw, 64px));
+        --photo-size: clamp(96px, 9.6vw, 152px);
+        top: 50%;
+        margin: calc(var(--photo-size) / -2) 0 0;   /* centre vertically (transform is used by the fade-in) */
+        width: var(--photo-size);
+        aspect-ratio: 1 / 1;
+        border: 1px solid var(--hairline);     /* very fine border */
+        border-radius: 2px;
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+        animation: heroReveal 1.1s ease both;
+      }
+      .hero-photo img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .hero-photo__placeholder {
+        font-family: var(--font-body);
+        font-size: 0.72rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--muted);
+        opacity: 0.6;
       }
 
       .intro-center .hello .name {
@@ -1527,6 +1563,9 @@
         .intro-center .eyebrow-line::before,
         .intro-center .eyebrow-line::after { width: 22px; }
         .intro-center .hello { font-size: clamp(2.5rem, 12vw, 3.4rem); line-height: 1.05; }
+        /* Phones: no room beside the headline, so the photo sits centred above it */
+        .hello-row { display: flex; flex-direction: column-reverse; align-items: center; gap: 18px; }
+        .hero-photo { position: relative; left: auto; top: auto; margin: 0; width: 88px; }
         .intro-center .tagline { font-size: 0.98rem; margin-top: 16px; padding-inline: 8px; }
         .social-links { gap: 20px; margin-top: 22px; }
 
@@ -1947,7 +1986,14 @@
 
       <section class="intro-center" aria-label="Introduction">
         <p class="eyebrow-line">DevSecOps &middot; SRE &middot; Cloud &middot; AIOps</p>
-        <h1 class="hello">Hello! I'm <span class="name">Manoj</span></h1>
+        <div class="hello-row">
+          <h1 class="hello">Hello! I'm <span class="name">Manoj</span></h1>
+          <!-- Profile photo: save it as images/profile.jpg. Until then an empty frame shows. -->
+          <figure class="hero-photo">
+            <span class="hero-photo__placeholder" aria-hidden="true">Photo</span>
+            <img src="images/profile.jpg" alt="Manoj Kumar Madireddy" onerror="this.remove()" />
+          </figure>
+        </div>
         <p class="tagline">A passionate SRE &amp; DevSecOps engineer from Dallas, Texas, USA</p>
         <div class="social-links">
           <a class="github-btn" href="https://github.com/MadireddyManojKumar"
